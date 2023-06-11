@@ -18,13 +18,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "Area/AreaVolume.h"
+#include "Area/AdhocAreaVolume.h"
 
 #include "AdhocGameModeComponent.h"
 #include "Components/BrushComponent.h"
 #include "GameFramework/GameModeBase.h"
 
-AAreaVolume::AAreaVolume(const FObjectInitializer& ObjectInitializer)
+AAdhocAreaVolume::AAdhocAreaVolume(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
 	PrimaryActorTick.bCanEverTick = false;
@@ -40,23 +40,23 @@ AAreaVolume::AAreaVolume(const FObjectInitializer& ObjectInitializer)
 	GetBrushComponent()->SetCollisionProfileName(TEXT("Area"));
 }
 
-void AAreaVolume::PostInitializeComponents()
+void AAdhocAreaVolume::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
 }
 
-void AAreaVolume::BeginPlay()
+void AAdhocAreaVolume::BeginPlay()
 {
 	Super::BeginPlay();
 
 	if (HasAuthority())
 	{
-		GetBrushComponent()->OnComponentBeginOverlap.AddDynamic(this, &AAreaVolume::OnBeginOverlap);
+		GetBrushComponent()->OnComponentBeginOverlap.AddDynamic(this, &AAdhocAreaVolume::OnBeginOverlap);
 	}
 }
 
 // ReSharper disable once CppMemberFunctionMayBeConst
-void AAreaVolume::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
+void AAdhocAreaVolume::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
 	bool bFromSweep, const FHitResult& Hit)
 {
 	check(HasAuthority());

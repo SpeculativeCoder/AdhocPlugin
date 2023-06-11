@@ -23,10 +23,10 @@
 #include "AdhocAreaInterface.h"
 #include "GameFramework/Volume.h"
 
-#include "AreaVolume.generated.h"
+#include "AdhocAreaVolume.generated.h"
 
 UCLASS()
-class ADHOCPLUGIN_API AAreaVolume : public AVolume, public IAdhocAreaInterface
+class ADHOCPLUGIN_API AAdhocAreaVolume : public AVolume, public IAdhocAreaInterface
 {
 	GENERATED_BODY()
 
@@ -42,7 +42,7 @@ public:
 	FORCEINLINE virtual void SetAreaIndex(const int32 NewAreaIndex) override final { AreaIndex = NewAreaIndex; }
 
 private:
-	explicit AAreaVolume(const FObjectInitializer& ObjectInitializer);
+	explicit AAdhocAreaVolume(const FObjectInitializer& ObjectInitializer);
 
 	virtual void PostInitializeComponents() override;
 	virtual void BeginPlay() override;

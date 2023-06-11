@@ -23,7 +23,7 @@
 #include "AdhocGameStateComponent.h"
 #include "EngineUtils.h"
 #include "Faction/AdhocFactionState.h"
-#include "Area/AreaVolume.h"
+#include "Area/AdhocAreaVolume.h"
 #include "GameFramework/GameSession.h"
 #include "GameFramework/GameStateBase.h"
 #include "GameFramework/PlayerState.h"
@@ -147,9 +147,9 @@ void UAdhocGameModeComponent::InitializeComponent()
 	TArray<FAdhocAreaState> Areas;
 	// TArray<int64> ActiveAreaIDs;
 	TArray<int32> ActiveAreaIndexes;
-	for (TActorIterator<AAreaVolume> AreaVolumeIter(GetWorld()); AreaVolumeIter; ++AreaVolumeIter)
+	for (TActorIterator<AAdhocAreaVolume> AreaVolumeIter(GetWorld()); AreaVolumeIter; ++AreaVolumeIter)
 	{
-		AAreaVolume* AreaVolume = *AreaVolumeIter;
+		AAdhocAreaVolume* AreaVolume = *AreaVolumeIter;
 		// AreaVolume->SetAreaID(NextAreaIndex + 1);
 		AreaVolume->SetAreaIndex(AreaIndex);
 
@@ -736,9 +736,9 @@ void UAdhocGameModeComponent::SubmitAreas()
 	const auto& Writer = TJsonWriterFactory<TCHAR, TCondensedJsonPrintPolicy<TCHAR>>::Create(&JsonString);
 
 	Writer->WriteArrayStart();
-	for (TActorIterator<AAreaVolume> AreaVolumeIter(GetWorld()); AreaVolumeIter; ++AreaVolumeIter)
+	for (TActorIterator<AAdhocAreaVolume> AreaVolumeIter(GetWorld()); AreaVolumeIter; ++AreaVolumeIter)
 	{
-		const AAreaVolume* AreaVolume = *AreaVolumeIter;
+		const AAdhocAreaVolume* AreaVolume = *AreaVolumeIter;
 
 		const FVector Location = AreaVolume->GetActorLocation();
 		const FVector Size = AreaVolume->GetActorScale() * 200;
