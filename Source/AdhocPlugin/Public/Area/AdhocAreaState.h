@@ -41,5 +41,11 @@ struct FAdhocAreaState
 	FString Name;
 
 	UPROPERTY(BlueprintReadOnly)
+	FVector Location = FVector::ZeroVector;
+
+	UPROPERTY(BlueprintReadOnly)
+	FVector Size = FVector::ZeroVector;
+
+	UPROPERTY(BlueprintReadOnly)
 	int64 ServerID = -1;
 };

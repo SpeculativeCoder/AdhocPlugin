@@ -158,6 +158,8 @@ void UAdhocGameModeComponent::InitializeComponent()
 		Area.RegionID = RegionID;
 		Area.Index = AreaVolume->GetAreaIndex();
 		Area.Name = AreaVolume->GetFriendlyName();
+		Area.Location = AreaVolume->GetActorLocation();
+		Area.Size = AreaVolume->GetActorScale() * 200;
 		Area.ServerID = ServerID;
 		Areas.Add(Area);
 
@@ -171,6 +173,26 @@ void UAdhocGameModeComponent::InitializeComponent()
 		}
 
 		AreaIndex++;
+	}
+
+	// can uncomment two lines below to test auto area generation
+	//Areas.Reset();
+	//ActiveAreaIndexes.Reset();
+
+	if (Areas.Num() <= 0)
+	{
+		FAdhocAreaState Area;
+		// Area.ID = AreaVolume->GetAreaID();
+		Area.RegionID = RegionID;
+		Area.Index = 0;
+		Area.Name = TEXT("A");
+		Area.ServerID = ServerID;
+		Area.Location = FVector::ZeroVector;
+		// TODO: determine map size based on geometry
+		Area.Size = FVector(10000, 10000, 10000);
+		Areas.Add(Area);
+
+		ActiveAreaIndexes.AddUnique(Area.Index);
 	}
 
 	AdhocGameState->SetAreas(Areas);
@@ -736,23 +758,20 @@ void UAdhocGameModeComponent::SubmitAreas()
 	const auto& Writer = TJsonWriterFactory<TCHAR, TCondensedJsonPrintPolicy<TCHAR>>::Create(&JsonString);
 
 	Writer->WriteArrayStart();
-	for (TActorIterator<AAdhocAreaVolume> AreaVolumeIter(GetWorld()); AreaVolumeIter; ++AreaVolumeIter)
+	for (TArray<FAdhocAreaState>::TConstIterator AreaStateIter = AdhocGameState->GetAreasConstIterator(); AreaStateIter; ++AreaStateIter)
 	{
-		const AAdhocAreaVolume* AreaVolume = *AreaVolumeIter;
-
-		const FVector Location = AreaVolume->GetActorLocation();
-		const FVector Size = AreaVolume->GetActorScale() * 200;
+		const FAdhocAreaState& AreaState = *AreaStateIter;
 
 		Writer->WriteObjectStart();
-		Writer->WriteValue(TEXT("regionId"), AdhocGameState->GetRegionID());
-		Writer->WriteValue(TEXT("index"), AreaVolume->GetAreaIndex());
-		Writer->WriteValue(TEXT("name"), AreaVolume->GetFriendlyName());
-		Writer->WriteValue(TEXT("x"), static_cast<double>(-Location.X));
-		Writer->WriteValue(TEXT("y"), static_cast<double>(Location.Y));
-		Writer->WriteValue(TEXT("z"), static_cast<double>(Location.Z));
-		Writer->WriteValue(TEXT("sizeX"), static_cast<double>(Size.X));
-		Writer->WriteValue(TEXT("sizeY"), static_cast<double>(Size.Y));
-		Writer->WriteValue(TEXT("sizeZ"), static_cast<double>(Size.Z));
+		Writer->WriteValue(TEXT("regionId"), AreaState.RegionID);
+		Writer->WriteValue(TEXT("index"), AreaState.Index);
+		Writer->WriteValue(TEXT("name"), AreaState.Name);
+		Writer->WriteValue(TEXT("x"), static_cast<double>(-AreaState.Location.X));
+		Writer->WriteValue(TEXT("y"), static_cast<double>(AreaState.Location.Y));
+		Writer->WriteValue(TEXT("z"), static_cast<double>(AreaState.Location.Z));
+		Writer->WriteValue(TEXT("sizeX"), static_cast<double>(AreaState.Size.X));
+		Writer->WriteValue(TEXT("sizeY"), static_cast<double>(AreaState.Size.Y));
+		Writer->WriteValue(TEXT("sizeZ"), static_cast<double>(AreaState.Size.Z));
 		// Writer->WriteNull(TEXT("serverId"));
 		Writer->WriteObjectEnd();
 	}
@@ -1415,10 +1434,18 @@ void UAdhocGameModeComponent::OnTimer_ServerPawns() const
 
 	Writer->WriteArrayStart(TEXT("pawns"));
 
+	UWorld* World = GetWorld();
+	check(World);
+
 	int32 PawnIndex = 0;
-	for (TActorIterator<APawn> It = TActorIterator<APawn>(GetWorld()); It; ++It)
+	for (TActorIterator<APawn> It = TActorIterator<APawn>(World); It; ++It)
 	{
 		const IAdhocPawnInterface* Pawn = Cast<IAdhocPawnInterface>(*It);
+		// TODO
+		if (!Pawn)
+		{
+			continue;
+		}
 
 		Writer->WriteObjectStart();
 		Writer->WriteValue(TEXT("name"), Pawn->GetFriendlyName());

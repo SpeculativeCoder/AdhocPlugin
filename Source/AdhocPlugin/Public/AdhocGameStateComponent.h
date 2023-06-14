@@ -74,6 +74,8 @@ public:
 	FORCEINLINE int32 GetNumFactions() const { return Factions.Num(); }
 	FORCEINLINE FAdhocFactionState& GetFaction(const int32 FactionIndex) { return Factions[FactionIndex]; }
 
+	FORCEINLINE TArray<FAdhocAreaState>::TConstIterator GetAreasConstIterator() const { return Areas.CreateConstIterator(); }
+
 #if WITH_ADHOC_PLUGIN_EXTRA
 	FORCEINLINE TMap<FGuid, FAdhocStructureState>& GetStructures() { return Structures; }
 #endif
