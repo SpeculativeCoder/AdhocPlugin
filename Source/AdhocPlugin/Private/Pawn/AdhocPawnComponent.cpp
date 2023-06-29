@@ -18,4 +18,31 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "Pawn/AdhocPawnInterface.h"
+#include "Pawn/AdhocPawnComponent.h"
+
+#include "Net/UnrealNetwork.h"
+
+UAdhocPawnComponent::UAdhocPawnComponent(const FObjectInitializer& ObjectInitializer)
+{
+	PrimaryComponentTick.bCanEverTick = false;
+
+	SetIsReplicatedByDefault(true);
+}
+
+void UAdhocPawnComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(UAdhocPawnComponent, FriendlyName);
+	DOREPLIFETIME(UAdhocPawnComponent, FactionIndex);
+}
+
+void UAdhocPawnComponent::OnRep_FriendlyName(const FString& OldFriendlyName) const
+{
+	OnRepPawnFriendlyNameDelegate.Broadcast(OldFriendlyName);
+}
+
+void UAdhocPawnComponent::OnRep_FactionIndex(const int32 OldFactionIndex) const
+{
+	OnRepPawnFactionIndexDelegate.Broadcast(OldFactionIndex);
+}

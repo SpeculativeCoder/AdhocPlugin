@@ -18,26 +18,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#pragma once
+#include "Area/AdhocAreaComponent.h"
 
-#include "CoreMinimal.h"
-#include "UObject/Interface.h"
-#include "AdhocPawnInterface.generated.h"
-
-UINTERFACE()
-class UAdhocPawnInterface : public UInterface
+UAdhocAreaComponent::UAdhocAreaComponent(const FObjectInitializer& ObjectInitializer)
 {
-	GENERATED_BODY()
-};
-
-
-class IAdhocPawnInterface
-{
-	GENERATED_BODY()
-
-public:
-	virtual const FString& GetFriendlyName() const = 0;
-	virtual int32 GetFactionIndex() const = 0;
-
-	virtual void SetFactionIndex(int32 NewFactionIndex) = 0;
-};
+	PrimaryComponentTick.bCanEverTick = false;
+}

@@ -21,6 +21,7 @@
 #include "Area/AdhocAreaVolume.h"
 
 #include "AdhocGameModeComponent.h"
+#include "Area/AdhocAreaComponent.h"
 #include "Components/BrushComponent.h"
 #include "GameFramework/GameModeBase.h"
 
@@ -38,6 +39,8 @@ AAdhocAreaVolume::AAdhocAreaVolume(const FObjectInitializer& ObjectInitializer)
 	BrushColor.A = 255;
 
 	GetBrushComponent()->SetCollisionProfileName(TEXT("Area"));
+
+	AdhocArea = CreateDefaultSubobject<UAdhocAreaComponent>(TEXT("AdhocArea"));
 }
 
 void AAdhocAreaVolume::PostInitializeComponents()
@@ -80,5 +83,5 @@ void AAdhocAreaVolume::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, 
 	const UAdhocGameModeComponent* AdhocGameMode = Cast<UAdhocGameModeComponent>(GameMode->GetComponentByClass(UAdhocGameModeComponent::StaticClass()));
 	check(AdhocGameMode);
 
-	AdhocGameMode->PlayerEnterArea(PlayerController, AreaIndex);
+	AdhocGameMode->PlayerEnterArea(PlayerController, GetAdhocArea()->GetAreaIndex());
 }

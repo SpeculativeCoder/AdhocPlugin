@@ -145,7 +145,7 @@ private:
 #endif
 
 #if WITH_ADHOC_PLUGIN_EXTRA
-	static FAdhocStructureState ExtractStructureFromJsonObject(const TSharedPtr<FJsonObject> JsonObject);
+	static void ExtractStructureFromJsonObject(const TSharedPtr<FJsonObject>& JsonObject, FAdhocStructureState &OutStructure);
 #endif
 
 	void ServerStarted() const;

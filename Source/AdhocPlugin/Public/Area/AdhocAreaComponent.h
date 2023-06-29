@@ -18,4 +18,28 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "Area/AdhocAreaInterface.h"
+#pragma once
+
+#include "CoreMinimal.h"
+#include "Components/ActorComponent.h"
+#include "AdhocAreaComponent.generated.h"
+
+UCLASS()
+class ADHOCPLUGIN_API UAdhocAreaComponent : public UActorComponent
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditInstanceOnly)
+	FString FriendlyName = TEXT("Area");
+
+	int32 AreaIndex = -1;
+
+public:
+	FORCEINLINE const FString& GetFriendlyName() const { return FriendlyName; }
+	FORCEINLINE int32 GetAreaIndex() const { return AreaIndex; }
+
+	FORCEINLINE void SetAreaIndex(const int32 NewAreaIndex) { AreaIndex = NewAreaIndex; }
+
+private:
+	UAdhocAreaComponent(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
+};

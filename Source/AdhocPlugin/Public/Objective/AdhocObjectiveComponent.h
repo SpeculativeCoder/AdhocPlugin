@@ -21,22 +21,13 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UObject/Interface.h"
-#include "AdhocAreaInterface.generated.h"
+#include "Components/ActorComponent.h"
+#include "AdhocObjectiveComponent.generated.h"
 
-UINTERFACE()
-class UAdhocAreaInterface : public UInterface
-{
-	GENERATED_BODY()
-};
-
-class ADHOCPLUGIN_API IAdhocAreaInterface
+UCLASS()
+class ADHOCPLUGIN_API UAdhocObjectiveComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
-public:
-	virtual const FString& GetFriendlyName() const = 0;
-	virtual int32 GetAreaIndex() const = 0;
-
-	virtual void SetAreaIndex(const int32 NewAreaIndex) = 0;
+	UAdhocObjectiveComponent(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 };

@@ -1,4 +1,4 @@
-// Copyright (c) 2022-2023 SpeculativeCoder (https://github.com/SpeculativeCoder)
+﻿// Copyright (c) 2022-2023 SpeculativeCoder (https://github.com/SpeculativeCoder)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -18,31 +18,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#pragma once
+#include "Objective/AdhocObjectiveComponent.h"
 
-#include "GameFramework/Volume.h"
-
-#include "AdhocAreaVolume.generated.h"
-
-UCLASS()
-class ADHOCPLUGIN_API AAdhocAreaVolume : public AVolume
+UAdhocObjectiveComponent::UAdhocObjectiveComponent(const FObjectInitializer& ObjectInitializer)
 {
-	GENERATED_BODY()
+	PrimaryComponentTick.bCanEverTick = false;
 
-	UPROPERTY(EditInstanceOnly)
-	class UAdhocAreaComponent* AdhocArea;
-
-public:
-	FORCEINLINE UAdhocAreaComponent* GetAdhocArea() const { return AdhocArea; }
-
-private:
-	explicit AAdhocAreaVolume(const FObjectInitializer& ObjectInitializer);
-
-	virtual void PostInitializeComponents() override;
-	virtual void BeginPlay() override;
-
-	/** Overlap event will check if player needs to navigate to another server. */
-	UFUNCTION()
-	void OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
-		bool bFromSweep, const FHitResult& Hit);
-};
+	//SetIsReplicatedByDefault(true);
+}

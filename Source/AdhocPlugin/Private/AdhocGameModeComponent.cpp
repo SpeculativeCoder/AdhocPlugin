@@ -22,6 +22,7 @@
 
 #include "AdhocGameStateComponent.h"
 #include "EngineUtils.h"
+#include "Area/AdhocAreaComponent.h"
 #include "Faction/AdhocFactionState.h"
 #include "Area/AdhocAreaVolume.h"
 #include "GameFramework/GameSession.h"
@@ -34,7 +35,7 @@
 #include "Runtime/Online/Stomp/Public/StompModule.h"
 #include "Kismet/GameplayStatics.h"
 #include "Objective/AdhocObjectiveInterface.h"
-#include "Pawn/AdhocPawnInterface.h"
+#include "Pawn/AdhocPawnComponent.h"
 #include "Player/AdhocPlayerControllerInterface.h"
 #include "Player/AdhocPlayerStateComponent.h"
 
@@ -151,13 +152,13 @@ void UAdhocGameModeComponent::InitializeComponent()
 	{
 		AAdhocAreaVolume* AreaVolume = *AreaVolumeIter;
 		// AreaVolume->SetAreaID(NextAreaIndex + 1);
-		AreaVolume->SetAreaIndex(AreaIndex);
+		AreaVolume->GetAdhocArea()->SetAreaIndex(AreaIndex);
 
 		FAdhocAreaState Area;
 		// Area.ID = AreaVolume->GetAreaID();
 		Area.RegionID = RegionID;
-		Area.Index = AreaVolume->GetAreaIndex();
-		Area.Name = AreaVolume->GetFriendlyName();
+		Area.Index = AreaVolume->GetAdhocArea()->GetAreaIndex();
+		Area.Name = AreaVolume->GetAdhocArea()->GetFriendlyName();
 		Area.Location = AreaVolume->GetActorLocation();
 		Area.Size = AreaVolume->GetActorScale() * 200;
 		Area.ServerID = ServerID;
@@ -169,7 +170,7 @@ void UAdhocGameModeComponent::InitializeComponent()
 		// TODO: HACK: just take first area for now
 		if (ActiveAreaIndexes.Num() < 1)
 		{
-			ActiveAreaIndexes.AddUnique(AreaVolume->GetAreaIndex());
+			ActiveAreaIndexes.AddUnique(AreaVolume->GetAdhocArea()->GetAreaIndex());
 		}
 
 		AreaIndex++;
@@ -704,11 +705,19 @@ void UAdhocGameModeComponent::OnStompSubscriptionEvent(const IStompMessage& Mess
 	}
 	else if (EventType.Equals(TEXT("WorldUpdated")))
 	{
-		const int64 WorldID = JsonObject->GetIntegerField("id");
-		const int64 WorldVersion = JsonObject->GetIntegerField("version");
+		const TSharedPtr<FJsonObject>* WorldJsonObjectPtr;
+
+		if (!JsonObject->TryGetObjectField(TEXT("world"), WorldJsonObjectPtr))
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Invalid WorldUpdated event: Body=%s"), *Message.GetBodyAsString());
+			return;
+		}
+
+		const int64 WorldID = (*WorldJsonObjectPtr)->GetIntegerField("id");
+		const int64 WorldVersion = (*WorldJsonObjectPtr)->GetIntegerField("version");
 
 		TArray<FString> WorldManagerHosts;
-		for (auto& ManagerHostValue : JsonObject->GetArrayField("managerHosts"))
+		for (auto& ManagerHostValue : (*WorldJsonObjectPtr)->GetArrayField("managerHosts"))
 		{
 			WorldManagerHosts.AddUnique(ManagerHostValue->AsString());
 		}
@@ -718,7 +727,17 @@ void UAdhocGameModeComponent::OnStompSubscriptionEvent(const IStompMessage& Mess
 #if WITH_ADHOC_PLUGIN_EXTRA
 	else if (EventType.Equals(TEXT("StructureCreated")))
 	{
-		FAdhocStructureState Structure = ExtractStructureFromJsonObject(JsonObject);
+		FAdhocStructureState Structure;
+
+		const TSharedPtr<FJsonObject>* StructureJsonObjectPtr;
+
+		if (!JsonObject->TryGetObjectField(TEXT("structure"), StructureJsonObjectPtr))
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Invalid StructureUpdated event: Body=%s"), *Message.GetBodyAsString());
+			return;
+		}
+
+		ExtractStructureFromJsonObject(*StructureJsonObjectPtr, Structure);
 
 		OnStructureCreatedEvent(Structure);
 	}
@@ -783,7 +802,7 @@ void UAdhocGameModeComponent::SubmitAreas()
 	Request->OnProcessRequestComplete().BindUObject(this, &UAdhocGameModeComponent::OnAreasResponse);
 	const FString URL = FString::Printf(TEXT("http://%s:80/api/servers/%d/areas"), *ManagerHost, AdhocGameState->GetServerID());
 	Request->SetURL(URL);
-	Request->SetVerb("PUT");
+	Request->SetVerb("POST");
 	Request->SetHeader("Content-Type", "application/json");
 	Request->SetHeader(BasicAuthHeaderName, BasicAuthHeaderValue);
 	Request->SetContentAsString(JsonString);
@@ -877,7 +896,7 @@ void UAdhocGameModeComponent::SubmitObjectives()
 	Request->OnProcessRequestComplete().BindUObject(this, &UAdhocGameModeComponent::OnObjectivesResponse);
 	const FString URL = FString::Printf(TEXT("http://%s:80/api/servers/%d/objectives"), *ManagerHost, AdhocGameState->GetServerID());
 	Request->SetURL(URL);
-	Request->SetVerb("PUT");
+	Request->SetVerb("POST");
 	Request->SetHeader("Content-Type", "application/json");
 	Request->SetHeader(BasicAuthHeaderName, BasicAuthHeaderValue);
 	Request->SetContentAsString(JsonString);
@@ -1300,10 +1319,13 @@ void UAdhocGameModeComponent::OnUserJoinResponse(
 	AdhocPlayerControllerInterface->SetToken(UserToken);
 
 	// if player is controlling a character currently, flip the faction there too
-	IAdhocPawnInterface* Pawn = PlayerController->GetPawn<IAdhocPawnInterface>();
+	APawn* Pawn = PlayerController->GetPawn();
 	if (Pawn)
 	{
-		Pawn->SetFactionIndex(UserFactionIndex);
+		UAdhocPawnComponent* AdhocPawnComponent = Cast<UAdhocPawnComponent>(Pawn->GetComponentByClass(UAdhocPawnComponent::StaticClass()));
+		if (AdhocPawnComponent) {
+			AdhocPawnComponent->SetFactionIndex(UserFactionIndex);
+		}
 	}
 
 	UE_LOG(LogTemp, Log, TEXT("Player login success: UserID=%d UserName=%s UserFactionID=%d UserFactionIndex=%d UserToken=%s"), UserID, *UserName,
@@ -1440,18 +1462,17 @@ void UAdhocGameModeComponent::OnTimer_ServerPawns() const
 	int32 PawnIndex = 0;
 	for (TActorIterator<APawn> It = TActorIterator<APawn>(World); It; ++It)
 	{
-		const IAdhocPawnInterface* Pawn = Cast<IAdhocPawnInterface>(*It);
-		// TODO
-		if (!Pawn)
+		UAdhocPawnComponent* AdhocPawnComponent = Cast<UAdhocPawnComponent>((*It)->GetComponentByClass(UAdhocPawnComponent::StaticClass()));
+		if (!AdhocPawnComponent)
 		{
 			continue;
 		}
 
 		Writer->WriteObjectStart();
-		Writer->WriteValue(TEXT("name"), Pawn->GetFriendlyName());
+		Writer->WriteValue(TEXT("name"), AdhocPawnComponent->GetFriendlyName());
 		Writer->WriteValue(TEXT("serverId"), AdhocGameState->GetServerID());
 		Writer->WriteValue(TEXT("index"), PawnIndex);
-		Writer->WriteValue(TEXT("factionIndex"), Pawn->GetFactionIndex());
+		Writer->WriteValue(TEXT("factionIndex"), AdhocPawnComponent->GetFactionIndex());
 		Writer->WriteValue(TEXT("x"), -(*It)->GetActorLocation().X);
 		Writer->WriteValue(TEXT("y"), (*It)->GetActorLocation().Y);
 		Writer->WriteValue(TEXT("z"), (*It)->GetActorLocation().Z);
