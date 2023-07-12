@@ -24,9 +24,16 @@
 
 UAdhocPawnComponent::UAdhocPawnComponent(const FObjectInitializer& ObjectInitializer)
 {
+	bWantsInitializeComponent = true;
 	PrimaryComponentTick.bCanEverTick = false;
 
 	SetIsReplicatedByDefault(true);
+}
+void UAdhocPawnComponent::InitializeComponent()
+{
+	Super::InitializeComponent();
+
+	UUID = FGuid::NewGuid();
 }
 
 void UAdhocPawnComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

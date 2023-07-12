@@ -177,8 +177,8 @@ void UAdhocGameModeComponent::InitializeComponent()
 	}
 
 	// can uncomment two lines below to test auto area generation
-	//Areas.Reset();
-	//ActiveAreaIndexes.Reset();
+	// Areas.Reset();
+	// ActiveAreaIndexes.Reset();
 
 	if (Areas.Num() <= 0)
 	{
@@ -1323,7 +1323,8 @@ void UAdhocGameModeComponent::OnUserJoinResponse(
 	if (Pawn)
 	{
 		UAdhocPawnComponent* AdhocPawnComponent = Cast<UAdhocPawnComponent>(Pawn->GetComponentByClass(UAdhocPawnComponent::StaticClass()));
-		if (AdhocPawnComponent) {
+		if (AdhocPawnComponent)
+		{
 			AdhocPawnComponent->SetFactionIndex(UserFactionIndex);
 		}
 	}
@@ -1462,13 +1463,14 @@ void UAdhocGameModeComponent::OnTimer_ServerPawns() const
 	int32 PawnIndex = 0;
 	for (TActorIterator<APawn> It = TActorIterator<APawn>(World); It; ++It)
 	{
-		UAdhocPawnComponent* AdhocPawnComponent = Cast<UAdhocPawnComponent>((*It)->GetComponentByClass(UAdhocPawnComponent::StaticClass()));
+		const UAdhocPawnComponent* AdhocPawnComponent = Cast<UAdhocPawnComponent>((*It)->GetComponentByClass(UAdhocPawnComponent::StaticClass()));
 		if (!AdhocPawnComponent)
 		{
 			continue;
 		}
 
 		Writer->WriteObjectStart();
+		Writer->WriteValue(TEXT("uuid"), AdhocPawnComponent->GetUUID().ToString(EGuidFormats::DigitsWithHyphens));
 		Writer->WriteValue(TEXT("name"), AdhocPawnComponent->GetFriendlyName());
 		Writer->WriteValue(TEXT("serverId"), AdhocGameState->GetServerID());
 		Writer->WriteValue(TEXT("index"), PawnIndex);

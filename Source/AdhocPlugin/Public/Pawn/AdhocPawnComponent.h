@@ -37,6 +37,10 @@ public:
 	FOnRepPawnFactionIndexDelegate OnRepPawnFactionIndexDelegate;
 
 private:
+	/** UUID for the pawn. */
+	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = true))
+	FGuid UUID;
+
 	/** Name of the pawn. This is what will appear in messages relating to the pawn. */
 	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = true), Replicated, ReplicatedUsing = OnRep_FriendlyName)
 	FString FriendlyName;
@@ -46,14 +50,18 @@ private:
 	int32 FactionIndex = -1;
 
 public:
+	FORCEINLINE const FGuid& GetUUID() const { return UUID; }
 	FORCEINLINE const FString& GetFriendlyName() const { return FriendlyName; }
 	FORCEINLINE int32 GetFactionIndex() const { return FactionIndex; }
-	
+
+	//FORCEINLINE void SetUUID(const FGuid& NewUUID) { UUID = NewUUID; }
 	FORCEINLINE void SetFriendlyName(const FString& NewFriendlyName) { FriendlyName = NewFriendlyName; }
 	FORCEINLINE void SetFactionIndex(const int32 NewFactionIndex) { FactionIndex = NewFactionIndex; }
 
 private:
 	UAdhocPawnComponent(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
+
+	virtual void InitializeComponent() override;
 
 	UFUNCTION()
 	void OnRep_FriendlyName(const FString& OldFriendlyName) const;
