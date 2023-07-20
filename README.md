@@ -6,7 +6,7 @@ Unreal plugin code for Adhoc (final name to be decided).
 
 [https://github.com/SpeculativeCoder/AdhocPlugin](https://github.com/SpeculativeCoder/AdhocPlugin)
 
-[https://github.com/SpeculativeCoder/AdhocDocumentation](https://github.com/SpeculativeCoder/AdhocDocumentation) (not yet available)
+[https://github.com/SpeculativeCoder/AdhocDocumentation](https://github.com/SpeculativeCoder/AdhocDocumentation)
 
 This is a work in progress, experimental, and subject to major changes.
 

@@ -177,8 +177,8 @@ void UAdhocGameModeComponent::InitializeComponent()
 	}
 
 	// can uncomment two lines below to test auto area generation
-	// Areas.Reset();
-	// ActiveAreaIndexes.Reset();
+	//Areas.Reset();
+	//ActiveAreaIndexes.Reset();
 
 	if (Areas.Num() <= 0)
 	{
@@ -319,14 +319,14 @@ void UAdhocGameModeComponent::BeginPlay()
 		StompClient->OnError().AddUObject(this, &UAdhocGameModeComponent::OnStompError);
 		StompClient->OnClosed().AddUObject(this, &UAdhocGameModeComponent::OnStompClosed);
 
-		FStompHeader StompHeader;
-		// StompHeader.Add(TEXT("X-CSRF-TOKEN"), TEXT("SERVER"));
-		// StompHeader.Add(TEXT("_csrf"), TEXT("SERVER"));
-		//  TODO: why do we need server to send us pongs rather than us pinging them ?????
-		// static const FName HeartbeatHeader(TEXT("heart-beat"));
-		// StompHeader.Add(HeartbeatHeader, TEXT("0,5000"));
+		//FStompHeader StompHeader;
+		//StompHeader.Add(TEXT("X-CSRF-TOKEN"), TEXT("SERVER"));
+		//StompHeader.Add(TEXT("_csrf"), TEXT("SERVER"));
+		// TODO: why do we need server to send us pongs rather than us pinging them ?????
+		//static const FName HeartbeatHeader(TEXT("heart-beat"));
+		//StompHeader.Add(HeartbeatHeader, TEXT("0,15000"));
 
-		StompClient->Connect(); // StompHeader);
+		StompClient->Connect(); //StompHeader);
 	}
 #endif
 }
@@ -557,6 +557,17 @@ void UAdhocGameModeComponent::PlayerEnterArea(APlayerController* PlayerControlle
 
 #if WITH_SERVER_CODE && !defined(__EMSCRIPTEN__)
 
+void UAdhocGameModeComponent::ShutdownIfNotPlayingInEditor() const
+{
+	// UKismetSystemLibrary::QuitGame(GetWorld(), nullptr, EQuitPreference::Quit, false);
+	const UWorld* World = GetWorld();
+	check(World);
+	if (!World->IsPlayInEditor())
+	{
+		FPlatformMisc::RequestExitWithStatus(false, 1);
+	}
+}
+
 void UAdhocGameModeComponent::OnStompConnected(const FString& ProtocolVersion, const FString& SessionId, const FString& ServerString)
 {
 	UE_LOG(LogTemp, Log, TEXT("OnStompConnected: ProtocolVersion=%s SessionId=%s ServerString=%s"), *ProtocolVersion, *SessionId, *ServerString);
@@ -581,14 +592,7 @@ void UAdhocGameModeComponent::OnStompClosed(const FString& Reason) const
 	if (GetNetMode() == NM_DedicatedServer)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Stomp connection closed - should shut down server"));
-		// UKismetSystemLibrary::QuitGame(GetWorld(), nullptr, EQuitPreference::Quit, false);
-
-		const UWorld* World = GetWorld();
-		check(World);
-		if (!World->IsPlayInEditor())
-		{
-			FPlatformMisc::RequestExitWithStatus(false, 1);
-		}
+		ShutdownIfNotPlayingInEditor();
 	}
 }
 
@@ -599,13 +603,7 @@ void UAdhocGameModeComponent::OnStompConnectionError(const FString& Error) const
 	if (GetNetMode() == NM_DedicatedServer)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Stomp connection error - should shut down server"));
-		// UKismetSystemLibrary::QuitGame(GetWorld(), nullptr, EQuitPreference::Quit, false);
-		const UWorld* World = GetWorld();
-		check(World);
-		if (!World->IsPlayInEditor())
-		{
-			FPlatformMisc::RequestExitWithStatus(false, 1);
-		}
+		ShutdownIfNotPlayingInEditor();
 	}
 }
 
@@ -616,13 +614,7 @@ void UAdhocGameModeComponent::OnStompError(const FString& Error) const
 	if (GetNetMode() == NM_DedicatedServer)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Stomp error - should shut down server"));
-		// UKismetSystemLibrary::QuitGame(GetWorld(), nullptr, EQuitPreference::Quit, false);
-		const UWorld* World = GetWorld();
-		check(World);
-		if (!World->IsPlayInEditor())
-		{
-			FPlatformMisc::RequestExitWithStatus(false, 1);
-		}
+		ShutdownIfNotPlayingInEditor();
 	}
 }
 
@@ -633,13 +625,7 @@ void UAdhocGameModeComponent::OnStompRequestCompleted(bool bSuccess, const FStri
 	if (!bSuccess && GetNetMode() == NM_DedicatedServer)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Stomp request completed unsuccessfully - should shut down server"));
-		// UKismetSystemLibrary::QuitGame(GetWorld(), nullptr, EQuitPreference::Quit, false);
-		const UWorld* World = GetWorld();
-		check(World);
-		if (!World->IsPlayInEditor())
-		{
-			FPlatformMisc::RequestExitWithStatus(false, 1);
-		}
+		ShutdownIfNotPlayingInEditor();
 	}
 }
 
@@ -912,6 +898,7 @@ void UAdhocGameModeComponent::OnFactionsResponse(FHttpRequestPtr Request, FHttpR
 	if (!bWasSuccessful || Response->GetResponseCode() != 200)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Factions response failure: ResponseCode=%d Content=%s"), Response->GetResponseCode(), *Response->GetContentAsString());
+		ShutdownIfNotPlayingInEditor();
 		return;
 	}
 
@@ -920,6 +907,7 @@ void UAdhocGameModeComponent::OnFactionsResponse(FHttpRequestPtr Request, FHttpR
 	if (!FJsonSerializer::Deserialize(Reader, JsonValues))
 	{
 		UE_LOG(LogTemp, Log, TEXT("Failed to deserialize factions response: Content=%s"), *Response->GetContentAsString());
+		ShutdownIfNotPlayingInEditor();
 		return;
 	}
 
@@ -946,6 +934,7 @@ void UAdhocGameModeComponent::OnServersResponse(FHttpRequestPtr Request, FHttpRe
 	if (!bWasSuccessful || Response->GetResponseCode() != 200)
 	{
 		UE_LOG(LogTemp, Log, TEXT("Servers response failure: ResponseCode=%d Content=%s"), Response->GetResponseCode(), *Response->GetContentAsString());
+		ShutdownIfNotPlayingInEditor();
 		return;
 	}
 
@@ -954,6 +943,7 @@ void UAdhocGameModeComponent::OnServersResponse(FHttpRequestPtr Request, FHttpRe
 	if (!FJsonSerializer::Deserialize(Reader, JsonValues))
 	{
 		UE_LOG(LogTemp, Log, TEXT("Failed to deserialize get servers response: Content=%s"), *Response->GetContentAsString());
+		ShutdownIfNotPlayingInEditor();
 		return;
 	}
 
@@ -998,6 +988,7 @@ void UAdhocGameModeComponent::OnAreasResponse(FHttpRequestPtr Request, FHttpResp
 	if (!bWasSuccessful || Response->GetResponseCode() != 200)
 	{
 		UE_LOG(LogTemp, Log, TEXT("Areas response failure: ResponseCode=%d Content=%s"), Response->GetResponseCode(), *Response->GetContentAsString());
+		ShutdownIfNotPlayingInEditor();
 		return;
 	}
 
@@ -1006,6 +997,7 @@ void UAdhocGameModeComponent::OnAreasResponse(FHttpRequestPtr Request, FHttpResp
 	if (!FJsonSerializer::Deserialize(Reader, JsonValues))
 	{
 		UE_LOG(LogTemp, Log, TEXT("Failed to deserialize areas response: %s"), *Response->GetContentAsString());
+		ShutdownIfNotPlayingInEditor();
 		return;
 	}
 
@@ -1049,6 +1041,7 @@ void UAdhocGameModeComponent::OnObjectivesResponse(FHttpRequestPtr Request, FHtt
 	if (!bWasSuccessful || Response->GetResponseCode() != 200)
 	{
 		UE_LOG(LogTemp, Log, TEXT("Objectives response failure: ResponseCode=%d Content=%s"), Response->GetResponseCode(), *Response->GetContentAsString());
+		ShutdownIfNotPlayingInEditor();
 		return;
 	}
 
@@ -1057,6 +1050,7 @@ void UAdhocGameModeComponent::OnObjectivesResponse(FHttpRequestPtr Request, FHtt
 	if (!FJsonSerializer::Deserialize(Reader, JsonValues))
 	{
 		UE_LOG(LogTemp, Log, TEXT("Failed to deserialize objectives response: %s"), *Response->GetContentAsString());
+		ShutdownIfNotPlayingInEditor();
 		return;
 	}
 

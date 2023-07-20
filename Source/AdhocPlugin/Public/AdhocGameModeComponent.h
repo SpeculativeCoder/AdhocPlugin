@@ -121,6 +121,8 @@ public:
 
 #if WITH_SERVER_CODE && !defined(__EMSCRIPTEN__)
 private:
+	void ShutdownIfNotPlayingInEditor() const;
+
 	void OnStompConnected(const FString& ProtocolVersion, const FString& SessionId, const FString& ServerString);
 	void OnStompClosed(const FString& Reason) const;
 	void OnStompConnectionError(const FString& Error) const;
