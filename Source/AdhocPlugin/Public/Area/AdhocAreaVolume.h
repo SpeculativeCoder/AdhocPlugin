@@ -38,7 +38,6 @@ public:
 private:
 	explicit AAdhocAreaVolume(const FObjectInitializer& ObjectInitializer);
 
-	virtual void PostInitializeComponents() override;
 	virtual void BeginPlay() override;
 
 	/** Overlap event will check if player needs to navigate to another server. */

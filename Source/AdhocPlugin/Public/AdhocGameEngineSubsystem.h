@@ -18,23 +18,30 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "Player/AdhocPlayerStateComponent.h"
+#pragma once
 
-#include "Net/UnrealNetwork.h"
+#include "CoreMinimal.h"
+#include "Subsystems/EngineSubsystem.h"
+#include "Engine/World.h"
 
-UAdhocPlayerStateComponent::UAdhocPlayerStateComponent(const FObjectInitializer& ObjectInitializer)
-	: Super(ObjectInitializer)
+#include "AdhocGameEngineSubsystem.generated.h"
+
+UCLASS(Transient)
+class ADHOCPLUGIN_API UAdhocGameEngineSubsystem : public UEngineSubsystem
 {
-	FactionIndex = -1;
-	UserID = -1;
+	GENERATED_BODY()
 
-	SetIsReplicatedByDefault(true);
-}
+private:
+	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 
-void UAdhocPlayerStateComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
-{
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	void OnPostWorldCreation(UWorld* World);
+	void OnWorldInitializedActors(const UWorld::FActorsInitializedParams& ActorsInitializedParams);
+	void OnPreWorldInitialization(UWorld* World, const UWorld::InitializationValues InitializationValues);
+	void OnPostWorldInitialization(UWorld* World, const UWorld::InitializationValues InitializationValues);
 
-	DOREPLIFETIME(UAdhocPlayerStateComponent, FactionIndex);
-	DOREPLIFETIME(UAdhocPlayerStateComponent, UserID);
-}
+	void OnWorldBeginPlay(UWorld *World);
+
+	void OnGameModeInitialized(AGameModeBase* GameMode);
+	void OnGameModePreLogin(AGameModeBase* GameMode, const FUniqueNetIdRepl& UniqueNetId, FString& ErrorMessage);
+	void OnGameModePostLogin(AGameModeBase* GameMode, APlayerController* PlayerController);
+};

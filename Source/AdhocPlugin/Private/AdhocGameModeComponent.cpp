@@ -38,6 +38,7 @@
 #include "Pawn/AdhocPawnComponent.h"
 #include "Player/AdhocPlayerControllerInterface.h"
 #include "Player/AdhocPlayerStateComponent.h"
+#include "Engine/NetConnection.h"
 
 UAdhocGameModeComponent::UAdhocGameModeComponent()
 {
@@ -101,7 +102,8 @@ void UAdhocGameModeComponent::InitializeComponent()
 	GameState = GameMode->GetGameState<AGameStateBase>();
 	check(GameState);
 
-	AdhocGameState = CastChecked<UAdhocGameStateComponent>(GameState->GetComponentByClass(UAdhocGameStateComponent::StaticClass()));
+	AdhocGameState = NewObject<UAdhocGameStateComponent>(GameState, UAdhocGameStateComponent::StaticClass());
+	AdhocGameState->RegisterComponent();
 
 	int64 ServerID = 1;
 	int64 RegionID = 1;
@@ -334,31 +336,44 @@ void UAdhocGameModeComponent::BeginPlay()
 void UAdhocGameModeComponent::Login(APlayerController* PlayerController, APlayerState* PlayerState, const FString& Options)
 {
 	UE_LOG(LogTemp, Log, TEXT("AdhocGameModeComponent: Login: Options=%s"), *Options);
-
-	IAdhocPlayerControllerInterface* AdhocPlayerControllerInterface = CastChecked<IAdhocPlayerControllerInterface>(PlayerController);
-
-	UAdhocPlayerStateComponent* AdhocPlayerState =
-		CastChecked<UAdhocPlayerStateComponent>(PlayerState->GetComponentByClass(UAdhocPlayerStateComponent::StaticClass()));
-
-	const int32 RandomFactionIndex = FMath::RandRange(0, AdhocGameState->GetNumFactions() - 1);
-
-	AdhocPlayerState->SetFactionIndex(RandomFactionIndex);
-
-	const int32 UserID = UGameplayStatics::GetIntOption(Options, TEXT("UserId"), -1);
-	UE_LOG(LogTemp, Log, TEXT("AdhocGameModeComponent: Login: UserId=%d"), UserID);
-	const FString Token = UGameplayStatics::ParseOption(Options, TEXT("Token"));
-	UE_LOG(LogTemp, Log, TEXT("AdhocGameModeComponent: Login: Token=%s"), *Token);
-
-	AdhocPlayerControllerInterface->SetFactionIndex(RandomFactionIndex);
-	AdhocPlayerControllerInterface->SetUserID(UserID);
-	AdhocPlayerControllerInterface->SetToken(Token);
 }
 
 void UAdhocGameModeComponent::PostLogin(APlayerController* NewPlayer)
 {
-#if WITH_SERVER_CODE && !defined(__EMSCRIPTEN__)
+	UE_LOG(LogTemp, Log, TEXT("AdhocGameModeComponent: PostLogin: NewPlayer=%s"), *NewPlayer->GetName());
+
+	UNetConnection* NetConnection = NewPlayer->GetNetConnection();
+	//check(NetConnection);
+	const FString& RequestURL = NetConnection ? NetConnection->RequestURL : TEXT(""); // TODO (listen mode does not have connection)
+	UE_LOG(LogTemp, Log, TEXT("AdhocGameModeComponent: PostLogin: RequestURL=%s"), *RequestURL);
+
+	int32 QuestionMarkPos = -1;
+	RequestURL.FindChar(TCHAR('?'), QuestionMarkPos);
+	const FString Options = QuestionMarkPos == -1 ? RequestURL : RequestURL.RightChop(QuestionMarkPos);
+	UE_LOG(LogTemp, Log, TEXT("AdhocGameModeComponent: PostLogin: Options=%s"), *Options);
 
 	IAdhocPlayerControllerInterface* AdhocPlayerControllerInterface = CastChecked<IAdhocPlayerControllerInterface>(NewPlayer);
+
+	const int32 RandomFactionIndex = FMath::RandRange(0, AdhocGameState->GetNumFactions() - 1);
+
+	const int32 UserID = UGameplayStatics::GetIntOption(Options, TEXT("UserId"), -1);
+	UE_LOG(LogTemp, Log, TEXT("AdhocGameModeComponent: PostLogin: UserId=%d"), UserID);
+	const FString Token = UGameplayStatics::ParseOption(Options, TEXT("Token"));
+	UE_LOG(LogTemp, Log, TEXT("AdhocGameModeComponent: PostLogin: Token=%s"), *Token);
+
+	AdhocPlayerControllerInterface->SetFactionIndex(RandomFactionIndex);
+	AdhocPlayerControllerInterface->SetUserID(UserID);
+	AdhocPlayerControllerInterface->SetToken(Token);
+
+	APlayerState* PlayerState = NewPlayer->GetPlayerState<APlayerState>();
+	check(PlayerState);
+
+	UAdhocPlayerStateComponent* AdhocPlayerState =
+		CastChecked<UAdhocPlayerStateComponent>(PlayerState->GetComponentByClass(UAdhocPlayerStateComponent::StaticClass()));
+
+	AdhocPlayerState->SetFactionIndex(AdhocPlayerControllerInterface->GetFactionIndex());
+
+#if WITH_SERVER_CODE && !defined(__EMSCRIPTEN__)
 
 	if (AdhocPlayerControllerInterface->GetUserID() != -1 && !AdhocPlayerControllerInterface->GetToken().IsEmpty())
 	{

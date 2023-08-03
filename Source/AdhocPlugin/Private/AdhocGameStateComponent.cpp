@@ -22,6 +22,13 @@
 
 #include "Net/UnrealNetwork.h"
 
+UAdhocGameStateComponent::UAdhocGameStateComponent(const FObjectInitializer& ObjectInitializer)
+{
+	PrimaryComponentTick.bCanEverTick = false;
+
+	SetIsReplicatedByDefault(true);
+}
+
 void UAdhocGameStateComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);

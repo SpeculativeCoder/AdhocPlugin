@@ -80,6 +80,10 @@ public:
 	FORCEINLINE TMap<FGuid, FAdhocStructureState>& GetStructures() { return Structures; }
 #endif
 
+private:
+	explicit UAdhocGameStateComponent(const FObjectInitializer& ObjectInitializer);
+
+public:
 	void SetFactions(const TArray<FAdhocFactionState>& NewFactions);
 	void SetAreas(const TArray<FAdhocAreaState>& NewAreas);
 	void SetObjectives(const TArray<FAdhocObjectiveState>& NewObjectives);

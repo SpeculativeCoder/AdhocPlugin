@@ -29,5 +29,6 @@ class ADHOCPLUGIN_API UAdhocGameInstanceSubsystem : public UGameInstanceSubsyste
 {
 	GENERATED_BODY()
 
+private:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 };

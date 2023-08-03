@@ -43,11 +43,6 @@ AAdhocAreaVolume::AAdhocAreaVolume(const FObjectInitializer& ObjectInitializer)
 	AdhocArea = CreateDefaultSubobject<UAdhocAreaComponent>(TEXT("AdhocArea"));
 }
 
-void AAdhocAreaVolume::PostInitializeComponents()
-{
-	Super::PostInitializeComponents();
-}
-
 void AAdhocAreaVolume::BeginPlay()
 {
 	Super::BeginPlay();

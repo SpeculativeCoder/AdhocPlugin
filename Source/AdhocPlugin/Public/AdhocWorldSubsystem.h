@@ -18,23 +18,17 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "Player/AdhocPlayerStateComponent.h"
+#pragma once
 
-#include "Net/UnrealNetwork.h"
+#include "CoreMinimal.h"
+#include "Subsystems/WorldSubsystem.h"
+#include "AdhocWorldSubsystem.generated.h"
 
-UAdhocPlayerStateComponent::UAdhocPlayerStateComponent(const FObjectInitializer& ObjectInitializer)
-	: Super(ObjectInitializer)
+UCLASS(Transient)
+class ADHOCPLUGIN_API UAdhocWorldSubsystem : public UWorldSubsystem
 {
-	FactionIndex = -1;
-	UserID = -1;
+	GENERATED_BODY()
 
-	SetIsReplicatedByDefault(true);
-}
-
-void UAdhocPlayerStateComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
-{
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-
-	DOREPLIFETIME(UAdhocPlayerStateComponent, FactionIndex);
-	DOREPLIFETIME(UAdhocPlayerStateComponent, UserID);
-}
+private:
+	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
+};
