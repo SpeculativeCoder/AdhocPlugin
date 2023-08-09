@@ -21,18 +21,19 @@
 #include "AdhocGameEngineSubsystem.h"
 
 #include "GameFramework/GameModeBase.h"
+#include "GameFramework/GameStateBase.h"
 #include "AdhocGameModeComponent.h"
+#include "AdhocGameStateComponent.h"
 #include "GameFramework/PlayerState.h"
 #include "Player/AdhocPlayerStateComponent.h"
 
-class UAdhocPlayerStateComponent;
-DEFINE_LOG_CATEGORY_STATIC(LogAdhocGameEngineSubsystem, Verbose, All)
+DEFINE_LOG_CATEGORY_STATIC(LogAdhocGameEngineSubsystem, Log, All)
 
 void UAdhocGameEngineSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
 	Super::Initialize(Collection);
 
-	UE_LOG(LogAdhocGameEngineSubsystem, Log, TEXT("Initialize"));
+	UE_LOG(LogAdhocGameEngineSubsystem, Verbose, TEXT("Initialize"));
 
 	FWorldDelegates::OnPostWorldCreation.AddUObject(this, &UAdhocGameEngineSubsystem::OnPostWorldCreation);
 	FWorldDelegates::OnPreWorldInitialization.AddUObject(this, &UAdhocGameEngineSubsystem::OnPreWorldInitialization);
@@ -46,81 +47,57 @@ void UAdhocGameEngineSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 
 void UAdhocGameEngineSubsystem::OnPostWorldCreation(UWorld* World)
 {
-	UE_LOG(LogAdhocGameEngineSubsystem, Log, TEXT("OnPostWorldCreation"));
+	UE_LOG(LogAdhocGameEngineSubsystem, Verbose, TEXT("OnPostWorldCreation: World=%s"), *World->GetName());
 
 	World->OnWorldBeginPlay.AddUObject(this, &UAdhocGameEngineSubsystem::OnWorldBeginPlay, World);
-	
-	AGameModeBase* GameMode = World->GetAuthGameMode();
-	if (GameMode)
-	{
-		UE_LOG(LogAdhocGameEngineSubsystem, Warning, TEXT("OnPostWorldCreation: GameMode=%s"), *GameMode->GetName());
-	}
+
+	//World->AddOnActorSpawnedHandler(FOnActorSpawned::FDelegate::CreateUObject(this, &UAdhocGameEngineSubsystem::OnActorSpawned));
 }
 
 void UAdhocGameEngineSubsystem::OnPreWorldInitialization(UWorld* World, const UWorld::InitializationValues InitializationValues)
 {
-	UE_LOG(LogAdhocGameEngineSubsystem, Log, TEXT("OnPreWorldInitialization"));
-	
-	AGameModeBase* GameMode = World->GetAuthGameMode();
-	if (GameMode)
-	{
-		UE_LOG(LogAdhocGameEngineSubsystem, Log, TEXT("OnPreWorldInitialization: GameMode=%s"), *GameMode->GetName());
-	}
+	UE_LOG(LogAdhocGameEngineSubsystem, Verbose, TEXT("OnPreWorldInitialization: World=%s"), *World->GetName());
 }
 
 void UAdhocGameEngineSubsystem::OnPostWorldInitialization(UWorld* World, UWorld::InitializationValues InitializationValues)
 {
-	UE_LOG(LogAdhocGameEngineSubsystem, Log, TEXT("OnPostWorldInitialization"));
-	
-	AGameModeBase* GameMode = World->GetAuthGameMode();
-	if (GameMode)
-	{
-		UE_LOG(LogAdhocGameEngineSubsystem, Log, TEXT("OnPostWorldInitialization: GameMode=%s"), *GameMode->GetName());
-	}
+	UE_LOG(LogAdhocGameEngineSubsystem, Verbose, TEXT("OnPostWorldInitialization: World=%s"), *World->GetName());
 }
 
 void UAdhocGameEngineSubsystem::OnWorldInitializedActors(const UWorld::FActorsInitializedParams& ActorsInitializedParams)
 {
-	UE_LOG(LogAdhocGameEngineSubsystem, Log, TEXT("OnWorldInitializedActors"));
-
-	AGameModeBase* GameMode = ActorsInitializedParams.World->GetAuthGameMode();
-	if (GameMode)
-	{
-		UE_LOG(LogAdhocGameEngineSubsystem, Log, TEXT("OnWorldInitializedActors: GameMode=%s"), *GameMode->GetName());
-
-		UAdhocGameModeComponent *GameModeComponent = NewObject<UAdhocGameModeComponent>(GameMode, UAdhocGameModeComponent::StaticClass());
-		GameModeComponent->RegisterComponent();
-	}
+	UE_LOG(LogAdhocGameEngineSubsystem, Verbose, TEXT("OnWorldInitializedActors: World=%s"), *ActorsInitializedParams.World->GetName());
 }
 
 void UAdhocGameEngineSubsystem::OnWorldBeginPlay(UWorld* World)
 {
-	UE_LOG(LogAdhocGameEngineSubsystem, Log, TEXT("OnWorldBeginPlay: World=%s"), *World->GetName());
+	UE_LOG(LogAdhocGameEngineSubsystem, Verbose, TEXT("OnWorldBeginPlay: World=%s"), *World->GetName());
+}
 
-	AGameModeBase* GameMode = World->GetAuthGameMode();
-	if (GameMode)
-	{
-		UE_LOG(LogAdhocGameEngineSubsystem, Warning, TEXT("OnWorldBeginPlay: World=%s GameMode=%s"), *World->GetName(), *GameMode->GetName());
-	}
+void UAdhocGameEngineSubsystem::OnActorSpawned(AActor *Actor)
+{
+	check(0);
+
+	UE_LOG(LogAdhocGameEngineSubsystem, VeryVerbose, TEXT("OnActorSpawned: Actor=%s"), *Actor->GetName());
 }
 
 void UAdhocGameEngineSubsystem::OnGameModeInitialized(AGameModeBase* GameMode)
 {
-	UE_LOG(LogAdhocGameEngineSubsystem, Log, TEXT("OnGameModeInitialized: GameMode=%s"), *GameMode->GetName());
+	UE_LOG(LogAdhocGameEngineSubsystem, Verbose, TEXT("OnGameModeInitialized: GameMode=%s"), *GameMode->GetName());
+
+	UAdhocGameModeComponent* AdhocGameMode = NewObject<UAdhocGameModeComponent>(GameMode, UAdhocGameModeComponent::StaticClass());
+	AdhocGameMode->RegisterComponent();
 }
 
 void UAdhocGameEngineSubsystem::OnGameModePreLogin(AGameModeBase* GameMode, const FUniqueNetIdRepl& UniqueNetId, FString& ErrorMessage)
 {
-	UE_LOG(LogAdhocGameEngineSubsystem, Log, TEXT("OnGameModePreLogin: GameMode=%s UniqueNetId=%s ErrorMessage=%s"), *GameMode->GetName(), *UniqueNetId.ToString(), *ErrorMessage);
+	UE_LOG(LogAdhocGameEngineSubsystem, Verbose, TEXT("OnGameModePreLogin: GameMode=%s UniqueNetId=%s ErrorMessage=%s"), *GameMode->GetName(), *UniqueNetId.ToString(), *ErrorMessage);
 }
 
 void UAdhocGameEngineSubsystem::OnGameModePostLogin(AGameModeBase* GameMode, APlayerController* PlayerController)
 {
-	UE_LOG(LogAdhocGameEngineSubsystem, Log, TEXT("OnGameModePostLogin: GameMode=%s PlayerController=%s"), *GameMode->GetName(), *PlayerController->GetName());
+	UE_LOG(LogAdhocGameEngineSubsystem, Verbose, TEXT("OnGameModePostLogin: GameMode=%s PlayerController=%s"), *GameMode->GetName(), *PlayerController->GetName());
 
-	APlayerState* PlayerState = PlayerController->GetPlayerState<APlayerState>();
-	check(PlayerState);
-
-	UAdhocPlayerStateComponent* AdhocPlayerState = NewObject<UAdhocPlayerStateComponent>(PlayerState, UAdhocPlayerStateComponent::StaticClass());
-	AdhocPlayerState->RegisterComponent();
+	UAdhocGameModeComponent* AdhocGameMode = CastChecked<UAdhocGameModeComponent>(GameMode->GetComponentByClass(UAdhocGameModeComponent::StaticClass()));
+	AdhocGameMode->PostLogin(PlayerController);
 }

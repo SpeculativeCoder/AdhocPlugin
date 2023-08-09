@@ -81,14 +81,17 @@ private:
 	virtual void InitializeComponent() override;
 	virtual void BeginPlay() override;
 
+	void InitFactionStates();
+	void InitAreaStates();
+	void InitServerStates();
+	void InitObjectiveStates();
 #if WITH_ADHOC_PLUGIN_EXTRA
 	void InitStructureStates();
 #endif
 
 public:
-	void Login(class APlayerController* PlayerController, class APlayerState* PlayerState, const FString& Options);
 	/** Perform a login with the web server and retrieve information about the player e.g. which faction they are etc.. */
-	void PostLogin(APlayerController* NewPlayer);
+	void PostLogin(APlayerController* PlayerController);
 
 	void ObjectiveTaken(struct FAdhocObjectiveState& OutObjective, struct FAdhocFactionState& Faction) const;
 private:
@@ -160,13 +163,13 @@ private:
 	/** Called when a WorldUpdated event occurs. */
 	void OnWorldUpdatedEvent(int64 WorldWorldID, int64 WorldVersion, const TArray<FString>& WorldManagerHosts);
 
-	void SubmitUserJoin(APlayerController* PlayerController);
-	void SubmitUserRegister(APlayerController* PlayerController);
+	void SubmitUserJoin(class UAdhocPlayerControllerComponent* AdhocPlayerController);
+	void SubmitUserRegister(class UAdhocPlayerControllerComponent* AdhocPlayerController);
 	/** When details of the user are received (from either user join or register) - update the player state (e.g. to set faction). */
-	void OnUserJoinResponse(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful, APlayerController* PlayerController, bool bKickOnFailure);
+	void OnUserJoinResponse(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful, UAdhocPlayerControllerComponent* AdhocPlayerController, bool bKickOnFailure);
 
-	void SubmitNavigate(APlayerController* PlayerController, int32 AreaID) const;
-	void OnNavigateResponse(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful, APlayerController* PlayerController) const;
+	void SubmitNavigate(class UAdhocPlayerControllerComponent* AdhocPlayerController, int32 AreaID) const;
+	void OnNavigateResponse(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful, UAdhocPlayerControllerComponent* AdhocPlayerController) const;
 
 	/** Regularly send a server pawns event (includes pawn names, locations etc.). */
 	void OnTimer_ServerPawns() const;

@@ -46,10 +46,10 @@ void UAdhocPawnComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& 
 
 void UAdhocPawnComponent::OnRep_FriendlyName(const FString& OldFriendlyName) const
 {
-	OnRepPawnFriendlyNameDelegate.Broadcast(OldFriendlyName);
+	OnRepFriendlyNameDelegate.Broadcast(OldFriendlyName);
 }
 
 void UAdhocPawnComponent::OnRep_FactionIndex(const int32 OldFactionIndex) const
 {
-	OnRepPawnFactionIndexDelegate.Broadcast(OldFactionIndex);
+	OnRepFactionIndexDelegate.Broadcast(OldFactionIndex);
 }

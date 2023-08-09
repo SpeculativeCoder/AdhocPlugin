@@ -39,7 +39,8 @@ private:
 	void OnPreWorldInitialization(UWorld* World, const UWorld::InitializationValues InitializationValues);
 	void OnPostWorldInitialization(UWorld* World, const UWorld::InitializationValues InitializationValues);
 
-	void OnWorldBeginPlay(UWorld *World);
+	void OnWorldBeginPlay(UWorld* World);
+	void OnActorSpawned(AActor* Actor);
 
 	void OnGameModeInitialized(AGameModeBase* GameMode);
 	void OnGameModePreLogin(AGameModeBase* GameMode, const FUniqueNetIdRepl& UniqueNetId, FString& ErrorMessage);

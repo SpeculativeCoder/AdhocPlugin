@@ -18,4 +18,26 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "Player/AdhocPlayerControllerInterface.h"
+#include "Player/AdhocPlayerControllerComponent.h"
+
+#include "Net/UnrealNetwork.h"
+
+UAdhocPlayerControllerComponent::UAdhocPlayerControllerComponent()
+{
+	PrimaryComponentTick.bCanEverTick = false;
+
+	SetIsReplicatedByDefault(true);
+}
+
+void UAdhocPlayerControllerComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(UAdhocPlayerControllerComponent, FactionIndex);
+	DOREPLIFETIME(UAdhocPlayerControllerComponent, UserID);
+}
+
+void UAdhocPlayerControllerComponent::OnRep_FactionIndex(int32 OldFactionIndex) const
+{
+	OnRepFactionIndexDelegate.Broadcast(OldFactionIndex);
+}

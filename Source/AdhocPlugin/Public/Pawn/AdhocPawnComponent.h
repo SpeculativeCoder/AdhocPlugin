@@ -29,12 +29,12 @@ class ADHOCPLUGIN_API UAdhocPawnComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
-	DECLARE_MULTICAST_DELEGATE_OneParam(FOnRepPawnFriendlyNameDelegate, const FString& OldFriendlyName);
+	DECLARE_MULTICAST_DELEGATE_OneParam(FOnRepFriendlyNameDelegate, const FString& OldFriendlyName);
 	DECLARE_MULTICAST_DELEGATE_OneParam(FOnRepPawnFactionIndexDelegate, int32 OldFactionIndex);
 
 public:
-	FOnRepPawnFriendlyNameDelegate OnRepPawnFriendlyNameDelegate;
-	FOnRepPawnFactionIndexDelegate OnRepPawnFactionIndexDelegate;
+	FOnRepFriendlyNameDelegate OnRepFriendlyNameDelegate;
+	FOnRepPawnFactionIndexDelegate OnRepFactionIndexDelegate;
 
 private:
 	/** UUID for the pawn. */
