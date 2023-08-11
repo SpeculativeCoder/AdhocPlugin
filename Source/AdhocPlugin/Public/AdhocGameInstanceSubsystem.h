@@ -22,9 +22,10 @@
 
 #include "CoreMinimal.h"
 #include "Subsystems/GameInstanceSubsystem.h"
+
 #include "AdhocGameInstanceSubsystem.generated.h"
 
-UCLASS()
+UCLASS(Transient)
 class ADHOCPLUGIN_API UAdhocGameInstanceSubsystem : public UGameInstanceSubsystem
 {
 	GENERATED_BODY()

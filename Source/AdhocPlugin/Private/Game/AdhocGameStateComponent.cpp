@@ -18,7 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "AdhocGameStateComponent.h"
+#include "Game/AdhocGameStateComponent.h"
 
 #include "Net/UnrealNetwork.h"
 

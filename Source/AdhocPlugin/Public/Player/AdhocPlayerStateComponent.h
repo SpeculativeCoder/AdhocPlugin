@@ -22,6 +22,7 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Object.h"
+
 #include "AdhocPlayerStateComponent.generated.h"
 
 UCLASS(Transient)

@@ -18,27 +18,27 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "AdhocGameModeComponent.h"
+#include "Game/AdhocGameModeComponent.h"
 
-#include "AdhocGameStateComponent.h"
-#include "EngineUtils.h"
 #include "Area/AdhocAreaComponent.h"
-#include "Faction/AdhocFactionState.h"
 #include "Area/AdhocAreaVolume.h"
+#include "Faction/AdhocFactionState.h"
+#include "Game/AdhocGameStateComponent.h"
+#include "Objective/AdhocObjectiveInterface.h"
+#include "Pawn/AdhocPawnComponent.h"
+#include "Player/AdhocPlayerControllerComponent.h"
+#include "Player/AdhocPlayerStateComponent.h"
+#include "Server/AdhocServerState.h"
+#include "EngineUtils.h"
 #include "GameFramework/GameSession.h"
 #include "GameFramework/GameStateBase.h"
 #include "GameFramework/PlayerState.h"
-#include "Server/AdhocServerState.h"
 #include "Runtime/Online/HTTP/Public/Http.h"
 #include "Runtime/Online/WebSockets/Public/WebSocketsModule.h"
 #include "Runtime/Online/Stomp/Public/IStompMessage.h"
 #include "Runtime/Online/Stomp/Public/StompModule.h"
 #include "Kismet/GameplayStatics.h"
-#include "Objective/AdhocObjectiveInterface.h"
-#include "Pawn/AdhocPawnComponent.h"
-#include "Player/AdhocPlayerStateComponent.h"
 #include "Engine/NetConnection.h"
-#include "Player/AdhocPlayerControllerComponent.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogAdhocGameModeComponent, Log, All)
 
@@ -112,10 +112,9 @@ void UAdhocGameModeComponent::InitializeComponent()
 	check(GameState);
 
 	AdhocGameState = NewObject<UAdhocGameStateComponent>(GameState, UAdhocGameStateComponent::StaticClass());
-	AdhocGameState->RegisterComponent();
-
 	AdhocGameState->SetServerID(ServerID);
 	AdhocGameState->SetRegionID(RegionID);
+	AdhocGameState->RegisterComponent();
 
 	InitFactionStates();
 	InitAreaStates();
@@ -353,19 +352,17 @@ void UAdhocGameModeComponent::PostLogin(APlayerController* PlayerController)
 	UE_LOG(LogAdhocGameModeComponent, Log, TEXT("PostLogin: Token=%s"), *Token);
 
 	UAdhocPlayerControllerComponent* AdhocPlayerController = NewObject<UAdhocPlayerControllerComponent>(PlayerController, UAdhocPlayerControllerComponent::StaticClass());
-	AdhocPlayerController->RegisterComponent();
-
 	AdhocPlayerController->SetFactionIndex(RandomFactionIndex);
 	AdhocPlayerController->SetUserID(UserID);
 	AdhocPlayerController->SetToken(Token);
+	AdhocPlayerController->RegisterComponent();
 
 	APlayerState* PlayerState = PlayerController->GetPlayerState<APlayerState>();
 	check(PlayerState);
 
 	UAdhocPlayerStateComponent* AdhocPlayerState = NewObject<UAdhocPlayerStateComponent>(PlayerState, UAdhocPlayerStateComponent::StaticClass());
-	AdhocPlayerState->RegisterComponent();
-
 	AdhocPlayerState->SetFactionIndex(AdhocPlayerController->GetFactionIndex());
+	AdhocPlayerState->RegisterComponent();
 
 #if WITH_SERVER_CODE && !defined(__EMSCRIPTEN__)
 	if (AdhocPlayerController->GetUserID() != -1 && !AdhocPlayerController->GetToken().IsEmpty())

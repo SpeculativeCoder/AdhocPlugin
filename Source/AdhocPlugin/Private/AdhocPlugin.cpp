@@ -31,5 +31,5 @@ void FAdhocPluginModule::ShutdownModule()
 }
 
 #undef LOCTEXT_NAMESPACE
-	
+
 IMPLEMENT_MODULE(FAdhocPluginModule, AdhocPlugin)

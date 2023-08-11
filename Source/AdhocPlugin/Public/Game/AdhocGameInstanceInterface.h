@@ -18,4 +18,26 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "AdhocGameInstanceInterface.h"
+#pragma once
+
+#include "CoreMinimal.h"
+#include "UObject/Interface.h"
+
+#include "AdhocGameInstanceInterface.generated.h"
+
+UINTERFACE()
+class UAdhocGameInstanceInterface : public UInterface
+{
+	GENERATED_BODY()
+};
+
+
+class ADHOCPLUGIN_API IAdhocGameInstanceInterface
+{
+	GENERATED_BODY()
+
+public:
+#if WITH_ADHOC_PLUGIN_EXTRA
+	virtual TOptional<TSubclassOf<AActor>> FindStructureClassByType(const FString& Type) const = 0;
+#endif
+};

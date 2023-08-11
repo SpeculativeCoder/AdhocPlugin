@@ -22,6 +22,7 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
+
 #include "AdhocStructureInterface.generated.h"
 
 UINTERFACE()

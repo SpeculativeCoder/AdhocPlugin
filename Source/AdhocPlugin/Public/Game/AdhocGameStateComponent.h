@@ -20,13 +20,14 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
-#include "UObject/Object.h"
-#include "Objective/AdhocObjectiveState.h"
-#include "Faction/AdhocFactionState.h"
 #include "Area/AdhocAreaState.h"
+#include "Faction/AdhocFactionState.h"
+#include "Objective/AdhocObjectiveState.h"
 #include "Server/AdhocServerState.h"
 #include "Structure/AdhocStructureState.h"
+#include "CoreMinimal.h"
+#include "UObject/Object.h"
+
 #include "AdhocGameStateComponent.generated.h"
 
 UCLASS(Transient)

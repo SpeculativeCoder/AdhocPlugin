@@ -20,9 +20,11 @@
 
 #include "AdhocWorldSubsystem.h"
 
+DEFINE_LOG_CATEGORY_STATIC(LogAdhocWorldSubsystem, Log, All)
+
 void UAdhocWorldSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
 	Super::Initialize(Collection);
 
-	UE_LOG(LogTemp, Log, TEXT("UAdhocWorldSubsystem: Initialize"));
+	UE_LOG(LogAdhocWorldSubsystem, Verbose, TEXT("Initialize"));
 }

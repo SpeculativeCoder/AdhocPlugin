@@ -20,8 +20,8 @@
 
 #include "Area/AdhocAreaVolume.h"
 
-#include "AdhocGameModeComponent.h"
 #include "Area/AdhocAreaComponent.h"
+#include "Game/AdhocGameModeComponent.h"
 #include "Components/BrushComponent.h"
 #include "GameFramework/GameModeBase.h"
 

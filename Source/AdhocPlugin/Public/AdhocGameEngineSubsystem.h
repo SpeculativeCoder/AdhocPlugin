@@ -35,14 +35,14 @@ private:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 
 	void OnPostWorldCreation(UWorld* World);
-	void OnWorldInitializedActors(const UWorld::FActorsInitializedParams& ActorsInitializedParams);
-	void OnPreWorldInitialization(UWorld* World, const UWorld::InitializationValues InitializationValues);
-	void OnPostWorldInitialization(UWorld* World, const UWorld::InitializationValues InitializationValues);
+	void OnWorldInitializedActors(const UWorld::FActorsInitializedParams& ActorsInitializedParams) const;
+	void OnPreWorldInitialization(UWorld* World, const UWorld::InitializationValues InitializationValues) const;
+	void OnPostWorldInitialization(UWorld* World, const UWorld::InitializationValues InitializationValues) const;
 
-	void OnWorldBeginPlay(UWorld* World);
-	void OnActorSpawned(AActor* Actor);
+	void OnWorldBeginPlay(UWorld* World) const;
+	void OnActorSpawned(AActor* Actor) const;
 
-	void OnGameModeInitialized(AGameModeBase* GameMode);
-	void OnGameModePreLogin(AGameModeBase* GameMode, const FUniqueNetIdRepl& UniqueNetId, FString& ErrorMessage);
-	void OnGameModePostLogin(AGameModeBase* GameMode, APlayerController* PlayerController);
+	void OnGameModeInitialized(AGameModeBase* GameMode) const;
+	void OnGameModePreLogin(AGameModeBase* GameMode, const FUniqueNetIdRepl& UniqueNetId, FString& ErrorMessage) const;
+	void OnGameModePostLogin(AGameModeBase* GameMode, APlayerController* PlayerController) const;
 };

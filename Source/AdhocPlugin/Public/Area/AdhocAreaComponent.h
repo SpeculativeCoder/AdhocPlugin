@@ -22,6 +22,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+
 #include "AdhocAreaComponent.generated.h"
 
 UCLASS()
@@ -41,5 +42,5 @@ public:
 	FORCEINLINE void SetAreaIndex(const int32 NewAreaIndex) { AreaIndex = NewAreaIndex; }
 
 private:
-	UAdhocAreaComponent(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
+	explicit UAdhocAreaComponent(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 };

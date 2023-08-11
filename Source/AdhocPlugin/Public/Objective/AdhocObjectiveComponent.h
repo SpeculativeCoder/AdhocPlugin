@@ -22,6 +22,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+
 #include "AdhocObjectiveComponent.generated.h"
 
 UCLASS()

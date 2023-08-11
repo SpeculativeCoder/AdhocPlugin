@@ -20,12 +20,13 @@
 
 #pragma once
 
+#include "Faction/AdhocFactionState.h"
+#include "Objective/AdhocObjectiveState.h"
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "Interfaces/IHttpRequest.h"
-#include "Objective/AdhocObjectiveState.h"
-#include "Faction/AdhocFactionState.h"
 #include "GameFramework/Controller.h"
+#include "Interfaces/IHttpRequest.h"
+
 #include "AdhocGameModeComponent.generated.h"
 
 UCLASS(Transient)

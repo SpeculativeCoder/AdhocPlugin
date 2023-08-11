@@ -20,9 +20,11 @@
 
 #include "AdhocGameInstanceSubsystem.h"
 
+DEFINE_LOG_CATEGORY_STATIC(LogAdhocGameInstanceSubsystem, Log, All)
+
 void UAdhocGameInstanceSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
 	Super::Initialize(Collection);
 
-	UE_LOG(LogTemp, Log, TEXT("AdhocGameInstanceSubsystem: Initialize"));
+	UE_LOG(LogAdhocGameInstanceSubsystem, Verbose, TEXT("Initialize"));
 }
