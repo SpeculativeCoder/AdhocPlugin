@@ -1,4 +1,4 @@
-// Copyright (c) 2022-2023 SpeculativeCoder (https://github.com/SpeculativeCoder)
+﻿// Copyright (c) 2022-2023 SpeculativeCoder (https://github.com/SpeculativeCoder)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -21,11 +21,32 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Modules/ModuleManager.h"
+#include "Components/ActorComponent.h"
 
-class FAdhocPluginModule : public IModuleInterface
+#include "AdhocControllerComponent.generated.h"
+
+UCLASS(Transient)
+class ADHOCPLUGIN_API UAdhocControllerComponent : public UActorComponent
 {
-private:
-	virtual void StartupModule() override;
-	virtual void ShutdownModule() override;
+	GENERATED_BODY()
+
+public:
+	DECLARE_MULTICAST_DELEGATE_OneParam(FOnRepFactionIndexDelegate, int32 OldFactionIndex);
+
+	FOnRepFactionIndexDelegate OnRepFactionIndexDelegate;
+
+protected:
+	UPROPERTY(Replicated, ReplicatedUsing = OnRep_FactionIndex)
+	int32 FactionIndex = -1;
+
+public:
+	FORCEINLINE int32 GetFactionIndex() const { return FactionIndex; }
+
+	FORCEINLINE void SetFactionIndex(const int64 NewFactionIndex) { FactionIndex = NewFactionIndex; }
+
+protected:
+	explicit UAdhocControllerComponent(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
+
+	UFUNCTION()
+	void OnRep_FactionIndex(int32 OldFactionIndex) const;
 };

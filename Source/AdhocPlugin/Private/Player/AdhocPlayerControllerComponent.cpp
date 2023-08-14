@@ -22,22 +22,14 @@
 
 #include "Net/UnrealNetwork.h"
 
-UAdhocPlayerControllerComponent::UAdhocPlayerControllerComponent()
+UAdhocPlayerControllerComponent::UAdhocPlayerControllerComponent(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
 {
-	PrimaryComponentTick.bCanEverTick = false;
-
-	SetIsReplicatedByDefault(true);
 }
 
 void UAdhocPlayerControllerComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME(UAdhocPlayerControllerComponent, FactionIndex);
 	DOREPLIFETIME(UAdhocPlayerControllerComponent, UserID);
-}
-
-void UAdhocPlayerControllerComponent::OnRep_FactionIndex(int32 OldFactionIndex) const
-{
-	OnRepFactionIndexDelegate.Broadcast(OldFactionIndex);
 }

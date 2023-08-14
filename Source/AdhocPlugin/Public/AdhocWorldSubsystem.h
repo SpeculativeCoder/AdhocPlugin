@@ -32,4 +32,13 @@ class ADHOCPLUGIN_API UAdhocWorldSubsystem : public UWorldSubsystem
 
 private:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
+
+	virtual bool DoesSupportWorldType(EWorldType::Type WorldType) const override;
+
+	void OnPostWorldCreation(UWorld* World) const;
+	void OnWorldInitializedActors(const UWorld::FActorsInitializedParams& ActorsInitializedParams) const;
+	void OnPreWorldInitialization(UWorld* World, const UWorld::InitializationValues InitializationValues) const;
+	void OnPostWorldInitialization(UWorld* World, const UWorld::InitializationValues InitializationValues) const;
+
+	void OnWorldBeginPlay(UWorld* World) const;
 };

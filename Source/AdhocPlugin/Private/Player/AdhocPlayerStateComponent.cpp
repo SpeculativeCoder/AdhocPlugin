@@ -29,6 +29,7 @@ UAdhocPlayerStateComponent::UAdhocPlayerStateComponent(const FObjectInitializer&
 	UserID = -1;
 
 	SetIsReplicatedByDefault(true);
+	SetNetAddressable();
 }
 
 void UAdhocPlayerStateComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

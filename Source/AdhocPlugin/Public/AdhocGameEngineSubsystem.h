@@ -34,12 +34,13 @@ class ADHOCPLUGIN_API UAdhocGameEngineSubsystem : public UEngineSubsystem
 private:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 
-	void OnPostWorldCreation(UWorld* World);
+	void OnPostWorldCreation(UWorld* World) const;
 	void OnWorldInitializedActors(const UWorld::FActorsInitializedParams& ActorsInitializedParams) const;
 	void OnPreWorldInitialization(UWorld* World, const UWorld::InitializationValues InitializationValues) const;
 	void OnPostWorldInitialization(UWorld* World, const UWorld::InitializationValues InitializationValues) const;
 
 	void OnWorldBeginPlay(UWorld* World) const;
+	void OnActorPreSpawnInitialization(AActor* Actor) const;
 	void OnActorSpawned(AActor* Actor) const;
 
 	void OnGameModeInitialized(AGameModeBase* GameMode) const;

@@ -21,24 +21,17 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "AdhocControllerComponent.h"
 #include "Components/ActorComponent.h"
 
 #include "AdhocPlayerControllerComponent.generated.h"
 
 UCLASS(Transient)
-class ADHOCPLUGIN_API UAdhocPlayerControllerComponent : public UActorComponent
+class ADHOCPLUGIN_API UAdhocPlayerControllerComponent : public UAdhocControllerComponent
 {
 	GENERATED_BODY()
 
-	DECLARE_MULTICAST_DELEGATE_OneParam(FOnRepFactionIndexDelegate, int32 OldFactionIndex);
-
-public:
-	FOnRepFactionIndexDelegate OnRepFactionIndexDelegate;
-
 private:
-	UPROPERTY(Replicated, ReplicatedUsing = OnRep_FactionIndex)
-	int32 FactionIndex = -1;
-
 	UPROPERTY(Replicated)
 	int64 UserID = -1;
 
@@ -50,22 +43,16 @@ private:
 	TOptional<FTransform> ImmediateSpawnTransform;
 
 public:
-	FORCEINLINE int32 GetFactionIndex() const { return FactionIndex; }
-	FORCEINLINE void SetFactionIndex(const int64 NewFactionIndex) { FactionIndex = NewFactionIndex; }
-
 	FORCEINLINE int64 GetUserID() const { return UserID; }
-	FORCEINLINE void SetUserID(const int64 NewUserID) { UserID = NewUserID; }
-
 	FORCEINLINE FString GetToken() const { return Token; }
-	FORCEINLINE void SetToken(const FString& NewToken) { Token = NewToken; }
-
 	FORCEINLINE TOptional<FTransform> GetImmediateSpawnTransform() const { return ImmediateSpawnTransform; }
+
+	FORCEINLINE void SetUserID(const int64 NewUserID) { UserID = NewUserID; }
+	FORCEINLINE void SetToken(const FString& NewToken) { Token = NewToken; }
 	FORCEINLINE void SetImmediateSpawnTransform(const TOptional<FTransform>& NewImmediateSpawnTransform) { ImmediateSpawnTransform = NewImmediateSpawnTransform; }
+
 	FORCEINLINE void ClearImmediateSpawnTransform() { ImmediateSpawnTransform = TOptional<FTransform>(); }
 
 private:
-	UAdhocPlayerControllerComponent();
-
-	UFUNCTION()
-	void OnRep_FactionIndex(int32 OldFactionIndex) const;
+	explicit UAdhocPlayerControllerComponent(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 };

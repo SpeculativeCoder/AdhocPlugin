@@ -111,10 +111,15 @@ void UAdhocGameModeComponent::InitializeComponent()
 	GameState = GameMode->GetGameState<AGameStateBase>();
 	check(GameState);
 
-	AdhocGameState = NewObject<UAdhocGameStateComponent>(GameState, UAdhocGameStateComponent::StaticClass());
+	// AdhocGameState = NewObject<UAdhocGameStateComponent>(GameState, UAdhocGameStateComponent::StaticClass());
+
+	AdhocGameState = Cast<UAdhocGameStateComponent>(GameState->GetComponentByClass(UAdhocGameStateComponent::StaticClass()));
+	check(AdhocGameState);
+
 	AdhocGameState->SetServerID(ServerID);
 	AdhocGameState->SetRegionID(RegionID);
-	AdhocGameState->RegisterComponent();
+
+	//AdhocGameState->RegisterComponent();
 
 	InitFactionStates();
 	InitAreaStates();
@@ -351,18 +356,28 @@ void UAdhocGameModeComponent::PostLogin(APlayerController* PlayerController)
 	const FString Token = UGameplayStatics::ParseOption(Options, TEXT("Token"));
 	UE_LOG(LogAdhocGameModeComponent, Log, TEXT("PostLogin: Token=%s"), *Token);
 
-	UAdhocPlayerControllerComponent* AdhocPlayerController = NewObject<UAdhocPlayerControllerComponent>(PlayerController, UAdhocPlayerControllerComponent::StaticClass());
+	// UAdhocPlayerControllerComponent* AdhocPlayerController = NewObject<UAdhocPlayerControllerComponent>(PlayerController, UAdhocPlayerControllerComponent::StaticClass());
+
+	UAdhocPlayerControllerComponent* AdhocPlayerController = Cast<UAdhocPlayerControllerComponent>(PlayerController->GetComponentByClass(UAdhocPlayerControllerComponent::StaticClass()));
+	check(AdhocPlayerController);
+
 	AdhocPlayerController->SetFactionIndex(RandomFactionIndex);
 	AdhocPlayerController->SetUserID(UserID);
 	AdhocPlayerController->SetToken(Token);
-	AdhocPlayerController->RegisterComponent();
+
+	// AdhocPlayerController->RegisterComponent();
 
 	APlayerState* PlayerState = PlayerController->GetPlayerState<APlayerState>();
 	check(PlayerState);
 
-	UAdhocPlayerStateComponent* AdhocPlayerState = NewObject<UAdhocPlayerStateComponent>(PlayerState, UAdhocPlayerStateComponent::StaticClass());
+	// UAdhocPlayerStateComponent* AdhocPlayerState = NewObject<UAdhocPlayerStateComponent>(PlayerState, UAdhocPlayerStateComponent::StaticClass());
+
+	UAdhocPlayerStateComponent* AdhocPlayerState = Cast<UAdhocPlayerStateComponent>(PlayerState->GetComponentByClass(UAdhocPlayerStateComponent::StaticClass()));
+	check(AdhocPlayerState)
+
 	AdhocPlayerState->SetFactionIndex(AdhocPlayerController->GetFactionIndex());
-	AdhocPlayerState->RegisterComponent();
+
+	// AdhocPlayerState->RegisterComponent();
 
 #if WITH_SERVER_CODE && !defined(__EMSCRIPTEN__)
 	if (AdhocPlayerController->GetUserID() != -1 && !AdhocPlayerController->GetToken().IsEmpty())

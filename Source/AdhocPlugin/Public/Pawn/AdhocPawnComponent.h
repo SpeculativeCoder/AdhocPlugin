@@ -55,12 +55,11 @@ public:
 	FORCEINLINE const FString& GetFriendlyName() const { return FriendlyName; }
 	FORCEINLINE int32 GetFactionIndex() const { return FactionIndex; }
 
-	//FORCEINLINE void SetUUID(const FGuid& NewUUID) { UUID = NewUUID; }
 	FORCEINLINE void SetFriendlyName(const FString& NewFriendlyName) { FriendlyName = NewFriendlyName; }
 	FORCEINLINE void SetFactionIndex(const int32 NewFactionIndex) { FactionIndex = NewFactionIndex; }
 
 private:
-	UAdhocPawnComponent(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
+	explicit UAdhocPawnComponent(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
 	virtual void InitializeComponent() override;
 

@@ -1,4 +1,4 @@
-// Copyright (c) 2022-2023 SpeculativeCoder (https://github.com/SpeculativeCoder)
+﻿// Copyright (c) 2022-2023 SpeculativeCoder (https://github.com/SpeculativeCoder)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -18,14 +18,26 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#pragma once
+#include "Player/AdhocControllerComponent.h"
 
-#include "CoreMinimal.h"
-#include "Modules/ModuleManager.h"
+#include "Net/UnrealNetwork.h"
 
-class FAdhocPluginModule : public IModuleInterface
+UAdhocControllerComponent::UAdhocControllerComponent(const FObjectInitializer& ObjectInitializer)
 {
-private:
-	virtual void StartupModule() override;
-	virtual void ShutdownModule() override;
-};
+	PrimaryComponentTick.bCanEverTick = false;
+
+	SetIsReplicatedByDefault(true);
+	SetNetAddressable();
+}
+
+void UAdhocControllerComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(UAdhocControllerComponent, FactionIndex);
+}
+
+void UAdhocControllerComponent::OnRep_FactionIndex(int32 OldFactionIndex) const
+{
+	OnRepFactionIndexDelegate.Broadcast(OldFactionIndex);
+}

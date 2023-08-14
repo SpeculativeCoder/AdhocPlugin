@@ -27,6 +27,7 @@ UAdhocGameStateComponent::UAdhocGameStateComponent(const FObjectInitializer& Obj
 	PrimaryComponentTick.bCanEverTick = false;
 
 	SetIsReplicatedByDefault(true);
+	SetNetAddressable();
 }
 
 void UAdhocGameStateComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

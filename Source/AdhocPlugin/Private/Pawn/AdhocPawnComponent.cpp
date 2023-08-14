@@ -19,7 +19,7 @@
 // SOFTWARE.
 
 #include "Pawn/AdhocPawnComponent.h"
-
+#include "Player/AdhocPlayerControllerComponent.h"
 #include "Net/UnrealNetwork.h"
 
 UAdhocPawnComponent::UAdhocPawnComponent(const FObjectInitializer& ObjectInitializer)
@@ -28,12 +28,17 @@ UAdhocPawnComponent::UAdhocPawnComponent(const FObjectInitializer& ObjectInitial
 	PrimaryComponentTick.bCanEverTick = false;
 
 	SetIsReplicatedByDefault(true);
+	SetNetAddressable();
 }
+
 void UAdhocPawnComponent::InitializeComponent()
 {
 	Super::InitializeComponent();
 
 	UUID = FGuid::NewGuid();
+
+	APawn* Pawn = GetOwner<APawn>();
+	check(Pawn);
 }
 
 void UAdhocPawnComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
