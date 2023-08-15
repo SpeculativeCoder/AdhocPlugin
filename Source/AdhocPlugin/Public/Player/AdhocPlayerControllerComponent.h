@@ -23,6 +23,7 @@
 #include "CoreMinimal.h"
 #include "AdhocControllerComponent.h"
 #include "Components/ActorComponent.h"
+#include "GameFramework/PlayerController.h"
 
 #include "AdhocPlayerControllerComponent.generated.h"
 
@@ -43,6 +44,8 @@ private:
 	TOptional<FTransform> ImmediateSpawnTransform;
 
 public:
+	FORCEINLINE class APlayerController* GetPlayerController() const { return GetOwner<APlayerController>(); }
+
 	FORCEINLINE int64 GetUserID() const { return UserID; }
 	FORCEINLINE FString GetToken() const { return Token; }
 	FORCEINLINE TOptional<FTransform> GetImmediateSpawnTransform() const { return ImmediateSpawnTransform; }

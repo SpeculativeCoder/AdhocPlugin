@@ -44,9 +44,8 @@ DEFINE_LOG_CATEGORY_STATIC(LogAdhocGameModeComponent, Log, All)
 
 UAdhocGameModeComponent::UAdhocGameModeComponent()
 {
-	PrimaryComponentTick.bCanEverTick = false;
-
 	bWantsInitializeComponent = true;
+	PrimaryComponentTick.bCanEverTick = false;
 }
 
 void UAdhocGameModeComponent::InitializeComponent()
@@ -165,7 +164,7 @@ void UAdhocGameModeComponent::BeginPlay()
 #endif
 }
 
-void UAdhocGameModeComponent::InitFactionStates()
+void UAdhocGameModeComponent::InitFactionStates() const
 {
 	// set up some default factions (will be overridden once we contact the manager server)
 	TArray<FAdhocFactionState> Factions;
@@ -198,7 +197,7 @@ void UAdhocGameModeComponent::InitFactionStates()
 	AdhocGameState->SetFactions(Factions);
 }
 
-void UAdhocGameModeComponent::InitAreaStates()
+void UAdhocGameModeComponent::InitAreaStates() const
 {
 	// set up the areas in this region (manager server will tell us about the areas in other regions)
 	int32 AreaIndex = 0;
@@ -258,7 +257,7 @@ void UAdhocGameModeComponent::InitAreaStates()
 	AdhocGameState->SetActiveAreaIndexes(ActiveAreaIndexes);
 }
 
-void UAdhocGameModeComponent::InitServerStates()
+void UAdhocGameModeComponent::InitServerStates() const
 {
 	// assume this is the only server until we get the server(s) info
 	TArray<FAdhocServerState> Servers;
@@ -279,7 +278,7 @@ void UAdhocGameModeComponent::InitServerStates()
 	AdhocGameState->SetServers(Servers);
 }
 
-void UAdhocGameModeComponent::InitObjectiveStates()
+void UAdhocGameModeComponent::InitObjectiveStates() const
 {
 	// set up the known objectives
 	int32 ObjectiveIndex = 0;
@@ -335,11 +334,11 @@ void UAdhocGameModeComponent::InitObjectiveStates()
 	}
 }
 
-void UAdhocGameModeComponent::PostLogin(APlayerController* PlayerController)
+void UAdhocGameModeComponent::PostLogin(const APlayerController* PlayerController)
 {
 	UE_LOG(LogAdhocGameModeComponent, Log, TEXT("PostLogin: NewPlayer=%s"), *PlayerController->GetName());
 
-	UNetConnection* NetConnection = PlayerController->GetNetConnection();
+	const UNetConnection* NetConnection = PlayerController->GetNetConnection();
 	// check(NetConnection);
 	const FString& RequestURL = NetConnection ? NetConnection->RequestURL : TEXT(""); // TODO (listen mode does not have connection)
 	UE_LOG(LogAdhocGameModeComponent, Log, TEXT("PostLogin: RequestURL=%s"), *RequestURL);
@@ -356,8 +355,6 @@ void UAdhocGameModeComponent::PostLogin(APlayerController* PlayerController)
 	const FString Token = UGameplayStatics::ParseOption(Options, TEXT("Token"));
 	UE_LOG(LogAdhocGameModeComponent, Log, TEXT("PostLogin: Token=%s"), *Token);
 
-	// UAdhocPlayerControllerComponent* AdhocPlayerController = NewObject<UAdhocPlayerControllerComponent>(PlayerController, UAdhocPlayerControllerComponent::StaticClass());
-
 	UAdhocPlayerControllerComponent* AdhocPlayerController = Cast<UAdhocPlayerControllerComponent>(PlayerController->GetComponentByClass(UAdhocPlayerControllerComponent::StaticClass()));
 	check(AdhocPlayerController);
 
@@ -365,19 +362,12 @@ void UAdhocGameModeComponent::PostLogin(APlayerController* PlayerController)
 	AdhocPlayerController->SetUserID(UserID);
 	AdhocPlayerController->SetToken(Token);
 
-	// AdhocPlayerController->RegisterComponent();
-
-	APlayerState* PlayerState = PlayerController->GetPlayerState<APlayerState>();
+	const APlayerState* PlayerState = PlayerController->GetPlayerState<APlayerState>();
 	check(PlayerState);
-
-	// UAdhocPlayerStateComponent* AdhocPlayerState = NewObject<UAdhocPlayerStateComponent>(PlayerState, UAdhocPlayerStateComponent::StaticClass());
-
 	UAdhocPlayerStateComponent* AdhocPlayerState = Cast<UAdhocPlayerStateComponent>(PlayerState->GetComponentByClass(UAdhocPlayerStateComponent::StaticClass()));
 	check(AdhocPlayerState)
 
 	AdhocPlayerState->SetFactionIndex(AdhocPlayerController->GetFactionIndex());
-
-	// AdhocPlayerState->RegisterComponent();
 
 #if WITH_SERVER_CODE && !defined(__EMSCRIPTEN__)
 	if (AdhocPlayerController->GetUserID() != -1 && !AdhocPlayerController->GetToken().IsEmpty())
@@ -1316,6 +1306,7 @@ void UAdhocGameModeComponent::OnUserJoinResponse(
 		}
 	}
 
+	AdhocPlayerController->SetFriendlyName(UserName);
 	AdhocPlayerController->SetFactionIndex(UserFactionIndex);
 	AdhocPlayerController->SetToken(UserToken);
 
@@ -1337,6 +1328,7 @@ void UAdhocGameModeComponent::OnUserJoinResponse(
 		UAdhocPawnComponent* AdhocPawnComponent = Cast<UAdhocPawnComponent>(Pawn->GetComponentByClass(UAdhocPawnComponent::StaticClass()));
 		if (AdhocPawnComponent)
 		{
+			// TODO: push the name too?
 			AdhocPawnComponent->SetFactionIndex(UserFactionIndex);
 		}
 	}

@@ -25,9 +25,6 @@
 UAdhocPlayerStateComponent::UAdhocPlayerStateComponent(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
-	FactionIndex = -1;
-	UserID = -1;
-
 	SetIsReplicatedByDefault(true);
 	SetNetAddressable();
 }

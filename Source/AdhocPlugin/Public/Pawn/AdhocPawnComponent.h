@@ -51,6 +51,8 @@ private:
 	int32 FactionIndex = -1;
 
 public:
+	FORCEINLINE class APawn* GetPawn() const { return GetOwner<APawn>(); }
+
 	FORCEINLINE const FGuid& GetUUID() const { return UUID; }
 	FORCEINLINE const FString& GetFriendlyName() const { return FriendlyName; }
 	FORCEINLINE int32 GetFactionIndex() const { return FactionIndex; }

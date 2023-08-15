@@ -44,13 +44,13 @@ struct FAdhocStructureState
 	int64 RegionID = -1;
 
 	UPROPERTY(BlueprintReadOnly)
-	FVector Location = FVector::ZeroVector;
+	FVector Location;
 	UPROPERTY(BlueprintReadOnly)
-    FRotator Rotation = FRotator::ZeroRotator;
+    FRotator Rotation;
 	UPROPERTY(BlueprintReadOnly)
-	FVector Scale = FVector::ZeroVector;
+	FVector Scale;
 	UPROPERTY(BlueprintReadOnly)
-	FVector Size = FVector::ZeroVector;
+	FVector Size;
 
 	UPROPERTY(BlueprintReadOnly)
 	int64 FactionID = -1;

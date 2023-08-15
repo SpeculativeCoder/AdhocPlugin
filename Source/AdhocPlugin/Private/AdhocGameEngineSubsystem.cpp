@@ -156,7 +156,6 @@ void UAdhocGameEngineSubsystem::OnActorPreSpawnInitialization(AActor* Actor) con
 			//AdhocGameModeComponent->RegisterComponent();
 		}
 	}
-
 }
 
 // ReSharper disable once CppParameterMayBeConstPtrOrRef

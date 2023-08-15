@@ -21,7 +21,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UObject/Object.h"
+#include "Components/ActorComponent.h"
+#include "GameFramework/PlayerState.h"
 
 #include "AdhocPlayerStateComponent.generated.h"
 
@@ -39,6 +40,8 @@ class ADHOCPLUGIN_API UAdhocPlayerStateComponent : public UActorComponent
 	explicit UAdhocPlayerStateComponent(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
 public:
+	FORCEINLINE class APlayerState* GetPlayerState() const { return GetOwner<APlayerState>(); }
+
 	FORCEINLINE int32 GetFactionIndex() const { return FactionIndex; }
 	FORCEINLINE int32 GetUserID() const { return UserID; }
 

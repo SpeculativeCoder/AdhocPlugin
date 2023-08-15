@@ -22,6 +22,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "GameFramework/Controller.h"
 
 #include "AdhocControllerComponent.generated.h"
 
@@ -31,22 +32,37 @@ class ADHOCPLUGIN_API UAdhocControllerComponent : public UActorComponent
 	GENERATED_BODY()
 
 public:
+	DECLARE_MULTICAST_DELEGATE_OneParam(FOnRepFriendlyNameDelegate, const FString& OldFriendlyName);
 	DECLARE_MULTICAST_DELEGATE_OneParam(FOnRepFactionIndexDelegate, int32 OldFactionIndex);
 
+	FOnRepFriendlyNameDelegate OnRepFriendlyNameDelegate;
 	FOnRepFactionIndexDelegate OnRepFactionIndexDelegate;
 
 protected:
+	UPROPERTY(Replicated, ReplicatedUsing = OnRep_FriendlyName)
+	FString FriendlyName;
+
 	UPROPERTY(Replicated, ReplicatedUsing = OnRep_FactionIndex)
 	int32 FactionIndex = -1;
 
 public:
+	FORCEINLINE class AController* GetController() const { return GetOwner<AController>(); }
+
+	FORCEINLINE const FString& GetFriendlyName() const { return FriendlyName; }
 	FORCEINLINE int32 GetFactionIndex() const { return FactionIndex; }
 
+	FORCEINLINE void SetFriendlyName(const FString& NewFriendlyName) { FriendlyName = NewFriendlyName; }
 	FORCEINLINE void SetFactionIndex(const int64 NewFactionIndex) { FactionIndex = NewFactionIndex; }
 
 protected:
 	explicit UAdhocControllerComponent(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
+	virtual void InitializeComponent() override;
+
+	void OnNewPawn(APawn *Pawn) const;
+
+	UFUNCTION()
+	void OnRep_FriendlyName(const FString& OldFriendlyName) const;
 	UFUNCTION()
 	void OnRep_FactionIndex(int32 OldFactionIndex) const;
 };

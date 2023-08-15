@@ -37,8 +37,7 @@ void UAdhocPawnComponent::InitializeComponent()
 
 	UUID = FGuid::NewGuid();
 
-	APawn* Pawn = GetOwner<APawn>();
-	check(Pawn);
+	check(GetPawn());
 }
 
 void UAdhocPawnComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

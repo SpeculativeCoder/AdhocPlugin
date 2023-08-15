@@ -35,13 +35,11 @@ class ADHOCPLUGIN_API UAdhocGameModeComponent : public UActorComponent
 	GENERATED_BODY()
 
 	DECLARE_MULTICAST_DELEGATE_TwoParams(FOnObjectiveTakenEventDelegate, FAdhocObjectiveState& OutObjective, FAdhocFactionState& Faction);
-
 	DECLARE_MULTICAST_DELEGATE_TwoParams(FOnUserDefeatedUserEventDelegate, APlayerController* PlayerController, APlayerController* DefeatedPlayerController);
 	DECLARE_MULTICAST_DELEGATE_TwoParams(FOnUserDefeatedBotEventDelegate, APlayerController* PlayerController, AController* DefeatedBotController);
 
 public:
 	FOnObjectiveTakenEventDelegate OnObjectiveTakenEventDelegate;
-
 	FOnUserDefeatedUserEventDelegate OnUserDefeatedUserEventDelegate;
 	FOnUserDefeatedBotEventDelegate OnUserDefeatedBotEventDelegate;
 
@@ -82,17 +80,17 @@ private:
 	virtual void InitializeComponent() override;
 	virtual void BeginPlay() override;
 
-	void InitFactionStates();
-	void InitAreaStates();
-	void InitServerStates();
-	void InitObjectiveStates();
+	void InitFactionStates() const;
+	void InitAreaStates() const;
+	void InitServerStates() const;
+	void InitObjectiveStates() const;
 #if WITH_ADHOC_PLUGIN_EXTRA
 	void InitStructureStates();
 #endif
 
 public:
 	/** Perform a login with the web server and retrieve information about the player e.g. which faction they are etc.. */
-	void PostLogin(APlayerController* PlayerController);
+	void PostLogin(const APlayerController* PlayerController);
 
 	void ObjectiveTaken(struct FAdhocObjectiveState& OutObjective, struct FAdhocFactionState& Faction) const;
 private:

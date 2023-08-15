@@ -42,5 +42,5 @@ struct FAdhocFactionState
 	FColor Color = FColor::Silver;
 
 	UPROPERTY(BlueprintReadOnly)
-	float Score = 0;
+	float Score;
 };

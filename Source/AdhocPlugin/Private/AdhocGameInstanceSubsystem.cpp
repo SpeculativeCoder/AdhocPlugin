@@ -26,5 +26,8 @@ void UAdhocGameInstanceSubsystem::Initialize(FSubsystemCollectionBase& Collectio
 {
 	Super::Initialize(Collection);
 
-	UE_LOG(LogAdhocGameInstanceSubsystem, Verbose, TEXT("Initialize"));
+	const UGameInstance* GameInstance = GetGameInstance();
+	check(GameInstance);
+
+	UE_LOG(LogAdhocGameInstanceSubsystem, Verbose, TEXT("Initialize: GameInstance=%s"), *GameInstance->GetName());
 }

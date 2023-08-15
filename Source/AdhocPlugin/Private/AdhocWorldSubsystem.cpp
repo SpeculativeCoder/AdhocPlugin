@@ -26,12 +26,10 @@ void UAdhocWorldSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
 	Super::Initialize(Collection);
 
-	UE_LOG(LogAdhocWorldSubsystem, Verbose, TEXT("Initialize"));
+	const UWorld* World = GetWorld();
+	check(World);
 
-	FWorldDelegates::OnPostWorldCreation.AddUObject(this, &UAdhocWorldSubsystem::OnPostWorldCreation);
-	FWorldDelegates::OnPreWorldInitialization.AddUObject(this, &UAdhocWorldSubsystem::OnPreWorldInitialization);
-	FWorldDelegates::OnPostWorldInitialization.AddUObject(this, &UAdhocWorldSubsystem::OnPostWorldInitialization);
-	FWorldDelegates::OnWorldInitializedActors.AddUObject(this, &UAdhocWorldSubsystem::OnWorldInitializedActors);
+	UE_LOG(LogAdhocWorldSubsystem, Verbose, TEXT("Initialize: World=%s"), *World->GetName());
 }
 
 bool UAdhocWorldSubsystem::DoesSupportWorldType(const EWorldType::Type WorldType) const
@@ -39,35 +37,4 @@ bool UAdhocWorldSubsystem::DoesSupportWorldType(const EWorldType::Type WorldType
 	UE_LOG(LogAdhocWorldSubsystem, Verbose, TEXT("DoesSupportWorldType: WorldType=%d"), WorldType);
 
 	return WorldType == EWorldType::Game || WorldType == EWorldType::PIE;
-}
-
-// ReSharper disable once CppParameterMayBeConstPtrOrRef
-void UAdhocWorldSubsystem::OnPostWorldCreation(UWorld* World) const
-{
-	UE_LOG(LogAdhocWorldSubsystem, Verbose, TEXT("OnPostWorldCreation: World=%s"), *World->GetName());
-}
-
-// ReSharper disable once CppParameterMayBeConstPtrOrRef
-void UAdhocWorldSubsystem::OnPreWorldInitialization(UWorld* World, const UWorld::InitializationValues InitializationValues) const
-{
-	UE_LOG(LogAdhocWorldSubsystem, Verbose, TEXT("OnPreWorldInitialization: World=%s"), *World->GetName());
-
-	World->OnWorldBeginPlay.AddUObject(this, &UAdhocWorldSubsystem::OnWorldBeginPlay, World);
-}
-
-// ReSharper disable once CppParameterMayBeConstPtrOrRef
-void UAdhocWorldSubsystem::OnPostWorldInitialization(UWorld* World, UWorld::InitializationValues InitializationValues) const
-{
-	UE_LOG(LogAdhocWorldSubsystem, Verbose, TEXT("OnPostWorldInitialization: World=%s"), *World->GetName());
-}
-
-void UAdhocWorldSubsystem::OnWorldInitializedActors(const UWorld::FActorsInitializedParams& ActorsInitializedParams) const
-{
-	UE_LOG(LogAdhocWorldSubsystem, Verbose, TEXT("OnWorldInitializedActors: World=%s"), *ActorsInitializedParams.World->GetName());
-}
-
-// ReSharper disable once CppParameterMayBeConstPtrOrRef
-void UAdhocWorldSubsystem::OnWorldBeginPlay(UWorld* World) const
-{
-	UE_LOG(LogAdhocWorldSubsystem, Verbose, TEXT("OnWorldBeginPlay: World=%s"), *World->GetName());
 }
