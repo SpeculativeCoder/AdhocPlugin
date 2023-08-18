@@ -35,9 +35,13 @@ void UAdhocPawnComponent::InitializeComponent()
 {
 	Super::InitializeComponent();
 
-	UUID = FGuid::NewGuid();
+	const APawn* Pawn = GetPawn();
+	check(Pawn);
 
-	check(GetPawn());
+	if (Pawn->HasAuthority())
+	{
+		UUID = FGuid::NewGuid();
+	}
 }
 
 void UAdhocPawnComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -48,12 +52,36 @@ void UAdhocPawnComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& 
 	DOREPLIFETIME(UAdhocPawnComponent, FactionIndex);
 }
 
-void UAdhocPawnComponent::OnRep_FriendlyName(const FString& OldFriendlyName) const
+void UAdhocPawnComponent::SetFriendlyName(const FString& NewFriendlyName)
 {
-	OnRepFriendlyNameDelegate.Broadcast(OldFriendlyName);
+	const bool bChanged = FriendlyName != NewFriendlyName;
+
+	FriendlyName = NewFriendlyName;
+
+	if (bChanged)
+	{
+		OnFriendlyNameChangedDelegate.Broadcast();
+	}
 }
 
-void UAdhocPawnComponent::OnRep_FactionIndex(const int32 OldFactionIndex) const
+void UAdhocPawnComponent::SetFactionIndex(const int32 NewFactionIndex)
 {
-	OnRepFactionIndexDelegate.Broadcast(OldFactionIndex);
+	const bool bChanged = FactionIndex != NewFactionIndex;
+
+	FactionIndex = NewFactionIndex;
+
+	if (bChanged)
+	{
+		OnFactionIndexChangedDelegate.Broadcast();
+	}
+}
+
+void UAdhocPawnComponent::OnRep_FriendlyName(const FString& OldFriendlyName) const
+{
+	OnFriendlyNameChangedDelegate.Broadcast();
+}
+
+void UAdhocPawnComponent::OnRep_FactionIndex(int32 OldFactionIndex) const
+{
+	OnFactionIndexChangedDelegate.Broadcast();
 }

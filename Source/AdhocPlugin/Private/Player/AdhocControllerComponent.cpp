@@ -20,7 +20,6 @@
 
 #include "Player/AdhocControllerComponent.h"
 
-#include "GameFramework/PlayerState.h"
 #include "Net/UnrealNetwork.h"
 #include "Pawn/AdhocPawnComponent.h"
 
@@ -55,6 +54,30 @@ void UAdhocControllerComponent::InitializeComponent()
 	Controller->GetOnNewPawnNotifier().AddUObject(this, &UAdhocControllerComponent::OnNewPawn);
 }
 
+void UAdhocControllerComponent::SetFriendlyName(const FString& NewFriendlyName)
+{
+	const bool bChanged = FriendlyName != NewFriendlyName;
+
+	FriendlyName = NewFriendlyName;
+
+	if (bChanged)
+	{
+		OnFriendlyNameChangedDelegate.Broadcast();
+	}
+}
+
+void UAdhocControllerComponent::SetFactionIndex(const int64 NewFactionIndex)
+{
+	const bool bChanged = FactionIndex != NewFactionIndex;
+
+	FactionIndex = NewFactionIndex;
+
+	if (bChanged)
+	{
+		OnFactionIndexChangedDelegate.Broadcast();
+	}
+}
+
 void UAdhocControllerComponent::OnNewPawn(APawn* Pawn) const
 {
 	const AController* Controller = GetController();
@@ -74,19 +97,22 @@ void UAdhocControllerComponent::OnNewPawn(APawn* Pawn) const
 				UE_LOG(LogTemp, VeryVerbose, TEXT("OnNewPawn: Setting FriendlyName=%s"), *FriendlyName);
 				AdhocPawn->SetFriendlyName(FriendlyName);
 			}
-			else
-			{
-				const APlayerState* PlayerState = Pawn->GetPlayerState();
-				if (PlayerState)
-				{
-					UE_LOG(LogTemp, VeryVerbose, TEXT("OnNewPawn: Setting (from PlayerState) FriendlyName=%s"), *PlayerState->GetPlayerName());
-					AdhocPawn->SetFriendlyName(PlayerState->GetPlayerName());
-				}
-			}
+			// else
+			// {
+			// 	const APlayerState* PlayerState = Pawn->GetPlayerState();
+			// 	if (PlayerState)
+			// 	{
+			// 		UE_LOG(LogTemp, VeryVerbose, TEXT("OnNewPawn: Setting (from PlayerState) FriendlyName=%s"), *PlayerState->GetPlayerName());
+			// 		AdhocPawn->SetFriendlyName(PlayerState->GetPlayerName());
+			// 	}
+			// }
 		}
 
-		UE_LOG(LogTemp, VeryVerbose, TEXT("OnNewPawn: Setting FactionIndex=%d"), FactionIndex);
-		AdhocPawn->SetFactionIndex(FactionIndex);
+		if (AdhocPawn->GetFactionIndex() == -1)
+		{
+			UE_LOG(LogTemp, VeryVerbose, TEXT("OnNewPawn: Setting FactionIndex=%d"), FactionIndex);
+			AdhocPawn->SetFactionIndex(FactionIndex);
+		}
 	}
 
 	// TODO: clear out anything when unpossess a pawn?
@@ -94,10 +120,10 @@ void UAdhocControllerComponent::OnNewPawn(APawn* Pawn) const
 
 void UAdhocControllerComponent::OnRep_FriendlyName(const FString& OldFriendlyName) const
 {
-	OnRepFriendlyNameDelegate.Broadcast(OldFriendlyName);
+	OnFriendlyNameChangedDelegate.Broadcast();
 }
 
 void UAdhocControllerComponent::OnRep_FactionIndex(int32 OldFactionIndex) const
 {
-	OnRepFactionIndexDelegate.Broadcast(OldFactionIndex);
+	OnFactionIndexChangedDelegate.Broadcast();
 }

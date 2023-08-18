@@ -30,23 +30,24 @@ class ADHOCPLUGIN_API UAdhocPawnComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
-	DECLARE_MULTICAST_DELEGATE_OneParam(FOnRepFriendlyNameDelegate, const FString& OldFriendlyName);
-	DECLARE_MULTICAST_DELEGATE_OneParam(FOnRepPawnFactionIndexDelegate, int32 OldFactionIndex);
+	DECLARE_MULTICAST_DELEGATE(FOnFriendlyNameChangedDelegate);
+	DECLARE_MULTICAST_DELEGATE(FOnPawnFactionIndexChangedDelegate);
 
 public:
-	FOnRepFriendlyNameDelegate OnRepFriendlyNameDelegate;
-	FOnRepPawnFactionIndexDelegate OnRepFactionIndexDelegate;
+	FOnFriendlyNameChangedDelegate OnFriendlyNameChangedDelegate;
+	FOnPawnFactionIndexChangedDelegate OnFactionIndexChangedDelegate;
 
 private:
+	// TODO: is it worth replicating this to the client?
 	/** UUID for the pawn. */
 	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = true))
 	FGuid UUID;
 
-	/** Name of the pawn. This is what will appear in messages relating to the pawn. */
+	/** Human readable name of the pawn. This is what will appear on screen for the pawn. */
 	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = true), Replicated, ReplicatedUsing = OnRep_FriendlyName)
 	FString FriendlyName;
 
-	/** Index of faction for the pawn i.e. first faction has index 0, next faction has index 1 and so on. */
+	/** Index of faction for the pawn (first faction has index 0, next faction has index 1 and so on, -1 means no faction). */
 	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = true), Replicated, ReplicatedUsing = OnRep_FactionIndex)
 	int32 FactionIndex = -1;
 
@@ -57,14 +58,16 @@ public:
 	FORCEINLINE const FString& GetFriendlyName() const { return FriendlyName; }
 	FORCEINLINE int32 GetFactionIndex() const { return FactionIndex; }
 
-	FORCEINLINE void SetFriendlyName(const FString& NewFriendlyName) { FriendlyName = NewFriendlyName; }
-	FORCEINLINE void SetFactionIndex(const int32 NewFactionIndex) { FactionIndex = NewFactionIndex; }
-
 private:
 	explicit UAdhocPawnComponent(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
 	virtual void InitializeComponent() override;
 
+public:
+	void SetFriendlyName(const FString& NewFriendlyName);
+	void SetFactionIndex(const int32 NewFactionIndex);
+
+private:
 	UFUNCTION()
 	void OnRep_FriendlyName(const FString& OldFriendlyName) const;
 	UFUNCTION()

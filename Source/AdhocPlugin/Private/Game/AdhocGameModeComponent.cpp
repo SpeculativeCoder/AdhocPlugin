@@ -358,16 +358,21 @@ void UAdhocGameModeComponent::PostLogin(const APlayerController* PlayerControlle
 	UAdhocPlayerControllerComponent* AdhocPlayerController = Cast<UAdhocPlayerControllerComponent>(PlayerController->GetComponentByClass(UAdhocPlayerControllerComponent::StaticClass()));
 	check(AdhocPlayerController);
 
+	AdhocPlayerController->SetFriendlyName(TEXT("Anon"));
 	AdhocPlayerController->SetFactionIndex(RandomFactionIndex);
 	AdhocPlayerController->SetUserID(UserID);
 	AdhocPlayerController->SetToken(Token);
 
-	const APlayerState* PlayerState = PlayerController->GetPlayerState<APlayerState>();
+	APlayerState* PlayerState = PlayerController->GetPlayerState<APlayerState>();
 	check(PlayerState);
+
+	PlayerState->SetPlayerName(AdhocPlayerController->GetFriendlyName());
+
 	UAdhocPlayerStateComponent* AdhocPlayerState = Cast<UAdhocPlayerStateComponent>(PlayerState->GetComponentByClass(UAdhocPlayerStateComponent::StaticClass()));
-	check(AdhocPlayerState)
+	check(AdhocPlayerState);
 
 	AdhocPlayerState->SetFactionIndex(AdhocPlayerController->GetFactionIndex());
+	// NOTE: user id in player state will only be set once we have verified the user
 
 #if WITH_SERVER_CODE && !defined(__EMSCRIPTEN__)
 	if (AdhocPlayerController->GetUserID() != -1 && !AdhocPlayerController->GetToken().IsEmpty())

@@ -32,16 +32,18 @@ class ADHOCPLUGIN_API UAdhocControllerComponent : public UActorComponent
 	GENERATED_BODY()
 
 public:
-	DECLARE_MULTICAST_DELEGATE_OneParam(FOnRepFriendlyNameDelegate, const FString& OldFriendlyName);
-	DECLARE_MULTICAST_DELEGATE_OneParam(FOnRepFactionIndexDelegate, int32 OldFactionIndex);
+	DECLARE_MULTICAST_DELEGATE(FOnFriendlyNameChangedDelegate);
+	DECLARE_MULTICAST_DELEGATE(FOnFactionIndexChangedDelegate);
 
-	FOnRepFriendlyNameDelegate OnRepFriendlyNameDelegate;
-	FOnRepFactionIndexDelegate OnRepFactionIndexDelegate;
+	FOnFriendlyNameChangedDelegate OnFriendlyNameChangedDelegate;
+	FOnFactionIndexChangedDelegate OnFactionIndexChangedDelegate;
 
 protected:
+	/** Human readable name of the controller. This is what will appear on screen for the controller. */
 	UPROPERTY(Replicated, ReplicatedUsing = OnRep_FriendlyName)
 	FString FriendlyName;
 
+	/** Index of faction for the controller (first faction has index 0, next faction has index 1 and so on, -1 means no faction). */
 	UPROPERTY(Replicated, ReplicatedUsing = OnRep_FactionIndex)
 	int32 FactionIndex = -1;
 
@@ -51,15 +53,18 @@ public:
 	FORCEINLINE const FString& GetFriendlyName() const { return FriendlyName; }
 	FORCEINLINE int32 GetFactionIndex() const { return FactionIndex; }
 
-	FORCEINLINE void SetFriendlyName(const FString& NewFriendlyName) { FriendlyName = NewFriendlyName; }
-	FORCEINLINE void SetFactionIndex(const int64 NewFactionIndex) { FactionIndex = NewFactionIndex; }
-
 protected:
 	explicit UAdhocControllerComponent(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
 	virtual void InitializeComponent() override;
 
-	void OnNewPawn(APawn *Pawn) const;
+public:
+	void SetFriendlyName(const FString& NewFriendlyName);
+	void SetFactionIndex(const int64 NewFactionIndex);
+
+protected:
+	/** For convenience, when possessing a pawn, we will try to initialize the friendly name and faction index on the pawn (this will allow the pawn to show its faction via color etc. and maybe put the name of the pawn in a nameplate etc.). If these were already set on the pawn (e.g. by game code earlier during pawn construction) then this will not be done. */
+	void OnNewPawn(APawn* Pawn) const;
 
 	UFUNCTION()
 	void OnRep_FriendlyName(const FString& OldFriendlyName) const;
