@@ -20,18 +20,19 @@
 
 #include "AdhocGameEngineSubsystem.h"
 
-#include "GameFramework/PlayerController.h"
+#include "EngineUtils.h"
 #include "Game/AdhocGameModeComponent.h"
 #include "Game/AdhocGameStateComponent.h"
-#include "Player/AdhocPlayerStateComponent.h"
+#include "GameFramework/Controller.h"
+#include "GameFramework/GameModeBase.h"
+#include "GameFramework/GameStateBase.h"
+#include "GameFramework/PlayerController.h"
+#include "GameFramework/PlayerState.h"
+#include "GameFramework/SpectatorPawn.h"
 #include "Pawn/AdhocPawnComponent.h"
 #include "Player/AdhocControllerComponent.h"
 #include "Player/AdhocPlayerControllerComponent.h"
-#include "GameFramework/GameModeBase.h"
-#include "GameFramework/GameStateBase.h"
-#include "GameFramework/PlayerState.h"
-#include "GameFramework/SpectatorPawn.h"
-#include "GameFramework/Controller.h"
+#include "Player/AdhocPlayerStateComponent.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogAdhocGameEngineSubsystem, Log, All)
 
@@ -71,6 +72,11 @@ void UAdhocGameEngineSubsystem::OnPreWorldInitialization(UWorld* World, const UW
 void UAdhocGameEngineSubsystem::OnPostWorldInitialization(UWorld* World, UWorld::InitializationValues InitializationValues) const
 {
 	UE_LOG(LogAdhocGameEngineSubsystem, Verbose, TEXT("OnPostWorldInitialization: World=%s"), *World->GetName());
+
+	// for any existing actors, run the initialization we would have done
+	for (TActorIterator<AActor> ActorIter(World); ActorIter; ++ActorIter) {
+		OnActorPreSpawnInitialization(*ActorIter);
+	}
 }
 
 void UAdhocGameEngineSubsystem::OnWorldInitializedActors(const UWorld::FActorsInitializedParams& ActorsInitializedParams) const

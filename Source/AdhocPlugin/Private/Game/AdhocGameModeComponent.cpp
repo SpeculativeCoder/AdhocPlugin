@@ -110,15 +110,11 @@ void UAdhocGameModeComponent::InitializeComponent()
 	GameState = GameMode->GetGameState<AGameStateBase>();
 	check(GameState);
 
-	// AdhocGameState = NewObject<UAdhocGameStateComponent>(GameState, UAdhocGameStateComponent::StaticClass());
-
 	AdhocGameState = Cast<UAdhocGameStateComponent>(GameState->GetComponentByClass(UAdhocGameStateComponent::StaticClass()));
 	check(AdhocGameState);
 
 	AdhocGameState->SetServerID(ServerID);
 	AdhocGameState->SetRegionID(RegionID);
-
-	//AdhocGameState->RegisterComponent();
 
 	InitFactionStates();
 	InitAreaStates();
@@ -1486,7 +1482,16 @@ void UAdhocGameModeComponent::OnTimer_ServerPawns() const
 		Writer->WriteValue(TEXT("name"), AdhocPawnComponent->GetFriendlyName());
 		Writer->WriteValue(TEXT("serverId"), AdhocGameState->GetServerID());
 		Writer->WriteValue(TEXT("index"), PawnIndex);
-		Writer->WriteValue(TEXT("factionIndex"), AdhocPawnComponent->GetFactionIndex());
+
+		if (AdhocPawnComponent->GetFactionIndex() != -1)
+		{
+			Writer->WriteValue(TEXT("factionIndex"), AdhocPawnComponent->GetFactionIndex());
+		}
+		else
+		{
+			Writer->WriteNull(TEXT("factionIndex"));
+		}
+
 		Writer->WriteValue(TEXT("x"), -(*It)->GetActorLocation().X);
 		Writer->WriteValue(TEXT("y"), (*It)->GetActorLocation().Y);
 		Writer->WriteValue(TEXT("z"), (*It)->GetActorLocation().Z);
