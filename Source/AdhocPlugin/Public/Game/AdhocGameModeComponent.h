@@ -79,6 +79,7 @@ private:
 	/** Handle command line options, start up modules, and set up some initial factions and control points in the game state (until we get the full info from web server). */
 	virtual void InitializeComponent() override;
 	virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 	void InitFactionStates() const;
 	void InitAreaStates() const;
@@ -123,7 +124,7 @@ public:
 
 #if WITH_SERVER_CODE && !defined(__EMSCRIPTEN__)
 private:
-	void ShutdownIfNotPlayingInEditor() const;
+	void ShutdownIfNotInEditor() const;
 
 	void OnStompConnected(const FString& ProtocolVersion, const FString& SessionId, const FString& ServerString);
 	void OnStompClosed(const FString& Reason) const;

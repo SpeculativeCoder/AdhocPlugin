@@ -73,9 +73,8 @@ void UAdhocGameModeComponent::InitializeComponent()
 
 		if (!World->IsPlayInEditor())
 		{
-			UE_LOG(LogAdhocGameModeComponent, Error, TEXT("SERVER_BASIC_AUTH_PASSWORD environment variable not set - will shut down server"));
-			// UKismetSystemLibrary::QuitGame(GetWorld(), nullptr, EQuitPreference::Quit, false);
-			FPlatformMisc::RequestExitWithStatus(false, 1);
+			UE_LOG(LogAdhocGameModeComponent, Error, TEXT("SERVER_BASIC_AUTH_PASSWORD environment variable not set - should shut down server"));
+			ShutdownIfNotInEditor();
 		}
 		else
 		{
@@ -156,6 +155,17 @@ void UAdhocGameModeComponent::BeginPlay()
 		// StompHeader.Add(HeartbeatHeader, TEXT("0,15000"));
 
 		StompClient->Connect(); // StompHeader);
+	}
+#endif
+}
+
+void UAdhocGameModeComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+#if WITH_SERVER_CODE && !defined(__EMSCRIPTEN__)
+	if (StompClient->IsConnected())
+	{
+		UE_LOG(LogAdhocGameModeComponent, Log, TEXT("Stopping Stomp connection..."));
+		StompClient->Disconnect();
 	}
 #endif
 }
@@ -568,12 +578,12 @@ void UAdhocGameModeComponent::PlayerEnterArea(APlayerController* PlayerControlle
 
 #if WITH_SERVER_CODE && !defined(__EMSCRIPTEN__)
 
-void UAdhocGameModeComponent::ShutdownIfNotPlayingInEditor() const
+void UAdhocGameModeComponent::ShutdownIfNotInEditor() const
 {
 	// UKismetSystemLibrary::QuitGame(GetWorld(), nullptr, EQuitPreference::Quit, false);
 	const UWorld* World = GetWorld();
 	check(World);
-	if (!World->IsPlayInEditor())
+	if (!World->IsPlayInEditor() && !World->IsEditorWorld())
 	{
 		FPlatformMisc::RequestExitWithStatus(false, 1);
 	}
@@ -603,7 +613,7 @@ void UAdhocGameModeComponent::OnStompClosed(const FString& Reason) const
 	if (GetNetMode() == NM_DedicatedServer)
 	{
 		UE_LOG(LogAdhocGameModeComponent, Warning, TEXT("Stomp connection closed - should shut down server"));
-		ShutdownIfNotPlayingInEditor();
+		ShutdownIfNotInEditor();
 	}
 }
 
@@ -614,7 +624,7 @@ void UAdhocGameModeComponent::OnStompConnectionError(const FString& Error) const
 	if (GetNetMode() == NM_DedicatedServer)
 	{
 		UE_LOG(LogAdhocGameModeComponent, Warning, TEXT("Stomp connection error - should shut down server"));
-		ShutdownIfNotPlayingInEditor();
+		ShutdownIfNotInEditor();
 	}
 }
 
@@ -625,7 +635,7 @@ void UAdhocGameModeComponent::OnStompError(const FString& Error) const
 	if (GetNetMode() == NM_DedicatedServer)
 	{
 		UE_LOG(LogAdhocGameModeComponent, Warning, TEXT("Stomp error - should shut down server"));
-		ShutdownIfNotPlayingInEditor();
+		ShutdownIfNotInEditor();
 	}
 }
 
@@ -636,7 +646,7 @@ void UAdhocGameModeComponent::OnStompRequestCompleted(bool bSuccess, const FStri
 	if (!bSuccess && GetNetMode() == NM_DedicatedServer)
 	{
 		UE_LOG(LogAdhocGameModeComponent, Warning, TEXT("Stomp request completed unsuccessfully - should shut down server"));
-		ShutdownIfNotPlayingInEditor();
+		ShutdownIfNotInEditor();
 	}
 }
 
@@ -909,7 +919,7 @@ void UAdhocGameModeComponent::OnFactionsResponse(FHttpRequestPtr Request, FHttpR
 	if (!bWasSuccessful || Response->GetResponseCode() != 200)
 	{
 		UE_LOG(LogAdhocGameModeComponent, Warning, TEXT("Factions response failure: ResponseCode=%d Content=%s"), Response->GetResponseCode(), *Response->GetContentAsString());
-		ShutdownIfNotPlayingInEditor();
+		ShutdownIfNotInEditor();
 		return;
 	}
 
@@ -918,7 +928,7 @@ void UAdhocGameModeComponent::OnFactionsResponse(FHttpRequestPtr Request, FHttpR
 	if (!FJsonSerializer::Deserialize(Reader, JsonValues))
 	{
 		UE_LOG(LogAdhocGameModeComponent, Log, TEXT("Failed to deserialize factions response: Content=%s"), *Response->GetContentAsString());
-		ShutdownIfNotPlayingInEditor();
+		ShutdownIfNotInEditor();
 		return;
 	}
 
@@ -945,7 +955,7 @@ void UAdhocGameModeComponent::OnServersResponse(FHttpRequestPtr Request, FHttpRe
 	if (!bWasSuccessful || Response->GetResponseCode() != 200)
 	{
 		UE_LOG(LogAdhocGameModeComponent, Log, TEXT("Servers response failure: ResponseCode=%d Content=%s"), Response->GetResponseCode(), *Response->GetContentAsString());
-		ShutdownIfNotPlayingInEditor();
+		ShutdownIfNotInEditor();
 		return;
 	}
 
@@ -954,7 +964,7 @@ void UAdhocGameModeComponent::OnServersResponse(FHttpRequestPtr Request, FHttpRe
 	if (!FJsonSerializer::Deserialize(Reader, JsonValues))
 	{
 		UE_LOG(LogAdhocGameModeComponent, Log, TEXT("Failed to deserialize get servers response: Content=%s"), *Response->GetContentAsString());
-		ShutdownIfNotPlayingInEditor();
+		ShutdownIfNotInEditor();
 		return;
 	}
 
@@ -999,7 +1009,7 @@ void UAdhocGameModeComponent::OnAreasResponse(FHttpRequestPtr Request, FHttpResp
 	if (!bWasSuccessful || Response->GetResponseCode() != 200)
 	{
 		UE_LOG(LogAdhocGameModeComponent, Log, TEXT("Areas response failure: ResponseCode=%d Content=%s"), Response->GetResponseCode(), *Response->GetContentAsString());
-		ShutdownIfNotPlayingInEditor();
+		ShutdownIfNotInEditor();
 		return;
 	}
 
@@ -1008,7 +1018,7 @@ void UAdhocGameModeComponent::OnAreasResponse(FHttpRequestPtr Request, FHttpResp
 	if (!FJsonSerializer::Deserialize(Reader, JsonValues))
 	{
 		UE_LOG(LogAdhocGameModeComponent, Log, TEXT("Failed to deserialize areas response: %s"), *Response->GetContentAsString());
-		ShutdownIfNotPlayingInEditor();
+		ShutdownIfNotInEditor();
 		return;
 	}
 
@@ -1052,7 +1062,7 @@ void UAdhocGameModeComponent::OnObjectivesResponse(FHttpRequestPtr Request, FHtt
 	if (!bWasSuccessful || Response->GetResponseCode() != 200)
 	{
 		UE_LOG(LogAdhocGameModeComponent, Log, TEXT("Objectives response failure: ResponseCode=%d Content=%s"), Response->GetResponseCode(), *Response->GetContentAsString());
-		ShutdownIfNotPlayingInEditor();
+		ShutdownIfNotInEditor();
 		return;
 	}
 
@@ -1061,7 +1071,7 @@ void UAdhocGameModeComponent::OnObjectivesResponse(FHttpRequestPtr Request, FHtt
 	if (!FJsonSerializer::Deserialize(Reader, JsonValues))
 	{
 		UE_LOG(LogAdhocGameModeComponent, Log, TEXT("Failed to deserialize objectives response: %s"), *Response->GetContentAsString());
-		ShutdownIfNotPlayingInEditor();
+		ShutdownIfNotInEditor();
 		return;
 	}
 
