@@ -33,6 +33,9 @@ struct FAdhocServerState
 	int64 ID = -1;
 
 	UPROPERTY(BlueprintReadOnly)
+	int64 Version = -1;
+
+	UPROPERTY(BlueprintReadOnly)
 	int64 RegionID = -1;
 
 	UPROPERTY(BlueprintReadOnly)

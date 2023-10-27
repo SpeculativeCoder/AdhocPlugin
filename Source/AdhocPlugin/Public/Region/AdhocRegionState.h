@@ -31,6 +31,9 @@ struct FAdhocRegionState
 
 	UPROPERTY(BlueprintReadOnly)
 	int64 ID = -1;
+
+	UPROPERTY(BlueprintReadOnly)
+	int64 Version = -1;
 	
 	UPROPERTY(BlueprintReadOnly)
 	FString Name;

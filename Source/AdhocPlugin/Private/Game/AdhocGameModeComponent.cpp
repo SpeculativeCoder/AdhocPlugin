@@ -135,6 +135,10 @@ void UAdhocGameModeComponent::BeginPlay()
 	{
 		GetWorld()->GetTimerManager().SetTimer(TimerHandle_ServerPawns, this, &UAdhocGameModeComponent::OnTimer_ServerPawns, 20, true, 20);
 
+#if WITH_ADHOC_PLUGIN_EXTRA
+		GetWorld()->GetTimerManager().SetTimer(TimerHandle_RecentEmissions, this, &UAdhocGameModeComponent::OnTimer_RecentEmissions, 1, true, 1);
+#endif
+
 		// initiate stomp connection - only once we are sure this connection is established
 		// will we then do an initial push/refresh all world state via REST calls etc.
 		UE_LOG(LogAdhocGameModeComponent, Log, TEXT("Initializing Stomp connection..."));
@@ -412,7 +416,7 @@ void UAdhocGameModeComponent::ObjectiveTaken(FAdhocObjectiveState& OutObjective,
 		Writer->WriteObjectEnd();
 		Writer->Close();
 
-		UE_LOG(LogAdhocGameModeComponent, Log, TEXT("Sending: %s"), *JsonString);
+		UE_LOG(LogAdhocGameModeComponent, Verbose, TEXT("Sending: %s"), *JsonString);
 		StompClient->Send("/app/ObjectiveTaken", JsonString);
 	}
 	else
@@ -484,7 +488,7 @@ void UAdhocGameModeComponent::UserDefeatedUser(APlayerController* PlayerControll
 		Writer->WriteObjectEnd();
 		Writer->Close();
 
-		UE_LOG(LogAdhocGameModeComponent, Log, TEXT("Sending: %s"), *JsonString);
+		UE_LOG(LogAdhocGameModeComponent, Verbose, TEXT("Sending: %s"), *JsonString);
 		StompClient->Send("/app/UserDefeatedUser", JsonString);
 
 		// TODO: trigger via event?
@@ -512,7 +516,7 @@ void UAdhocGameModeComponent::UserDefeatedBot(APlayerController* PlayerControlle
 		Writer->WriteObjectEnd();
 		Writer->Close();
 
-		UE_LOG(LogAdhocGameModeComponent, Log, TEXT("Sending: %s"), *JsonString);
+		UE_LOG(LogAdhocGameModeComponent, Verbose, TEXT("Sending: %s"), *JsonString);
 		StompClient->Send("/app/UserDefeatedBot", JsonString);
 
 		// TODO: trigger via event?
@@ -652,13 +656,13 @@ void UAdhocGameModeComponent::OnStompRequestCompleted(bool bSuccess, const FStri
 
 void UAdhocGameModeComponent::OnStompSubscriptionEvent(const IStompMessage& Message)
 {
-	UE_LOG(LogAdhocGameModeComponent, Log, TEXT("OnStompSubscriptionEvent: %s"), *Message.GetBodyAsString());
+	UE_LOG(LogAdhocGameModeComponent, Verbose, TEXT("OnStompSubscriptionEvent: %s"), *Message.GetBodyAsString());
 
 	const auto& Reader = TJsonReaderFactory<>::Create(Message.GetBodyAsString());
 	TSharedPtr<FJsonObject> JsonObject;
 	if (!FJsonSerializer::Deserialize(Reader, JsonObject))
 	{
-		UE_LOG(LogAdhocGameModeComponent, Log, TEXT("Failed to deserialize Stomp event: %s"), *Message.GetBodyAsString());
+		UE_LOG(LogAdhocGameModeComponent, Warning, TEXT("Failed to deserialize Stomp event: %s"), *Message.GetBodyAsString());
 		return;
 	}
 	const FString EventType = JsonObject->GetStringField("eventType");
@@ -747,6 +751,18 @@ void UAdhocGameModeComponent::OnStompSubscriptionEvent(const IStompMessage& Mess
 		ExtractStructureFromJsonObject(*StructureJsonObjectPtr, Structure);
 
 		OnStructureCreatedEvent(Structure);
+	}
+	else if (EventType.Equals(TEXT("Emissions")))
+	{
+     	TArray<FAdhocEmission> Emissions;
+		for (auto& EmissionValue : JsonObject->GetArrayField("emissions"))
+		{
+			FAdhocEmission Emission;
+			ExtractEmissionFromJsonObject(EmissionValue->AsObject(), Emission);
+			Emissions.Add(Emission);
+		}
+
+     	OnEmissionsEvent(Emissions);
 	}
 #endif
 }
@@ -1536,7 +1552,7 @@ void UAdhocGameModeComponent::OnTimer_ServerPawns() const
 	Writer->WriteObjectEnd();
 	Writer->Close();
 
-	UE_LOG(LogAdhocGameModeComponent, Log, TEXT("Sending: %s"), *JsonString);
+	UE_LOG(LogAdhocGameModeComponent, Verbose, TEXT("Sending: %s"), *JsonString);
 	StompClient->Send("/app/ServerPawns", JsonString);
 }
 

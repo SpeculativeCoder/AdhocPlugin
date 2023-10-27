@@ -23,6 +23,7 @@
 #include "Faction/AdhocFactionState.h"
 #include "Objective/AdhocObjectiveState.h"
 #include "CoreMinimal.h"
+#include "AdhocEmission.h"
 #include "Components/ActorComponent.h"
 #include "GameFramework/Controller.h"
 #include "Interfaces/IHttpRequest.h"
@@ -72,6 +73,12 @@ private:
 	TSharedPtr<class IStompClient> StompClient;
 
 	FTimerHandle TimerHandle_ServerPawns;
+	FTimerHandle TimerHandle_RecentEmissions;
+
+#if WITH_ADHOC_PLUGIN_EXTRA
+	/** Recent emissions (e.g. explosions) are cached here to be submitted as an event for all others to see. */
+	TArray<FAdhocEmission> RecentEmissions;
+#endif
 #endif
 
 	UAdhocGameModeComponent();
@@ -173,5 +180,18 @@ private:
 
 	/** Regularly send a server pawns event (includes pawn names, locations etc.). */
 	void OnTimer_ServerPawns() const;
+
+#if WITH_ADHOC_PLUGIN_EXTRA
+public:
+	void AddEmission(const FAdhocEmission& Emission);
+private:
+	/** Send emissions (e.g. explosions) event if any recent emissions. */
+	void OnTimer_RecentEmissions();
+
+	static void ExtractEmissionFromJsonObject(const TSharedPtr<FJsonObject>& JsonObject, FAdhocEmission &OutEmission);
+
+	void OnEmissionsEvent(const TArray<FAdhocEmission>& Emissions) const;
+#endif
+
 #endif
 };
