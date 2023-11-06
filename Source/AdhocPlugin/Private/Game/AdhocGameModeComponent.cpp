@@ -136,7 +136,7 @@ void UAdhocGameModeComponent::BeginPlay()
 		GetWorld()->GetTimerManager().SetTimer(TimerHandle_ServerPawns, this, &UAdhocGameModeComponent::OnTimer_ServerPawns, 20, true, 20);
 
 #if WITH_ADHOC_PLUGIN_EXTRA
-		GetWorld()->GetTimerManager().SetTimer(TimerHandle_RecentEmissions, this, &UAdhocGameModeComponent::OnTimer_RecentEmissions, 1, true, 1);
+		GetWorld()->GetTimerManager().SetTimer(TimerHandle_RecentEmissions, this, &UAdhocGameModeComponent::OnTimer_RecentEmissions, 2, true, 2);
 #endif
 
 		// initiate stomp connection - only once we are sure this connection is established
