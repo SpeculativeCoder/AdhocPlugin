@@ -28,19 +28,19 @@
 UCLASS()
 class ADHOCPLUGIN_API UAdhocAreaComponent : public UActorComponent
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
-	UPROPERTY(EditInstanceOnly)
-	FString FriendlyName = TEXT("Area");
+    UPROPERTY(EditInstanceOnly)
+    FString FriendlyName = TEXT("Area");
 
-	int32 AreaIndex = -1;
+    int32 AreaIndex = -1;
 
 public:
-	FORCEINLINE const FString& GetFriendlyName() const { return FriendlyName; }
-	FORCEINLINE int32 GetAreaIndex() const { return AreaIndex; }
+    FORCEINLINE const FString& GetFriendlyName() const { return FriendlyName; }
+    FORCEINLINE int32 GetAreaIndex() const { return AreaIndex; }
 
-	FORCEINLINE void SetAreaIndex(const int32 NewAreaIndex) { AreaIndex = NewAreaIndex; }
+    FORCEINLINE void SetAreaIndex(const int32 NewAreaIndex) { AreaIndex = NewAreaIndex; }
 
 private:
-	explicit UAdhocAreaComponent(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
+    explicit UAdhocAreaComponent(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 };

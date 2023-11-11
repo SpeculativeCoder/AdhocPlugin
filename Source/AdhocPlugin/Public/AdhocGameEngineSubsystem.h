@@ -29,22 +29,22 @@
 UCLASS(Transient)
 class ADHOCPLUGIN_API UAdhocGameEngineSubsystem : public UEngineSubsystem
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
 private:
-	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
+    virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 
-	void OnPostWorldCreation(UWorld* World) const;
-	void OnWorldInitializedActors(const UWorld::FActorsInitializedParams& ActorsInitializedParams) const;
-	void OnPreWorldInitialization(UWorld* World, const UWorld::InitializationValues InitializationValues) const;
-	void OnPostWorldInitialization(UWorld* World, const UWorld::InitializationValues InitializationValues) const;
+    void OnPostWorldCreation(UWorld* World) const;
+    void OnWorldInitializedActors(const UWorld::FActorsInitializedParams& ActorsInitializedParams) const;
+    void OnPreWorldInitialization(UWorld* World, const UWorld::InitializationValues InitializationValues) const;
+    void OnPostWorldInitialization(UWorld* World, const UWorld::InitializationValues InitializationValues) const;
 
-	void OnWorldBeginPlay(UWorld* World) const;
+    void OnWorldBeginPlay(UWorld* World) const;
 
-	void OnActorPreSpawnInitialization(AActor* Actor) const;
-	void OnActorSpawned(AActor* Actor) const;
+    void OnActorPreSpawnInitialization(AActor* Actor) const;
+    void OnActorSpawned(AActor* Actor) const;
 
-	void OnGameModeInitialized(AGameModeBase* GameMode) const;
-	void OnGameModePreLogin(AGameModeBase* GameMode, const FUniqueNetIdRepl& UniqueNetId, FString& ErrorMessage) const;
-	void OnGameModePostLogin(AGameModeBase* GameMode, APlayerController* PlayerController) const;
+    void OnGameModeInitialized(AGameModeBase* GameMode) const;
+    void OnGameModePreLogin(AGameModeBase* GameMode, const FUniqueNetIdRepl& UniqueNetId, FString& ErrorMessage) const;
+    void OnGameModePostLogin(AGameModeBase* GameMode, APlayerController* PlayerController) const;
 };

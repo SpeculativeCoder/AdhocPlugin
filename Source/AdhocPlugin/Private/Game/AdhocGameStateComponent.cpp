@@ -24,225 +24,225 @@
 
 UAdhocGameStateComponent::UAdhocGameStateComponent(const FObjectInitializer& ObjectInitializer)
 {
-	PrimaryComponentTick.bCanEverTick = false;
+    PrimaryComponentTick.bCanEverTick = false;
 
-	SetIsReplicatedByDefault(true);
-	SetNetAddressable();
+    SetIsReplicatedByDefault(true);
+    SetNetAddressable();
 }
 
 void UAdhocGameStateComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+    Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME(UAdhocGameStateComponent, ServerID);
-	DOREPLIFETIME(UAdhocGameStateComponent, RegionID);
-	DOREPLIFETIME(UAdhocGameStateComponent, ActiveAreaIndexes);
-	DOREPLIFETIME(UAdhocGameStateComponent, Factions);
-	DOREPLIFETIME(UAdhocGameStateComponent, Objectives);
+    DOREPLIFETIME(UAdhocGameStateComponent, ServerID);
+    DOREPLIFETIME(UAdhocGameStateComponent, RegionID);
+    DOREPLIFETIME(UAdhocGameStateComponent, ActiveAreaIndexes);
+    DOREPLIFETIME(UAdhocGameStateComponent, Factions);
+    DOREPLIFETIME(UAdhocGameStateComponent, Objectives);
 }
 
 void UAdhocGameStateComponent::SetFactions(const TArray<FAdhocFactionState>& NewFactions)
 {
-	Factions.Empty();
-	Factions += NewFactions;
+    Factions.Empty();
+    Factions += NewFactions;
 }
 
 void UAdhocGameStateComponent::SetObjectives(const TArray<FAdhocObjectiveState>& NewObjectives)
 {
-	Objectives.Empty();
-	Objectives += NewObjectives;
+    Objectives.Empty();
+    Objectives += NewObjectives;
 }
 
 void UAdhocGameStateComponent::SetAreas(const TArray<FAdhocAreaState>& NewAreas)
 {
-	Areas.Empty();
-	Areas += NewAreas;
+    Areas.Empty();
+    Areas += NewAreas;
 }
 
 void UAdhocGameStateComponent::SetServers(const TArray<FAdhocServerState>& NewServers)
 {
-	Servers.Empty();
-	Servers += NewServers;
+    Servers.Empty();
+    Servers += NewServers;
 }
 
 FAdhocFactionState* UAdhocGameStateComponent::FindFactionByID(const int64 FactionID)
 {
-	for (int i = 0; i < Factions.Num(); i++)
-	{
-		if (Factions[i].ID == FactionID)
-		{
-			return &Factions[i];
-		}
-	}
-	return nullptr;
+    for (int i = 0; i < Factions.Num(); i++)
+    {
+        if (Factions[i].ID == FactionID)
+        {
+            return &Factions[i];
+        }
+    }
+    return nullptr;
 }
 
 FAdhocAreaState* UAdhocGameStateComponent::FindAreaByID(const int64 AreaID)
 {
-	for (int i = 0; i < Areas.Num(); i++)
-	{
-		if (Areas[i].ID == AreaID)
-		{
-			return &Areas[i];
-		}
-	}
-	return nullptr;
+    for (int i = 0; i < Areas.Num(); i++)
+    {
+        if (Areas[i].ID == AreaID)
+        {
+            return &Areas[i];
+        }
+    }
+    return nullptr;
 }
 
 FAdhocAreaState* UAdhocGameStateComponent::FindAreaByIndex(const int32 AreaIndex)
 {
-	for (int i = 0; i < Areas.Num(); i++)
-	{
-		if (Areas[i].Index == AreaIndex)
-		{
-			return &Areas[i];
-		}
-	}
-	return nullptr;
+    for (int i = 0; i < Areas.Num(); i++)
+    {
+        if (Areas[i].Index == AreaIndex)
+        {
+            return &Areas[i];
+        }
+    }
+    return nullptr;
 }
 
 FAdhocAreaState* UAdhocGameStateComponent::FindAreaByRegionIDAndIndex(const int64 InRegionID, const int32 Index)
 {
-	for (int i = 0; i < Areas.Num(); i++)
-	{
-		if (Areas[i].RegionID == InRegionID && Areas[i].Index == Index)
-		{
-			return &Areas[i];
-		}
-	}
-	return nullptr;
+    for (int i = 0; i < Areas.Num(); i++)
+    {
+        if (Areas[i].RegionID == InRegionID && Areas[i].Index == Index)
+        {
+            return &Areas[i];
+        }
+    }
+    return nullptr;
 }
 
 FAdhocObjectiveState* UAdhocGameStateComponent::FindObjectiveByID(const int64 ObjectiveID)
 {
-	for (int i = 0; i < Objectives.Num(); i++)
-	{
-		if (Objectives[i].ID == ObjectiveID)
-		{
-			return &Objectives[i];
-		}
-	}
-	return nullptr;
+    for (int i = 0; i < Objectives.Num(); i++)
+    {
+        if (Objectives[i].ID == ObjectiveID)
+        {
+            return &Objectives[i];
+        }
+    }
+    return nullptr;
 }
 
 FAdhocObjectiveState* UAdhocGameStateComponent::FindObjectiveByIndex(const int32 ObjectiveIndex)
 {
-	for (int i = 0; i < Objectives.Num(); i++)
-	{
-		if (Objectives[i].Index == ObjectiveIndex)
-		{
-			return &Objectives[i];
-		}
-	}
-	return nullptr;
+    for (int i = 0; i < Objectives.Num(); i++)
+    {
+        if (Objectives[i].Index == ObjectiveIndex)
+        {
+            return &Objectives[i];
+        }
+    }
+    return nullptr;
 }
 
 FAdhocObjectiveState* UAdhocGameStateComponent::FindObjectiveByRegionIDAndIndex(const int64 InRegionID, const int32 Index)
 {
-	for (int i = 0; i < Objectives.Num(); i++)
-	{
-		if (Objectives[i].RegionID == InRegionID && Objectives[i].Index == Index)
-		{
-			return &Objectives[i];
-		}
-	}
-	return nullptr;
+    for (int i = 0; i < Objectives.Num(); i++)
+    {
+        if (Objectives[i].RegionID == InRegionID && Objectives[i].Index == Index)
+        {
+            return &Objectives[i];
+        }
+    }
+    return nullptr;
 }
 
 FAdhocServerState* UAdhocGameStateComponent::FindServerByID(const int64 InServerID)
 {
-	for (int i = 0; i < Servers.Num(); i++)
-	{
-		if (Servers[i].ID == ServerID)
-		{
-			return &Servers[i];
-		}
-	}
-	return nullptr;
+    for (int i = 0; i < Servers.Num(); i++)
+    {
+        if (Servers[i].ID == ServerID)
+        {
+            return &Servers[i];
+        }
+    }
+    return nullptr;
 }
 
 FAdhocServerState* UAdhocGameStateComponent::FindServerByAreaID(const int64 AreaID)
 {
-	for (int i = 0; i < Servers.Num(); i++)
-	{
-		if (Servers[i].AreaIDs.Contains(AreaID))
-		{
-			return &Servers[i];
-		}
-	}
-	return nullptr;
+    for (int i = 0; i < Servers.Num(); i++)
+    {
+        if (Servers[i].AreaIDs.Contains(AreaID))
+        {
+            return &Servers[i];
+        }
+    }
+    return nullptr;
 }
 
 FAdhocServerState* UAdhocGameStateComponent::FindOrInsertServerByID(const int64 InServerID)
 {
-	FAdhocServerState* Server = FindServerByID(InServerID);
-	if (Server)
-	{
-		return Server;
-	}
+    FAdhocServerState* Server = FindServerByID(InServerID);
+    if (Server)
+    {
+        return Server;
+    }
 
-	FAdhocServerState NewServer;
-	NewServer.ID = InServerID;
-	return &Servers.Add_GetRef(NewServer);
+    FAdhocServerState NewServer;
+    NewServer.ID = InServerID;
+    return &Servers.Add_GetRef(NewServer);
 }
 
 FColor UAdhocGameStateComponent::GetFactionColorSafe(int32 FactionIndex) const
 {
-	if (FactionIndex >= 0 && FactionIndex < Factions.Num())
-	{
-		return Factions[FactionIndex].Color;
+    if (FactionIndex >= 0 && FactionIndex < Factions.Num())
+    {
+        return Factions[FactionIndex].Color;
 
-		// // TODO: proper color handling
-		// if (Faction.Color.Equals(TEXT("blue")))
-		// {
-		// 	return FLinearColor(0.1, 0.2, 1);
-		// }
-		// else if (Faction.Color.Equals(TEXT("red")))
-		// {
-		// 	return FLinearColor(1, 0.1, 0.1);
-		// }
-		// else if (Faction.Color.Equals(TEXT("green")))
-		// {
-		// 	return FLinearColor(0.1, 1, 0.1);
-		// }
-		// else if (Faction.Color.Equals(TEXT("yellow")))
-		// {
-		// 	return FLinearColor(1, 1, 0.1);
-		// }
-		// else if (Faction.Color.Equals(TEXT("black")))
-		// {
-		// 	return FLinearColor(0, 0, 0);
-		// }
-		// else if (Faction.Color.Equals(TEXT("white")))
-		// {
-		// 	return FLinearColor(1, 1, 1);
-		// }
-		// else if (Faction.Color.Equals(TEXT("gray")))
-		// {
-		// 	return FLinearColor(0.6, 0.6, 0.6);
-		// }
-	}
+        // // TODO: proper color handling
+        // if (Faction.Color.Equals(TEXT("blue")))
+        // {
+        // 	return FLinearColor(0.1, 0.2, 1);
+        // }
+        // else if (Faction.Color.Equals(TEXT("red")))
+        // {
+        // 	return FLinearColor(1, 0.1, 0.1);
+        // }
+        // else if (Faction.Color.Equals(TEXT("green")))
+        // {
+        // 	return FLinearColor(0.1, 1, 0.1);
+        // }
+        // else if (Faction.Color.Equals(TEXT("yellow")))
+        // {
+        // 	return FLinearColor(1, 1, 0.1);
+        // }
+        // else if (Faction.Color.Equals(TEXT("black")))
+        // {
+        // 	return FLinearColor(0, 0, 0);
+        // }
+        // else if (Faction.Color.Equals(TEXT("white")))
+        // {
+        // 	return FLinearColor(1, 1, 1);
+        // }
+        // else if (Faction.Color.Equals(TEXT("gray")))
+        // {
+        // 	return FLinearColor(0.6, 0.6, 0.6);
+        // }
+    }
 
-	return FColor(127, 127, 127);
+    return FColor(127, 127, 127);
 }
 
 bool UAdhocGameStateComponent::IsObjectiveActiveAndTakeableByFaction(const int32 ObjectiveIndex, const int32 FactionIndex)
 {
-	const FAdhocObjectiveState* Objective = FindObjectiveByIndex(ObjectiveIndex);
+    const FAdhocObjectiveState* Objective = FindObjectiveByIndex(ObjectiveIndex);
 
-	return Objective
-		// must be active for this server
-		&& (Objective->AreaIndex == -1 || ActiveAreaIndexes.Contains(Objective->AreaIndex))
-		// must not already be taken by this faction
-		&& Objective->FactionIndex != FactionIndex
-		// and either not owned by any faction yet (so totally free to take)
-		&& (Objective->FactionIndex == -1
-			// OR linked to an objective this faction already owns
-			|| IsObjectiveLinkedToFriendlyObjective(Objective, FactionIndex)
-			// OR this faction has no active objectives at all so can take anything
-			|| GetNumActiveObjectivesByFactionIndex(FactionIndex) <= 0
-			// OR objective has no links at all so can always be taken
-			|| Objective->LinkedObjectiveIndexes.Num() <= 0);
+    return Objective
+        // must be active for this server
+        && (Objective->AreaIndex == -1 || ActiveAreaIndexes.Contains(Objective->AreaIndex))
+        // must not already be taken by this faction
+        && Objective->FactionIndex != FactionIndex
+        // and either not owned by any faction yet (so totally free to take)
+        && (Objective->FactionIndex == -1
+            // OR linked to an objective this faction already owns
+            || IsObjectiveLinkedToFriendlyObjective(Objective, FactionIndex)
+            // OR this faction has no active objectives at all so can take anything
+            || GetNumActiveObjectivesByFactionIndex(FactionIndex) <= 0
+            // OR objective has no links at all so can always be taken
+            || Objective->LinkedObjectiveIndexes.Num() <= 0);
 }
 
 // bool UAdhocGameStateComponent::IsFriendlyActiveObjectiveIndexTakeableByFactionIndex(const int32 ObjectiveIndex, const int32 FactionIndex)
@@ -256,58 +256,58 @@ bool UAdhocGameStateComponent::IsObjectiveActiveAndTakeableByFaction(const int32
 
 int32 UAdhocGameStateComponent::GetNumActiveObjectivesByFactionIndex(const int32 FactionIndex) const
 {
-	int32 Count = 0;
+    int32 Count = 0;
 
-	for (auto& Objective : Objectives)
-	{
-		if ((Objective.AreaIndex == -1 || ActiveAreaIndexes.Contains(Objective.AreaIndex)) && Objective.FactionIndex == FactionIndex)
-		{
-			Count++;
-		}
-	}
+    for (auto& Objective : Objectives)
+    {
+        if ((Objective.AreaIndex == -1 || ActiveAreaIndexes.Contains(Objective.AreaIndex)) && Objective.FactionIndex == FactionIndex)
+        {
+            Count++;
+        }
+    }
 
-	return Count;
+    return Count;
 }
 
 bool UAdhocGameStateComponent::IsObjectiveLinkedToFriendlyObjective(int32 ObjectiveIndex, int32 FactionIndex)
 {
-	const FAdhocObjectiveState* Objective = FindObjectiveByIndex(ObjectiveIndex);
+    const FAdhocObjectiveState* Objective = FindObjectiveByIndex(ObjectiveIndex);
 
-	return Objective && IsObjectiveLinkedToFriendlyObjective(Objective, FactionIndex);
+    return Objective && IsObjectiveLinkedToFriendlyObjective(Objective, FactionIndex);
 }
 
 bool UAdhocGameStateComponent::IsObjectiveLinkedToFriendlyObjective(const FAdhocObjectiveState* ObjectiveState, int32 FactionIndex)
 {
-	for (auto& LinkedObjectiveIndex : ObjectiveState->LinkedObjectiveIndexes)
-	{
-		const FAdhocObjectiveState* LinkedObjective = FindObjectiveByIndex(LinkedObjectiveIndex);
+    for (auto& LinkedObjectiveIndex : ObjectiveState->LinkedObjectiveIndexes)
+    {
+        const FAdhocObjectiveState* LinkedObjective = FindObjectiveByIndex(LinkedObjectiveIndex);
 
-		if (LinkedObjective && LinkedObjective->FactionIndex == FactionIndex)
-		{
-			return true;
-		}
-	}
+        if (LinkedObjective && LinkedObjective->FactionIndex == FactionIndex)
+        {
+            return true;
+        }
+    }
 
-	return false;
+    return false;
 }
 
 bool UAdhocGameStateComponent::IsObjectiveLinkedToEnemyObjective(int32 ObjectiveIndex, int32 FactionIndex)
 {
-	const FAdhocObjectiveState* Objective = FindObjectiveByIndex(ObjectiveIndex);
+    const FAdhocObjectiveState* Objective = FindObjectiveByIndex(ObjectiveIndex);
 
-	return Objective && IsObjectiveLinkedToEnemyObjective(Objective, FactionIndex);
+    return Objective && IsObjectiveLinkedToEnemyObjective(Objective, FactionIndex);
 }
 
 bool UAdhocGameStateComponent::IsObjectiveLinkedToEnemyObjective(const FAdhocObjectiveState* ObjectiveState, int32 FactionIndex)
 {
-	for (auto& LinkedObjectiveIndex : ObjectiveState->LinkedObjectiveIndexes)
-	{
-		const FAdhocObjectiveState* LinkedObjective = FindObjectiveByIndex(LinkedObjectiveIndex);
-		if (LinkedObjective && LinkedObjective->FactionIndex != FactionIndex)
-		{
-			return true;
-		}
-	}
+    for (auto& LinkedObjectiveIndex : ObjectiveState->LinkedObjectiveIndexes)
+    {
+        const FAdhocObjectiveState* LinkedObjective = FindObjectiveByIndex(LinkedObjectiveIndex);
+        if (LinkedObjective && LinkedObjective->FactionIndex != FactionIndex)
+        {
+            return true;
+        }
+    }
 
-	return false;
+    return false;
 }

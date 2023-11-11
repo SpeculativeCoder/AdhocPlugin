@@ -28,16 +28,16 @@
 UINTERFACE()
 class UAdhocGameInstanceInterface : public UInterface
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 };
 
 
 class ADHOCPLUGIN_API IAdhocGameInstanceInterface
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
 public:
 #if WITH_ADHOC_PLUGIN_EXTRA
-	virtual TOptional<TSubclassOf<AActor>> FindStructureClassByType(const FString& Type) const = 0;
+    virtual TOptional<TSubclassOf<AActor>> FindStructureClassByType(const FString& Type) const = 0;
 #endif
 };

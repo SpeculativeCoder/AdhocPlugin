@@ -23,13 +23,11 @@
 #include "Net/UnrealNetwork.h"
 
 UAdhocPlayerControllerComponent::UAdhocPlayerControllerComponent(const FObjectInitializer& ObjectInitializer)
-	: Super(ObjectInitializer)
-{
-}
+    : Super(ObjectInitializer) {}
 
 void UAdhocPlayerControllerComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+    Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME(UAdhocPlayerControllerComponent, UserID);
+    DOREPLIFETIME(UAdhocPlayerControllerComponent, UserID);
 }

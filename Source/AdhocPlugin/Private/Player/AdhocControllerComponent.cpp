@@ -27,103 +27,103 @@ DEFINE_LOG_CATEGORY_STATIC(LogAdhocControllerComponent, Log, All)
 
 UAdhocControllerComponent::UAdhocControllerComponent(const FObjectInitializer& ObjectInitializer)
 {
-	bWantsInitializeComponent = true;
-	PrimaryComponentTick.bCanEverTick = false;
+    bWantsInitializeComponent = true;
+    PrimaryComponentTick.bCanEverTick = false;
 
-	SetIsReplicatedByDefault(true);
-	SetNetAddressable();
+    SetIsReplicatedByDefault(true);
+    SetNetAddressable();
 }
 
 void UAdhocControllerComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+    Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME(UAdhocControllerComponent, FriendlyName);
-	DOREPLIFETIME(UAdhocControllerComponent, FactionIndex);
+    DOREPLIFETIME(UAdhocControllerComponent, FriendlyName);
+    DOREPLIFETIME(UAdhocControllerComponent, FactionIndex);
 }
 
 void UAdhocControllerComponent::InitializeComponent()
 {
-	Super::InitializeComponent();
+    Super::InitializeComponent();
 
-	AController* Controller = GetController();
-	check(Controller);
+    AController* Controller = GetController();
+    check(Controller);
 
-	UE_LOG(LogAdhocControllerComponent, Verbose, TEXT("InitializeComponent: Controller=%s"), *Controller->GetName());
+    UE_LOG(LogAdhocControllerComponent, Verbose, TEXT("InitializeComponent: Controller=%s"), *Controller->GetName());
 
-	Controller->GetOnNewPawnNotifier().AddUObject(this, &UAdhocControllerComponent::OnNewPawn);
+    Controller->GetOnNewPawnNotifier().AddUObject(this, &UAdhocControllerComponent::OnNewPawn);
 }
 
 void UAdhocControllerComponent::SetFriendlyName(const FString& NewFriendlyName)
 {
-	const bool bChanged = FriendlyName != NewFriendlyName;
+    const bool bChanged = FriendlyName != NewFriendlyName;
 
-	FriendlyName = NewFriendlyName;
+    FriendlyName = NewFriendlyName;
 
-	if (bChanged)
-	{
-		OnFriendlyNameChangedDelegate.Broadcast();
-	}
+    if (bChanged)
+    {
+        OnFriendlyNameChangedDelegate.Broadcast();
+    }
 }
 
 void UAdhocControllerComponent::SetFactionIndex(const int64 NewFactionIndex)
 {
-	const bool bChanged = FactionIndex != NewFactionIndex;
+    const bool bChanged = FactionIndex != NewFactionIndex;
 
-	FactionIndex = NewFactionIndex;
+    FactionIndex = NewFactionIndex;
 
-	if (bChanged)
-	{
-		OnFactionIndexChangedDelegate.Broadcast();
-	}
+    if (bChanged)
+    {
+        OnFactionIndexChangedDelegate.Broadcast();
+    }
 }
 
 void UAdhocControllerComponent::OnNewPawn(APawn* Pawn) const
 {
-	const AController* Controller = GetController();
-	check(Controller);
+    const AController* Controller = GetController();
+    check(Controller);
 
-	UE_LOG(LogAdhocControllerComponent, VeryVerbose, TEXT("OnNewPawn: Controller=%s Pawn=%s NetNode=%d"), *Controller->GetName(), Pawn ? *Pawn->GetName() : TEXT("nullptr"), Controller->GetLocalRole());
+    UE_LOG(LogAdhocControllerComponent, VeryVerbose, TEXT("OnNewPawn: Controller=%s Pawn=%s NetNode=%d"), *Controller->GetName(), Pawn ? *Pawn->GetName() : TEXT("nullptr"), Controller->GetLocalRole());
 
-	if (Pawn && Controller->HasAuthority())
-	{
-		UAdhocPawnComponent* AdhocPawn = Cast<UAdhocPawnComponent>(Pawn->GetComponentByClass(UAdhocPawnComponent::StaticClass()));
-		check(AdhocPawn);
+    if (Pawn && Controller->HasAuthority())
+    {
+        UAdhocPawnComponent* AdhocPawn = Cast<UAdhocPawnComponent>(Pawn->GetComponentByClass(UAdhocPawnComponent::StaticClass()));
+        check(AdhocPawn);
 
-		if (AdhocPawn->GetFriendlyName().IsEmpty())
-		{
-			if (!FriendlyName.IsEmpty())
-			{
-				UE_LOG(LogTemp, VeryVerbose, TEXT("OnNewPawn: Setting FriendlyName=%s"), *FriendlyName);
-				AdhocPawn->SetFriendlyName(FriendlyName);
-			}
-			// else
-			// {
-			// 	const APlayerState* PlayerState = Pawn->GetPlayerState();
-			// 	if (PlayerState)
-			// 	{
-			// 		UE_LOG(LogTemp, VeryVerbose, TEXT("OnNewPawn: Setting (from PlayerState) FriendlyName=%s"), *PlayerState->GetPlayerName());
-			// 		AdhocPawn->SetFriendlyName(PlayerState->GetPlayerName());
-			// 	}
-			// }
-		}
+        if (AdhocPawn->GetFriendlyName().IsEmpty())
+        {
+            if (!FriendlyName.IsEmpty())
+            {
+                UE_LOG(LogTemp, VeryVerbose, TEXT("OnNewPawn: Setting FriendlyName=%s"), *FriendlyName);
+                AdhocPawn->SetFriendlyName(FriendlyName);
+            }
+            // else
+            // {
+            // 	const APlayerState* PlayerState = Pawn->GetPlayerState();
+            // 	if (PlayerState)
+            // 	{
+            // 		UE_LOG(LogTemp, VeryVerbose, TEXT("OnNewPawn: Setting (from PlayerState) FriendlyName=%s"), *PlayerState->GetPlayerName());
+            // 		AdhocPawn->SetFriendlyName(PlayerState->GetPlayerName());
+            // 	}
+            // }
+        }
 
-		if (AdhocPawn->GetFactionIndex() == -1)
-		{
-			UE_LOG(LogTemp, VeryVerbose, TEXT("OnNewPawn: Setting FactionIndex=%d"), FactionIndex);
-			AdhocPawn->SetFactionIndex(FactionIndex);
-		}
-	}
+        if (AdhocPawn->GetFactionIndex() == -1)
+        {
+            UE_LOG(LogTemp, VeryVerbose, TEXT("OnNewPawn: Setting FactionIndex=%d"), FactionIndex);
+            AdhocPawn->SetFactionIndex(FactionIndex);
+        }
+    }
 
-	// TODO: clear out anything when unpossess a pawn?
+    // TODO: clear out anything when unpossess a pawn?
 }
 
 void UAdhocControllerComponent::OnRep_FriendlyName(const FString& OldFriendlyName) const
 {
-	OnFriendlyNameChangedDelegate.Broadcast();
+    OnFriendlyNameChangedDelegate.Broadcast();
 }
 
 void UAdhocControllerComponent::OnRep_FactionIndex(int32 OldFactionIndex) const
 {
-	OnFactionIndexChangedDelegate.Broadcast();
+    OnFactionIndexChangedDelegate.Broadcast();
 }

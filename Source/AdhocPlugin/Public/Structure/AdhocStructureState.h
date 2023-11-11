@@ -27,39 +27,39 @@
 USTRUCT(BlueprintType)
 struct FAdhocStructureState
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
-	UPROPERTY(BlueprintReadOnly)
-	int64 ID = -1;
+    UPROPERTY(BlueprintReadOnly)
+    int64 ID = -1;
 
-	UPROPERTY(BlueprintReadOnly)
-	int64 Version = -1;
+    UPROPERTY(BlueprintReadOnly)
+    int64 Version = -1;
 
-	UPROPERTY(BlueprintReadOnly)
-	FGuid UUID;
+    UPROPERTY(BlueprintReadOnly)
+    FGuid UUID;
 
-	UPROPERTY(BlueprintReadOnly)
-	FString Name;
-	UPROPERTY(BlueprintReadOnly)
-	FString Type;
+    UPROPERTY(BlueprintReadOnly)
+    FString Name;
+    UPROPERTY(BlueprintReadOnly)
+    FString Type;
 
-	UPROPERTY(BlueprintReadOnly)
-	int64 RegionID = -1;
+    UPROPERTY(BlueprintReadOnly)
+    int64 RegionID = -1;
 
-	UPROPERTY(BlueprintReadOnly)
-	FVector Location;
-	UPROPERTY(BlueprintReadOnly)
+    UPROPERTY(BlueprintReadOnly)
+    FVector Location;
+    UPROPERTY(BlueprintReadOnly)
     FRotator Rotation;
-	UPROPERTY(BlueprintReadOnly)
-	FVector Scale;
-	UPROPERTY(BlueprintReadOnly)
-	FVector Size;
+    UPROPERTY(BlueprintReadOnly)
+    FVector Scale;
+    UPROPERTY(BlueprintReadOnly)
+    FVector Size;
 
-	UPROPERTY(BlueprintReadOnly)
-	int64 FactionID = -1;
-	UPROPERTY(BlueprintReadOnly)
-	int32 FactionIndex = -1;
+    UPROPERTY(BlueprintReadOnly)
+    int64 FactionID = -1;
+    UPROPERTY(BlueprintReadOnly)
+    int32 FactionIndex = -1;
 
-	UPROPERTY(BlueprintReadOnly)
-	int64 UserID = -1;
+    UPROPERTY(BlueprintReadOnly)
+    int64 UserID = -1;
 };

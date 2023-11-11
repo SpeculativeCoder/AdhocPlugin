@@ -27,23 +27,23 @@
 USTRUCT(BlueprintType)
 struct FAdhocFactionState
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
-	UPROPERTY(BlueprintReadOnly)
-	int64 ID = -1;
+    UPROPERTY(BlueprintReadOnly)
+    int64 ID = -1;
 
-	UPROPERTY(BlueprintReadOnly)
-	int64 Version = -1;
+    UPROPERTY(BlueprintReadOnly)
+    int64 Version = -1;
 
-	UPROPERTY(BlueprintReadOnly)
-	int32 Index = -1;
+    UPROPERTY(BlueprintReadOnly)
+    int32 Index = -1;
 
-	UPROPERTY(BlueprintReadOnly)
-	FString Name;
+    UPROPERTY(BlueprintReadOnly)
+    FString Name;
 
-	UPROPERTY(BlueprintReadOnly)
-	FColor Color = FColor::Silver;
+    UPROPERTY(BlueprintReadOnly)
+    FColor Color = FColor::Silver;
 
-	UPROPERTY(BlueprintReadOnly)
-	float Score;
+    UPROPERTY(BlueprintReadOnly)
+    float Score;
 };

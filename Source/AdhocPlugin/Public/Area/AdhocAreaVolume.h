@@ -27,21 +27,21 @@
 UCLASS()
 class ADHOCPLUGIN_API AAdhocAreaVolume : public AVolume
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
-	UPROPERTY(EditInstanceOnly)
-	class UAdhocAreaComponent* AdhocArea;
+    UPROPERTY(EditInstanceOnly)
+    class UAdhocAreaComponent* AdhocArea;
 
 public:
-	FORCEINLINE UAdhocAreaComponent* GetAdhocArea() const { return AdhocArea; }
+    FORCEINLINE UAdhocAreaComponent* GetAdhocArea() const { return AdhocArea; }
 
 private:
-	explicit AAdhocAreaVolume(const FObjectInitializer& ObjectInitializer);
+    explicit AAdhocAreaVolume(const FObjectInitializer& ObjectInitializer);
 
-	virtual void BeginPlay() override;
+    virtual void BeginPlay() override;
 
-	/** Overlap event will check if player needs to navigate to another server. */
-	UFUNCTION()
-	void OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
-		bool bFromSweep, const FHitResult& Hit);
+    /** Overlap event will check if player needs to navigate to another server. */
+    UFUNCTION()
+    void OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
+        bool bFromSweep, const FHitResult& Hit);
 };

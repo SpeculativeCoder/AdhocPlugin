@@ -22,13 +22,9 @@
 
 #define LOCTEXT_NAMESPACE "FAdhocPluginModule"
 
-void FAdhocPluginModule::StartupModule()
-{
-}
+void FAdhocPluginModule::StartupModule() {}
 
-void FAdhocPluginModule::ShutdownModule()
-{
-}
+void FAdhocPluginModule::ShutdownModule() {}
 
 #undef LOCTEXT_NAMESPACE
 

@@ -26,57 +26,57 @@
 #include "GameFramework/GameModeBase.h"
 
 AAdhocAreaVolume::AAdhocAreaVolume(const FObjectInitializer& ObjectInitializer)
-	: Super(ObjectInitializer)
+    : Super(ObjectInitializer)
 {
-	PrimaryActorTick.bCanEverTick = false;
+    PrimaryActorTick.bCanEverTick = false;
 
-	bReplicates = false;
+    bReplicates = false;
 
-	bColored = true;
-	BrushColor.R = 100;
-	BrushColor.G = 150;
-	BrushColor.B = 250;
-	BrushColor.A = 255;
+    bColored = true;
+    BrushColor.R = 100;
+    BrushColor.G = 150;
+    BrushColor.B = 250;
+    BrushColor.A = 255;
 
-	GetBrushComponent()->SetCollisionProfileName(TEXT("Area"));
+    GetBrushComponent()->SetCollisionProfileName(TEXT("Area"));
 
-	AdhocArea = CreateDefaultSubobject<UAdhocAreaComponent>(TEXT("AdhocArea"));
+    AdhocArea = CreateDefaultSubobject<UAdhocAreaComponent>(TEXT("AdhocArea"));
 }
 
 void AAdhocAreaVolume::BeginPlay()
 {
-	Super::BeginPlay();
+    Super::BeginPlay();
 
-	if (HasAuthority())
-	{
-		GetBrushComponent()->OnComponentBeginOverlap.AddDynamic(this, &AAdhocAreaVolume::OnBeginOverlap);
-	}
+    if (HasAuthority())
+    {
+        GetBrushComponent()->OnComponentBeginOverlap.AddDynamic(this, &AAdhocAreaVolume::OnBeginOverlap);
+    }
 }
 
 // ReSharper disable once CppMemberFunctionMayBeConst
 void AAdhocAreaVolume::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
-	bool bFromSweep, const FHitResult& Hit)
+    bool bFromSweep, const FHitResult& Hit)
 {
-	check(HasAuthority());
+    check(HasAuthority());
 
-	const APawn* Pawn = Cast<APawn>(OtherActor);
-	if (!Pawn)
-	{
-		return;
-	}
+    const APawn* Pawn = Cast<APawn>(OtherActor);
+    if (!Pawn)
+    {
+        return;
+    }
 
-	APlayerController* PlayerController = Cast<APlayerController>(Pawn->Controller);
-	if (!PlayerController)
-	{
-		return;
-	}
+    APlayerController* PlayerController = Cast<APlayerController>(Pawn->Controller);
+    if (!PlayerController)
+    {
+        return;
+    }
 
-	const UWorld* World = GetWorld();
-	check(World);
-	const AGameModeBase* GameMode = World->GetAuthGameMode();
-	check(GameMode);
-	const UAdhocGameModeComponent* AdhocGameMode = Cast<UAdhocGameModeComponent>(GameMode->GetComponentByClass(UAdhocGameModeComponent::StaticClass()));
-	check(AdhocGameMode);
+    const UWorld* World = GetWorld();
+    check(World);
+    const AGameModeBase* GameMode = World->GetAuthGameMode();
+    check(GameMode);
+    const UAdhocGameModeComponent* AdhocGameMode = Cast<UAdhocGameModeComponent>(GameMode->GetComponentByClass(UAdhocGameModeComponent::StaticClass()));
+    check(AdhocGameMode);
 
-	AdhocGameMode->PlayerEnterArea(PlayerController, GetAdhocArea()->GetAreaIndex());
+    AdhocGameMode->PlayerEnterArea(PlayerController, GetAdhocArea()->GetAreaIndex());
 }

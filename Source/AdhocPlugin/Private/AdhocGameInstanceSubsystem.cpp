@@ -24,10 +24,10 @@ DEFINE_LOG_CATEGORY_STATIC(LogAdhocGameInstanceSubsystem, Log, All)
 
 void UAdhocGameInstanceSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
-	Super::Initialize(Collection);
+    Super::Initialize(Collection);
 
-	const UGameInstance* GameInstance = GetGameInstance();
-	check(GameInstance);
+    const UGameInstance* GameInstance = GetGameInstance();
+    check(GameInstance);
 
-	UE_LOG(LogAdhocGameInstanceSubsystem, Verbose, TEXT("Initialize: GameInstance=%s"), *GameInstance->GetName());
+    UE_LOG(LogAdhocGameInstanceSubsystem, Verbose, TEXT("Initialize: GameInstance=%s"), *GameInstance->GetName());
 }

@@ -24,64 +24,64 @@
 
 UAdhocPawnComponent::UAdhocPawnComponent(const FObjectInitializer& ObjectInitializer)
 {
-	bWantsInitializeComponent = true;
-	PrimaryComponentTick.bCanEverTick = false;
+    bWantsInitializeComponent = true;
+    PrimaryComponentTick.bCanEverTick = false;
 
-	SetIsReplicatedByDefault(true);
-	SetNetAddressable();
+    SetIsReplicatedByDefault(true);
+    SetNetAddressable();
 }
 
 void UAdhocPawnComponent::InitializeComponent()
 {
-	Super::InitializeComponent();
+    Super::InitializeComponent();
 
-	const APawn* Pawn = GetPawn();
-	check(Pawn);
+    const APawn* Pawn = GetPawn();
+    check(Pawn);
 
-	if (Pawn->HasAuthority())
-	{
-		UUID = FGuid::NewGuid();
-	}
+    if (Pawn->HasAuthority())
+    {
+        UUID = FGuid::NewGuid();
+    }
 }
 
 void UAdhocPawnComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+    Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME(UAdhocPawnComponent, FriendlyName);
-	DOREPLIFETIME(UAdhocPawnComponent, FactionIndex);
+    DOREPLIFETIME(UAdhocPawnComponent, FriendlyName);
+    DOREPLIFETIME(UAdhocPawnComponent, FactionIndex);
 }
 
 void UAdhocPawnComponent::SetFriendlyName(const FString& NewFriendlyName)
 {
-	const bool bChanged = FriendlyName != NewFriendlyName;
+    const bool bChanged = FriendlyName != NewFriendlyName;
 
-	FriendlyName = NewFriendlyName;
+    FriendlyName = NewFriendlyName;
 
-	if (bChanged)
-	{
-		OnFriendlyNameChangedDelegate.Broadcast();
-	}
+    if (bChanged)
+    {
+        OnFriendlyNameChangedDelegate.Broadcast();
+    }
 }
 
 void UAdhocPawnComponent::SetFactionIndex(const int32 NewFactionIndex)
 {
-	const bool bChanged = FactionIndex != NewFactionIndex;
+    const bool bChanged = FactionIndex != NewFactionIndex;
 
-	FactionIndex = NewFactionIndex;
+    FactionIndex = NewFactionIndex;
 
-	if (bChanged)
-	{
-		OnFactionIndexChangedDelegate.Broadcast();
-	}
+    if (bChanged)
+    {
+        OnFactionIndexChangedDelegate.Broadcast();
+    }
 }
 
 void UAdhocPawnComponent::OnRep_FriendlyName(const FString& OldFriendlyName) const
 {
-	OnFriendlyNameChangedDelegate.Broadcast();
+    OnFriendlyNameChangedDelegate.Broadcast();
 }
 
 void UAdhocPawnComponent::OnRep_FactionIndex(int32 OldFactionIndex) const
 {
-	OnFactionIndexChangedDelegate.Broadcast();
+    OnFactionIndexChangedDelegate.Broadcast();
 }

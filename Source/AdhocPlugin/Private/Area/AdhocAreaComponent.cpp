@@ -22,5 +22,5 @@
 
 UAdhocAreaComponent::UAdhocAreaComponent(const FObjectInitializer& ObjectInitializer)
 {
-	PrimaryComponentTick.bCanEverTick = false;
+    PrimaryComponentTick.bCanEverTick = false;
 }

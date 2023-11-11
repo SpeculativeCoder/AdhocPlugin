@@ -24,17 +24,17 @@ DEFINE_LOG_CATEGORY_STATIC(LogAdhocWorldSubsystem, Log, All)
 
 void UAdhocWorldSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
-	Super::Initialize(Collection);
+    Super::Initialize(Collection);
 
-	const UWorld* World = GetWorld();
-	check(World);
+    const UWorld* World = GetWorld();
+    check(World);
 
-	UE_LOG(LogAdhocWorldSubsystem, Verbose, TEXT("Initialize: World=%s"), *World->GetName());
+    UE_LOG(LogAdhocWorldSubsystem, Verbose, TEXT("Initialize: World=%s"), *World->GetName());
 }
 
 bool UAdhocWorldSubsystem::DoesSupportWorldType(const EWorldType::Type WorldType) const
 {
-	UE_LOG(LogAdhocWorldSubsystem, Verbose, TEXT("DoesSupportWorldType: WorldType=%d"), WorldType);
+    UE_LOG(LogAdhocWorldSubsystem, Verbose, TEXT("DoesSupportWorldType: WorldType=%d"), WorldType);
 
-	return WorldType == EWorldType::Game || WorldType == EWorldType::PIE;
+    return WorldType == EWorldType::Game || WorldType == EWorldType::PIE;
 }

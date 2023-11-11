@@ -30,32 +30,32 @@
 UCLASS(Transient)
 class ADHOCPLUGIN_API UAdhocPlayerControllerComponent : public UAdhocControllerComponent
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
 private:
-	UPROPERTY(Replicated)
-	int64 UserID = -1;
+    UPROPERTY(Replicated)
+    int64 UserID = -1;
 
-	FString Token;
+    FString Token;
 
-	/** When set, player will spawn at this location / rotation.
-	 * Typically this is set when the player has travelled from an area on another server to an area on this server
-	 * and we wish to immediately spawn them at the location they were previously at. */
-	TOptional<FTransform> ImmediateSpawnTransform;
+    /** When set, player will spawn at this location / rotation.
+     * Typically this is set when the player has travelled from an area on another server to an area on this server
+     * and we wish to immediately spawn them at the location they were previously at. */
+    TOptional<FTransform> ImmediateSpawnTransform;
 
 public:
-	FORCEINLINE class APlayerController* GetPlayerController() const { return GetOwner<APlayerController>(); }
+    FORCEINLINE class APlayerController* GetPlayerController() const { return GetOwner<APlayerController>(); }
 
-	FORCEINLINE int64 GetUserID() const { return UserID; }
-	FORCEINLINE FString GetToken() const { return Token; }
-	FORCEINLINE TOptional<FTransform> GetImmediateSpawnTransform() const { return ImmediateSpawnTransform; }
+    FORCEINLINE int64 GetUserID() const { return UserID; }
+    FORCEINLINE FString GetToken() const { return Token; }
+    FORCEINLINE TOptional<FTransform> GetImmediateSpawnTransform() const { return ImmediateSpawnTransform; }
 
-	FORCEINLINE void SetUserID(const int64 NewUserID) { UserID = NewUserID; }
-	FORCEINLINE void SetToken(const FString& NewToken) { Token = NewToken; }
-	FORCEINLINE void SetImmediateSpawnTransform(const TOptional<FTransform>& NewImmediateSpawnTransform) { ImmediateSpawnTransform = NewImmediateSpawnTransform; }
+    FORCEINLINE void SetUserID(const int64 NewUserID) { UserID = NewUserID; }
+    FORCEINLINE void SetToken(const FString& NewToken) { Token = NewToken; }
+    FORCEINLINE void SetImmediateSpawnTransform(const TOptional<FTransform>& NewImmediateSpawnTransform) { ImmediateSpawnTransform = NewImmediateSpawnTransform; }
 
-	FORCEINLINE void ClearImmediateSpawnTransform() { ImmediateSpawnTransform = TOptional<FTransform>(); }
+    FORCEINLINE void ClearImmediateSpawnTransform() { ImmediateSpawnTransform = TOptional<FTransform>(); }
 
 private:
-	explicit UAdhocPlayerControllerComponent(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
+    explicit UAdhocPlayerControllerComponent(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 };

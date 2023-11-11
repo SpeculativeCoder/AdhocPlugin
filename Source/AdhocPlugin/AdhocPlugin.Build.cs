@@ -22,31 +22,31 @@ using UnrealBuildTool;
 
 public class AdhocPlugin : ModuleRules
 {
-	public AdhocPlugin(ReadOnlyTargetRules Target) : base(Target)
-	{
-		PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
+    public AdhocPlugin(ReadOnlyTargetRules Target) : base(Target)
+    {
+        PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
 
-		PublicDefinitions.Add("WITH_ADHOC_PLUGIN_EXTRA=0");
+        PublicDefinitions.Add("WITH_ADHOC_PLUGIN_EXTRA=0");
 
-		PublicDependencyModuleNames.AddRange(
-			new string[]
-			{
-				"Core",
-			}
-		);
+        PublicDependencyModuleNames.AddRange(
+            new string[]
+            {
+                "Core",
+            }
+        );
 
-		PrivateDependencyModuleNames.AddRange(
-			new string[]
-			{
-				"CoreUObject",
-				"Engine",
-				"Slate",
-				"SlateCore",
-				"Stomp",
-				"WebSockets",
-				"Http",
-				"Json",
-			}
-		);
-	}
+        PrivateDependencyModuleNames.AddRange(
+            new string[]
+            {
+                "CoreUObject",
+                "Engine",
+                "Slate",
+                "SlateCore",
+                "Stomp",
+                "WebSockets",
+                "Http",
+                "Json",
+            }
+        );
+    }
 }

@@ -28,23 +28,23 @@
 UINTERFACE()
 class UAdhocObjectiveInterface : public UInterface
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 };
 
 
 class IAdhocObjectiveInterface
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
 public:
-	virtual const FString& GetFriendlyName() const = 0;
-	virtual const TSet<class IAdhocObjectiveInterface*> GetLinkedObjectiveInterfaces() const = 0;
-	virtual int32 GetInitialFactionIndex() const = 0;
-	virtual int32 GetObjectiveIndex() const = 0;
-	virtual int32 GetFactionIndex() const = 0;
-	virtual int32 GetAreaIndexSafe() const = 0;
+    virtual const FString& GetFriendlyName() const = 0;
+    virtual const TSet<class IAdhocObjectiveInterface*> GetLinkedObjectiveInterfaces() const = 0;
+    virtual int32 GetInitialFactionIndex() const = 0;
+    virtual int32 GetObjectiveIndex() const = 0;
+    virtual int32 GetFactionIndex() const = 0;
+    virtual int32 GetAreaIndexSafe() const = 0;
 
-	virtual void SetObjectiveIndex(const int32 NewObjectiveIndex) = 0;
+    virtual void SetObjectiveIndex(const int32 NewObjectiveIndex) = 0;
 
-	virtual void ObjectiveTaken(int32 FactionIndex) = 0;
+    virtual void ObjectiveTaken(int32 FactionIndex) = 0;
 };

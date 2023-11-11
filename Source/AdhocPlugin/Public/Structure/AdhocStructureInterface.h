@@ -28,23 +28,23 @@
 UINTERFACE()
 class UAdhocStructureInterface : public UInterface
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 };
 
 
 class IAdhocStructureInterface
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
 public:
-	virtual const FGuid& GetUUID() const = 0;
-	virtual const FString& GetFriendlyName() const = 0;
-	virtual const FString& GetType() const = 0;
-	virtual int32 GetFactionIndex() const = 0;
-	virtual int64 GetUserID() const = 0;
+    virtual const FGuid& GetUUID() const = 0;
+    virtual const FString& GetFriendlyName() const = 0;
+    virtual const FString& GetType() const = 0;
+    virtual int32 GetFactionIndex() const = 0;
+    virtual int64 GetUserID() const = 0;
 
-	virtual void SetUUID(const FGuid& NewUUID) = 0;
-	virtual void SetFriendlyName(const FString& NewFriendlyName) = 0;
-	virtual void SetFactionIndex(int32 NewFactionIndex) = 0;
-	virtual void SetUserID(int64 NewUserID) = 0;
+    virtual void SetUUID(const FGuid& NewUUID) = 0;
+    virtual void SetFriendlyName(const FString& NewFriendlyName) = 0;
+    virtual void SetFactionIndex(int32 NewFactionIndex) = 0;
+    virtual void SetUserID(int64 NewUserID) = 0;
 };

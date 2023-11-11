@@ -27,36 +27,36 @@
 USTRUCT(BlueprintType)
 struct FAdhocServerState
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
-	UPROPERTY(BlueprintReadOnly)
-	int64 ID = -1;
+    UPROPERTY(BlueprintReadOnly)
+    int64 ID = -1;
 
-	UPROPERTY(BlueprintReadOnly)
-	int64 Version = -1;
+    UPROPERTY(BlueprintReadOnly)
+    int64 Version = -1;
 
-	UPROPERTY(BlueprintReadOnly)
-	int64 RegionID = -1;
+    UPROPERTY(BlueprintReadOnly)
+    int64 RegionID = -1;
 
-	UPROPERTY(BlueprintReadOnly)
-	TArray<int64> AreaIDs;
-	UPROPERTY(BlueprintReadOnly)
-	TArray<int32> AreaIndexes;
-	
-	UPROPERTY(BlueprintReadOnly)
-	FString Name;
-	
-	// UPROPERTY(BlueprintReadOnly)
-	// FString HostingType;
+    UPROPERTY(BlueprintReadOnly)
+    TArray<int64> AreaIDs;
+    UPROPERTY(BlueprintReadOnly)
+    TArray<int32> AreaIndexes;
 
-	UPROPERTY(BlueprintReadOnly)
-	FString Status;
-	
-	UPROPERTY(BlueprintReadOnly)
-	FString PrivateIP;
+    UPROPERTY(BlueprintReadOnly)
+    FString Name;
 
-	UPROPERTY(BlueprintReadOnly)
-	FString PublicIP;
-	UPROPERTY(BlueprintReadOnly)
-	int32 PublicWebSocketPort = -1;
+    // UPROPERTY(BlueprintReadOnly)
+    // FString HostingType;
+
+    UPROPERTY(BlueprintReadOnly)
+    FString Status;
+
+    UPROPERTY(BlueprintReadOnly)
+    FString PrivateIP;
+
+    UPROPERTY(BlueprintReadOnly)
+    FString PublicIP;
+    UPROPERTY(BlueprintReadOnly)
+    int32 PublicWebSocketPort = -1;
 };

@@ -27,42 +27,42 @@
 USTRUCT(BlueprintType)
 struct FAdhocObjectiveState
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
-	UPROPERTY(BlueprintReadOnly)
-	int64 ID = -1;
+    UPROPERTY(BlueprintReadOnly)
+    int64 ID = -1;
 
-	UPROPERTY(BlueprintReadOnly)
-	int64 Version = -1;
+    UPROPERTY(BlueprintReadOnly)
+    int64 Version = -1;
 
-	UPROPERTY(BlueprintReadOnly)
-	int64 RegionID = -1;
-	UPROPERTY(BlueprintReadOnly)
-	int32 Index = -1;
+    UPROPERTY(BlueprintReadOnly)
+    int64 RegionID = -1;
+    UPROPERTY(BlueprintReadOnly)
+    int32 Index = -1;
 
-	UPROPERTY(BlueprintReadOnly)
-	FString Name;
+    UPROPERTY(BlueprintReadOnly)
+    FString Name;
 
-	UPROPERTY(BlueprintReadOnly)
-	FVector Location = FVector::ZeroVector;
+    UPROPERTY(BlueprintReadOnly)
+    FVector Location = FVector::ZeroVector;
 
-	UPROPERTY(BlueprintReadOnly)
-	int64 InitialFactionID = -1;
-	UPROPERTY(BlueprintReadOnly)
-	int32 InitialFactionIndex = -1;
+    UPROPERTY(BlueprintReadOnly)
+    int64 InitialFactionID = -1;
+    UPROPERTY(BlueprintReadOnly)
+    int32 InitialFactionIndex = -1;
 
-	UPROPERTY(BlueprintReadOnly)
-	int64 FactionID = -1;
-	UPROPERTY(BlueprintReadOnly)
-	int32 FactionIndex = -1;
+    UPROPERTY(BlueprintReadOnly)
+    int64 FactionID = -1;
+    UPROPERTY(BlueprintReadOnly)
+    int32 FactionIndex = -1;
 
-	UPROPERTY(BlueprintReadOnly)
-	TArray<int64> LinkedObjectiveIDs;
-	UPROPERTY(BlueprintReadOnly)
-	TArray<int32> LinkedObjectiveIndexes;
+    UPROPERTY(BlueprintReadOnly)
+    TArray<int64> LinkedObjectiveIDs;
+    UPROPERTY(BlueprintReadOnly)
+    TArray<int32> LinkedObjectiveIndexes;
 
-	UPROPERTY(BlueprintReadOnly)
-	int64 AreaID = -1;
-	UPROPERTY(BlueprintReadOnly)
-	int32 AreaIndex = -1;
+    UPROPERTY(BlueprintReadOnly)
+    int64 AreaID = -1;
+    UPROPERTY(BlueprintReadOnly)
+    int32 AreaIndex = -1;
 };

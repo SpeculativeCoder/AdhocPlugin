@@ -22,11 +22,11 @@
 
 struct FAdhocEmission
 {
-	int64 ServerID;
-	FString Type;
+    int64 ServerID;
+    FString Type;
 
-	FVector Location;
-	FRotator Rotation;
+    FVector Location;
+    FRotator Rotation;
 
-	float Timestamp;
+    float Timestamp;
 };

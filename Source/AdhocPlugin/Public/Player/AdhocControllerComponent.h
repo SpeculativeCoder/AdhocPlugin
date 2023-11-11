@@ -29,45 +29,45 @@
 UCLASS(Transient)
 class ADHOCPLUGIN_API UAdhocControllerComponent : public UActorComponent
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
 public:
-	DECLARE_MULTICAST_DELEGATE(FOnFriendlyNameChangedDelegate);
-	DECLARE_MULTICAST_DELEGATE(FOnFactionIndexChangedDelegate);
+    DECLARE_MULTICAST_DELEGATE(FOnFriendlyNameChangedDelegate);
+    DECLARE_MULTICAST_DELEGATE(FOnFactionIndexChangedDelegate);
 
-	FOnFriendlyNameChangedDelegate OnFriendlyNameChangedDelegate;
-	FOnFactionIndexChangedDelegate OnFactionIndexChangedDelegate;
+    FOnFriendlyNameChangedDelegate OnFriendlyNameChangedDelegate;
+    FOnFactionIndexChangedDelegate OnFactionIndexChangedDelegate;
 
 protected:
-	/** Human readable name of the controller. This is what will appear on screen for the controller. */
-	UPROPERTY(Replicated, ReplicatedUsing = OnRep_FriendlyName)
-	FString FriendlyName;
+    /** Human readable name of the controller. This is what will appear on screen for the controller. */
+    UPROPERTY(Replicated, ReplicatedUsing = OnRep_FriendlyName)
+    FString FriendlyName;
 
-	/** Index of faction for the controller (first faction has index 0, next faction has index 1 and so on, -1 means no faction). */
-	UPROPERTY(Replicated, ReplicatedUsing = OnRep_FactionIndex)
-	int32 FactionIndex = -1;
+    /** Index of faction for the controller (first faction has index 0, next faction has index 1 and so on, -1 means no faction). */
+    UPROPERTY(Replicated, ReplicatedUsing = OnRep_FactionIndex)
+    int32 FactionIndex = -1;
 
 public:
-	FORCEINLINE class AController* GetController() const { return GetOwner<AController>(); }
+    FORCEINLINE class AController* GetController() const { return GetOwner<AController>(); }
 
-	FORCEINLINE const FString& GetFriendlyName() const { return FriendlyName; }
-	FORCEINLINE int32 GetFactionIndex() const { return FactionIndex; }
+    FORCEINLINE const FString& GetFriendlyName() const { return FriendlyName; }
+    FORCEINLINE int32 GetFactionIndex() const { return FactionIndex; }
 
 protected:
-	explicit UAdhocControllerComponent(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
+    explicit UAdhocControllerComponent(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
-	virtual void InitializeComponent() override;
+    virtual void InitializeComponent() override;
 
 public:
-	void SetFriendlyName(const FString& NewFriendlyName);
-	void SetFactionIndex(const int64 NewFactionIndex);
+    void SetFriendlyName(const FString& NewFriendlyName);
+    void SetFactionIndex(const int64 NewFactionIndex);
 
 protected:
-	/** For convenience, when possessing a pawn, we will try to initialize the friendly name and faction index on the pawn (this will allow the pawn to show its faction via color etc. and maybe put the name of the pawn in a nameplate etc.). If these were already set on the pawn (e.g. by game code earlier during pawn construction) then this will not be done. */
-	void OnNewPawn(APawn* Pawn) const;
+    /** For convenience, when possessing a pawn, we will try to initialize the friendly name and faction index on the pawn (this will allow the pawn to show its faction via color etc. and maybe put the name of the pawn in a nameplate etc.). If these were already set on the pawn (e.g. by game code earlier during pawn construction) then this will not be done. */
+    void OnNewPawn(APawn* Pawn) const;
 
-	UFUNCTION()
-	void OnRep_FriendlyName(const FString& OldFriendlyName) const;
-	UFUNCTION()
-	void OnRep_FactionIndex(int32 OldFactionIndex) const;
+    UFUNCTION()
+    void OnRep_FriendlyName(const FString& OldFriendlyName) const;
+    UFUNCTION()
+    void OnRep_FactionIndex(int32 OldFactionIndex) const;
 };

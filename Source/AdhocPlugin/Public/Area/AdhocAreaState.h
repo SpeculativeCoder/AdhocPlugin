@@ -27,28 +27,28 @@
 USTRUCT(BlueprintType)
 struct FAdhocAreaState
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
-	UPROPERTY(BlueprintReadOnly)
-	int64 ID = -1;
+    UPROPERTY(BlueprintReadOnly)
+    int64 ID = -1;
 
-	UPROPERTY(BlueprintReadOnly)
-	int64 Version = -1;
+    UPROPERTY(BlueprintReadOnly)
+    int64 Version = -1;
 
-	UPROPERTY(BlueprintReadOnly)
-	int64 RegionID = -1;
-	UPROPERTY(BlueprintReadOnly)
-	int32 Index = -1;
+    UPROPERTY(BlueprintReadOnly)
+    int64 RegionID = -1;
+    UPROPERTY(BlueprintReadOnly)
+    int32 Index = -1;
 
-	UPROPERTY(BlueprintReadOnly)
-	FString Name;
+    UPROPERTY(BlueprintReadOnly)
+    FString Name;
 
-	UPROPERTY(BlueprintReadOnly)
-	FVector Location = FVector::ZeroVector;
+    UPROPERTY(BlueprintReadOnly)
+    FVector Location = FVector::ZeroVector;
 
-	UPROPERTY(BlueprintReadOnly)
-	FVector Size = FVector::ZeroVector;
+    UPROPERTY(BlueprintReadOnly)
+    FVector Size = FVector::ZeroVector;
 
-	UPROPERTY(BlueprintReadOnly)
-	int64 ServerID = -1;
+    UPROPERTY(BlueprintReadOnly)
+    int64 ServerID = -1;
 };

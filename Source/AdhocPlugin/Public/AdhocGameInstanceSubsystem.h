@@ -28,8 +28,8 @@
 UCLASS(Transient)
 class ADHOCPLUGIN_API UAdhocGameInstanceSubsystem : public UGameInstanceSubsystem
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
 private:
-	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
+    virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 };

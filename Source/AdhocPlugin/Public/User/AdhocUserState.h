@@ -27,20 +27,20 @@
 USTRUCT(BlueprintType)
 struct FAdhocUserState
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
-	UPROPERTY(BlueprintReadOnly)
-	int64 ID = -1;
+    UPROPERTY(BlueprintReadOnly)
+    int64 ID = -1;
 
-	UPROPERTY(BlueprintReadOnly)
-	int64 Version = -1;
-	
-	UPROPERTY(BlueprintReadOnly)
-	FString Name;
-	
-	UPROPERTY(BlueprintReadOnly)
-	int64 FactionID = -1;
-	
-	UPROPERTY(BlueprintReadOnly)
-	float Score;
+    UPROPERTY(BlueprintReadOnly)
+    int64 Version = -1;
+
+    UPROPERTY(BlueprintReadOnly)
+    FString Name;
+
+    UPROPERTY(BlueprintReadOnly)
+    int64 FactionID = -1;
+
+    UPROPERTY(BlueprintReadOnly)
+    float Score;
 };

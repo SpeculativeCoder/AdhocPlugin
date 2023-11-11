@@ -28,48 +28,48 @@
 UCLASS()
 class ADHOCPLUGIN_API UAdhocPawnComponent : public UActorComponent
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
-	DECLARE_MULTICAST_DELEGATE(FOnFriendlyNameChangedDelegate);
-	DECLARE_MULTICAST_DELEGATE(FOnPawnFactionIndexChangedDelegate);
-
-public:
-	FOnFriendlyNameChangedDelegate OnFriendlyNameChangedDelegate;
-	FOnPawnFactionIndexChangedDelegate OnFactionIndexChangedDelegate;
-
-private:
-	// TODO: is it worth replicating this to the client?
-	/** UUID for the pawn. */
-	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = true))
-	FGuid UUID;
-
-	/** Human readable name of the pawn. This is what will appear on screen for the pawn. */
-	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = true), Replicated, ReplicatedUsing = OnRep_FriendlyName)
-	FString FriendlyName;
-
-	/** Index of faction for the pawn (first faction has index 0, next faction has index 1 and so on, -1 means no faction). */
-	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = true), Replicated, ReplicatedUsing = OnRep_FactionIndex)
-	int32 FactionIndex = -1;
+    DECLARE_MULTICAST_DELEGATE(FOnFriendlyNameChangedDelegate);
+    DECLARE_MULTICAST_DELEGATE(FOnPawnFactionIndexChangedDelegate);
 
 public:
-	FORCEINLINE class APawn* GetPawn() const { return GetOwner<APawn>(); }
-
-	FORCEINLINE const FGuid& GetUUID() const { return UUID; }
-	FORCEINLINE const FString& GetFriendlyName() const { return FriendlyName; }
-	FORCEINLINE int32 GetFactionIndex() const { return FactionIndex; }
+    FOnFriendlyNameChangedDelegate OnFriendlyNameChangedDelegate;
+    FOnPawnFactionIndexChangedDelegate OnFactionIndexChangedDelegate;
 
 private:
-	explicit UAdhocPawnComponent(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
+    // TODO: is it worth replicating this to the client?
+    /** UUID for the pawn. */
+    UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = true))
+    FGuid UUID;
 
-	virtual void InitializeComponent() override;
+    /** Human readable name of the pawn. This is what will appear on screen for the pawn. */
+    UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = true), Replicated, ReplicatedUsing = OnRep_FriendlyName)
+    FString FriendlyName;
+
+    /** Index of faction for the pawn (first faction has index 0, next faction has index 1 and so on, -1 means no faction). */
+    UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = true), Replicated, ReplicatedUsing = OnRep_FactionIndex)
+    int32 FactionIndex = -1;
 
 public:
-	void SetFriendlyName(const FString& NewFriendlyName);
-	void SetFactionIndex(const int32 NewFactionIndex);
+    FORCEINLINE class APawn* GetPawn() const { return GetOwner<APawn>(); }
+
+    FORCEINLINE const FGuid& GetUUID() const { return UUID; }
+    FORCEINLINE const FString& GetFriendlyName() const { return FriendlyName; }
+    FORCEINLINE int32 GetFactionIndex() const { return FactionIndex; }
 
 private:
-	UFUNCTION()
-	void OnRep_FriendlyName(const FString& OldFriendlyName) const;
-	UFUNCTION()
-	void OnRep_FactionIndex(int32 OldFactionIndex) const;
+    explicit UAdhocPawnComponent(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
+
+    virtual void InitializeComponent() override;
+
+public:
+    void SetFriendlyName(const FString& NewFriendlyName);
+    void SetFactionIndex(const int32 NewFactionIndex);
+
+private:
+    UFUNCTION()
+    void OnRep_FriendlyName(const FString& OldFriendlyName) const;
+    UFUNCTION()
+    void OnRep_FactionIndex(int32 OldFactionIndex) const;
 };

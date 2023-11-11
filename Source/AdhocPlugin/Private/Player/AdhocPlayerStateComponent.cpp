@@ -23,16 +23,16 @@
 #include "Net/UnrealNetwork.h"
 
 UAdhocPlayerStateComponent::UAdhocPlayerStateComponent(const FObjectInitializer& ObjectInitializer)
-	: Super(ObjectInitializer)
+    : Super(ObjectInitializer)
 {
-	SetIsReplicatedByDefault(true);
-	SetNetAddressable();
+    SetIsReplicatedByDefault(true);
+    SetNetAddressable();
 }
 
 void UAdhocPlayerStateComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+    Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME(UAdhocPlayerStateComponent, FactionIndex);
-	DOREPLIFETIME(UAdhocPlayerStateComponent, UserID);
+    DOREPLIFETIME(UAdhocPlayerStateComponent, FactionIndex);
+    DOREPLIFETIME(UAdhocPlayerStateComponent, UserID);
 }

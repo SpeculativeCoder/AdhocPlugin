@@ -22,7 +22,7 @@
 
 UAdhocObjectiveComponent::UAdhocObjectiveComponent(const FObjectInitializer& ObjectInitializer)
 {
-	PrimaryComponentTick.bCanEverTick = false;
+    PrimaryComponentTick.bCanEverTick = false;
 
-	//SetIsReplicatedByDefault(true);
+    //SetIsReplicatedByDefault(true);
 }
