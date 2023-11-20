@@ -175,7 +175,6 @@ private:
     void OnWorldUpdatedEvent(int64 WorldWorldID, int64 WorldVersion, const TArray<FString>& WorldManagerHosts);
 
     void SubmitUserJoin(class UAdhocPlayerControllerComponent* AdhocPlayerController);
-    void SubmitUserRegister(class UAdhocPlayerControllerComponent* AdhocPlayerController);
     /** When details of the user are received (from either user join or register) - update the player state (e.g. to set faction). */
     void OnUserJoinResponse(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful, UAdhocPlayerControllerComponent* AdhocPlayerController, bool bKickOnFailure);
 

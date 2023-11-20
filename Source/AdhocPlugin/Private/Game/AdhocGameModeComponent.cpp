@@ -385,18 +385,9 @@ void UAdhocGameModeComponent::PostLogin(const APlayerController* PlayerControlle
     // NOTE: user id in player state will only be set once we have verified the user
 
 #if WITH_SERVER_CODE && !defined(__EMSCRIPTEN__)
-    if (AdhocPlayerController->GetUserID() != -1 && !AdhocPlayerController->GetToken().IsEmpty())
-    {
-        UE_LOG(LogAdhocGameModeComponent, Log, TEXT("PostLogin: Logging in player: UserID=%d Token=%s"), AdhocPlayerController->GetUserID(), *AdhocPlayerController->GetToken());
+    UE_LOG(LogAdhocGameModeComponent, Log, TEXT("PostLogin: Submitting user join: UserID=%d Token=%s"), AdhocPlayerController->GetUserID(), *AdhocPlayerController->GetToken());
 
-        SubmitUserJoin(AdhocPlayerController);
-    }
-    else
-    {
-        UE_LOG(LogAdhocGameModeComponent, Log, TEXT("PostLogin: Auto-registering player"));
-
-        SubmitUserRegister(AdhocPlayerController);
-    }
+    SubmitUserJoin(AdhocPlayerController);
 #endif
 }
 
@@ -1226,40 +1217,24 @@ void UAdhocGameModeComponent::SubmitUserJoin(UAdhocPlayerControllerComponent* Ad
     const TSharedRef<TJsonWriter<TCHAR, TCondensedJsonPrintPolicy<TCHAR>>> Writer =
         TJsonWriterFactory<TCHAR, TCondensedJsonPrintPolicy<TCHAR>>::Create(&JsonString);
     Writer->WriteObjectStart();
-    Writer->WriteValue(TEXT("userId"), AdhocPlayerController->GetUserID());
     Writer->WriteValue(TEXT("serverId"), AdhocGameState->GetServerID());
-    Writer->WriteValue(TEXT("token"), *AdhocPlayerController->GetToken());
+
+    if (AdhocPlayerController->GetUserID() != -1)
+    {
+        Writer->WriteValue(TEXT("userId"), AdhocPlayerController->GetUserID());
+    }
+
+    if (!AdhocPlayerController->GetToken().IsEmpty())
+    {
+        Writer->WriteValue(TEXT("token"), *AdhocPlayerController->GetToken());
+    }
+
     Writer->WriteObjectEnd();
     Writer->Close();
 
     const auto& Request = Http->CreateRequest();
     Request->OnProcessRequestComplete().BindUObject(this, &UAdhocGameModeComponent::OnUserJoinResponse, AdhocPlayerController, true);
-    const FString URL = FString::Printf(
-        TEXT("http://%s:80/api/servers/%d/users/%d/join"), *ManagerHost, AdhocGameState->GetServerID(), AdhocPlayerController->GetUserID());
-    Request->SetURL(URL);
-    Request->SetVerb("POST");
-    Request->SetHeader(TEXT("Content-Type"), TEXT("application/json"));
-    // Request->SetHeader(TEXT("X-CSRF-TOKEN"), TEXT("SERVER"));
-    Request->SetHeader(BasicAuthHeaderName, BasicAuthHeaderValue);
-    Request->SetContentAsString(JsonString);
-
-    UE_LOG(LogAdhocGameModeComponent, Log, TEXT("POST %s: %s"), *URL, *JsonString);
-    Request->ProcessRequest();
-}
-
-void UAdhocGameModeComponent::SubmitUserRegister(UAdhocPlayerControllerComponent* AdhocPlayerController)
-{
-    FString JsonString;
-    const TSharedRef<TJsonWriter<TCHAR, TCondensedJsonPrintPolicy<TCHAR>>> Writer =
-        TJsonWriterFactory<TCHAR, TCondensedJsonPrintPolicy<TCHAR>>::Create(&JsonString);
-    Writer->WriteObjectStart();
-    Writer->WriteValue(TEXT("serverId"), AdhocGameState->GetServerID());
-    Writer->WriteObjectEnd();
-    Writer->Close();
-
-    const auto& Request = Http->CreateRequest();
-    Request->OnProcessRequestComplete().BindUObject(this, &UAdhocGameModeComponent::OnUserJoinResponse, AdhocPlayerController, false);
-    const FString URL = FString::Printf(TEXT("http://%s:80/api/servers/%d/users/register"), *ManagerHost, AdhocGameState->GetServerID());
+    const FString URL = FString::Printf(TEXT("http://%s:80/api/servers/%d/userJoin"), *ManagerHost, AdhocGameState->GetServerID());
     Request->SetURL(URL);
     Request->SetVerb("POST");
     Request->SetHeader(TEXT("Content-Type"), TEXT("application/json"));
