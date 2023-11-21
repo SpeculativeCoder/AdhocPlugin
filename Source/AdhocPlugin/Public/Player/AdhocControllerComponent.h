@@ -39,6 +39,9 @@ public:
     FOnFactionIndexChangedDelegate OnFactionIndexChangedDelegate;
 
 protected:
+    UPROPERTY(Replicated)
+    int64 UserID = -1;
+
     /** Human readable name of the controller. This is what will appear on screen for the controller. */
     UPROPERTY(Replicated, ReplicatedUsing = OnRep_FriendlyName)
     FString FriendlyName;
@@ -47,11 +50,24 @@ protected:
     UPROPERTY(Replicated, ReplicatedUsing = OnRep_FactionIndex)
     int32 FactionIndex = -1;
 
+    /** When set, will spawn at this location / rotation.
+     * Typically this is set when the user has travelled from an area on another server to an area on this server
+     * and we wish to immediately spawn them at the location they were previously at. */
+    TOptional<FTransform> ImmediateSpawnTransform;
+
 public:
     FORCEINLINE class AController* GetController() const { return GetOwner<AController>(); }
 
+    FORCEINLINE int64 GetUserID() const { return UserID; }
     FORCEINLINE const FString& GetFriendlyName() const { return FriendlyName; }
     FORCEINLINE int32 GetFactionIndex() const { return FactionIndex; }
+    FORCEINLINE TOptional<FTransform> GetImmediateSpawnTransform() const { return ImmediateSpawnTransform; }
+
+    // TODO: event broadcasts? (like with name / faction)
+    FORCEINLINE void SetUserID(const int64 NewUserID) { UserID = NewUserID; }
+    FORCEINLINE void SetImmediateSpawnTransform(const TOptional<FTransform>& NewImmediateSpawnTransform) { ImmediateSpawnTransform = NewImmediateSpawnTransform; }
+
+    FORCEINLINE void ClearImmediateSpawnTransform() { ImmediateSpawnTransform = TOptional<FTransform>(); }
 
 protected:
     explicit UAdhocControllerComponent(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());

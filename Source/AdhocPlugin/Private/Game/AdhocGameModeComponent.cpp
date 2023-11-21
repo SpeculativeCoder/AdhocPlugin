@@ -358,18 +358,37 @@ void UAdhocGameModeComponent::PostLogin(const APlayerController* PlayerControlle
     const FString Options = QuestionMarkPos == -1 ? RequestURL : RequestURL.RightChop(QuestionMarkPos);
     UE_LOG(LogAdhocGameModeComponent, Log, TEXT("PostLogin: Options=%s"), *Options);
 
-    const int32 RandomFactionIndex = FMath::RandRange(0, AdhocGameState->GetNumFactions() - 1);
-
-    const int32 UserID = UGameplayStatics::GetIntOption(Options, TEXT("UserId"), -1);
-    UE_LOG(LogAdhocGameModeComponent, Log, TEXT("PostLogin: UserId=%d"), UserID);
+    const int64 UserID = UGameplayStatics::GetIntOption(Options, TEXT("UserID"), -1);
+    UE_LOG(LogAdhocGameModeComponent, Log, TEXT("PostLogin: UserID=%d"), UserID);
+    const int64 FactionID = UGameplayStatics::GetIntOption(Options, TEXT("FactionID"), -1);
+    UE_LOG(LogAdhocGameModeComponent, Log, TEXT("PostLogin: FactionID=%d"), FactionID);
     const FString Token = UGameplayStatics::ParseOption(Options, TEXT("Token"));
     UE_LOG(LogAdhocGameModeComponent, Log, TEXT("PostLogin: Token=%s"), *Token);
 
     UAdhocPlayerControllerComponent* AdhocPlayerController = Cast<UAdhocPlayerControllerComponent>(PlayerController->GetComponentByClass(UAdhocPlayerControllerComponent::StaticClass()));
     check(AdhocPlayerController);
 
+    // if the user logging in has provided a FactionID, assume that faction for now, otherwise fall back to a random faction
+    int32 FactionIndex = -1;
+
+    if (FactionID != -1)
+    {
+        const FAdhocFactionState* FactionState = AdhocGameState->FindFactionByID(FactionID);
+        if (FactionState)
+        {
+            FactionIndex = FactionState->Index;
+            UE_LOG(LogAdhocGameModeComponent, Log, TEXT("PostLogin: Using faction specified in URL. FactionIndex=%d"), FactionID, FactionIndex);
+        }
+    }
+
+    if (FactionIndex == -1)
+    {
+        FactionIndex = FMath::RandRange(0, AdhocGameState->GetNumFactions() - 1);
+        UE_LOG(LogAdhocGameModeComponent, Log, TEXT("PostLogin: Picked random faction. FactionIndex=%d"), FactionID, FactionIndex);
+    }
+
     AdhocPlayerController->SetFriendlyName(TEXT("Anon"));
-    AdhocPlayerController->SetFactionIndex(RandomFactionIndex);
+    AdhocPlayerController->SetFactionIndex(FactionIndex);
     AdhocPlayerController->SetUserID(UserID);
     AdhocPlayerController->SetToken(Token);
 
@@ -449,11 +468,11 @@ void UAdhocGameModeComponent::OnObjectiveTakenEvent(FAdhocObjectiveState& OutObj
 #if WITH_ADHOC_PLUGIN_EXTRA == 0
 // ReSharper disable once CppMemberFunctionMayBeStatic
 void UAdhocGameModeComponent::CreateStructure(
-	const APawn* PlayerPawn, const FGuid& UUID, const FString& Type, const FVector& Location, const FRotator& Rotation, const FVector& Scale) const
+    const APawn* PlayerPawn, const FGuid& UUID, const FString& Type, const FVector& Location, const FRotator& Rotation, const FVector& Scale) const
 {
-	UE_LOG(LogAdhocGameModeComponent, Error,
-		TEXT("CreateStructure: PlayerPawn=%s UUID=%s Type=%s - Ignoring because structures require AdhocPlugin to be compiled with WITH_ADHOC_PLUGIN_EXTRA"),
-		*PlayerPawn->GetName(), *UUID.ToString(EGuidFormats::DigitsWithHyphens), *Type);
+    UE_LOG(LogAdhocGameModeComponent, Error,
+        TEXT("CreateStructure: PlayerPawn=%s UUID=%s Type=%s - Ignoring because structures require AdhocPlugin to be compiled with WITH_ADHOC_PLUGIN_EXTRA"),
+        *PlayerPawn->GetName(), *UUID.ToString(EGuidFormats::DigitsWithHyphens), *Type);
 }
 #endif
 
@@ -501,9 +520,7 @@ void UAdhocGameModeComponent::UserDefeatedBot(APlayerController* PlayerControlle
         const auto& Writer = TJsonWriterFactory<TCHAR, TCondensedJsonPrintPolicy<TCHAR>>::Create(&JsonString);
         Writer->WriteObjectStart();
         Writer->WriteValue(TEXT("eventType"), TEXT("UserDefeatedBot"));
-        Writer->WriteValue(TEXT("userId"),
-            Cast<UAdhocPlayerStateComponent>(PlayerController->GetPlayerState<APlayerState>()->GetComponentByClass(UAdhocPlayerStateComponent::StaticClass()))
-            ->GetUserID());
+        Writer->WriteValue(TEXT("userId"), Cast<UAdhocPlayerStateComponent>(PlayerController->GetPlayerState<APlayerState>()->GetComponentByClass(UAdhocPlayerStateComponent::StaticClass()))->GetUserID());
         Writer->WriteObjectEnd();
         Writer->Close();
 
@@ -1038,7 +1055,7 @@ void UAdhocGameModeComponent::OnAreasResponse(FHttpRequestPtr Request, FHttpResp
 
         Areas[i].ID = JsonObject->GetIntegerField("id");
         Areas[i].RegionID = JsonObject->GetIntegerField("regionId");
-        Areas[i].Index = JsonObject->GetIntegerField("index");;
+        Areas[i].Index = JsonObject->GetIntegerField("index");
         Areas[i].Name = JsonObject->GetStringField("name");
         JsonObject->TryGetNumberField("serverId", Areas[i].ServerID);
 
@@ -1211,7 +1228,7 @@ void UAdhocGameModeComponent::OnWorldUpdatedEvent(int64 WorldWorldID, int64 Worl
     ManagerHosts = WorldManagerHosts;
 }
 
-void UAdhocGameModeComponent::SubmitUserJoin(UAdhocPlayerControllerComponent* AdhocPlayerController)
+void UAdhocGameModeComponent::SubmitUserJoin(UAdhocControllerComponent* AdhocController)
 {
     FString JsonString;
     const TSharedRef<TJsonWriter<TCHAR, TCondensedJsonPrintPolicy<TCHAR>>> Writer =
@@ -1219,12 +1236,25 @@ void UAdhocGameModeComponent::SubmitUserJoin(UAdhocPlayerControllerComponent* Ad
     Writer->WriteObjectStart();
     Writer->WriteValue(TEXT("serverId"), AdhocGameState->GetServerID());
 
-    if (AdhocPlayerController->GetUserID() != -1)
+    if (AdhocController->GetUserID() != -1)
     {
-        Writer->WriteValue(TEXT("userId"), AdhocPlayerController->GetUserID());
+        Writer->WriteValue(TEXT("userId"), AdhocController->GetUserID());
     }
 
-    if (!AdhocPlayerController->GetToken().IsEmpty())
+    if (AdhocController->GetFactionIndex() != -1)
+    {
+        const FAdhocFactionState& AdhocFactionState = AdhocGameState->GetFaction(AdhocController->GetFactionIndex());
+        if (AdhocFactionState.ID != -1)
+        {
+            Writer->WriteValue(TEXT("factionId"), AdhocFactionState.ID);
+        }
+    }
+
+    const UAdhocPlayerControllerComponent* AdhocPlayerController = Cast<UAdhocPlayerControllerComponent>(AdhocController);
+
+    Writer->WriteValue(TEXT("bot"), !AdhocPlayerController);
+
+    if (AdhocPlayerController && !AdhocPlayerController->GetToken().IsEmpty())
     {
         Writer->WriteValue(TEXT("token"), *AdhocPlayerController->GetToken());
     }
@@ -1233,7 +1263,7 @@ void UAdhocGameModeComponent::SubmitUserJoin(UAdhocPlayerControllerComponent* Ad
     Writer->Close();
 
     const auto& Request = Http->CreateRequest();
-    Request->OnProcessRequestComplete().BindUObject(this, &UAdhocGameModeComponent::OnUserJoinResponse, AdhocPlayerController, true);
+    Request->OnProcessRequestComplete().BindUObject(this, &UAdhocGameModeComponent::OnUserJoinResponse, AdhocController, true);
     const FString URL = FString::Printf(TEXT("http://%s:80/api/servers/%d/userJoin"), *ManagerHost, AdhocGameState->GetServerID());
     Request->SetURL(URL);
     Request->SetVerb("POST");
@@ -1247,17 +1277,16 @@ void UAdhocGameModeComponent::SubmitUserJoin(UAdhocPlayerControllerComponent* Ad
 }
 
 void UAdhocGameModeComponent::OnUserJoinResponse(
-    FHttpRequestPtr Request, const FHttpResponsePtr Response, const bool bWasSuccessful, UAdhocPlayerControllerComponent* AdhocPlayerController, const bool bKickOnFailure)
+    FHttpRequestPtr Request, const FHttpResponsePtr Response, const bool bWasSuccessful, UAdhocControllerComponent* AdhocController, const bool bKickOnFailure)
 {
-    UE_LOG(LogAdhocGameModeComponent, Log, TEXT("Player login response: ResponseCode=%d Content=%s"), Response->GetResponseCode(), *Response->GetContentAsString());
+    UE_LOG(LogAdhocGameModeComponent, Log, TEXT("User join response: ResponseCode=%d Content=%s"), Response->GetResponseCode(), *Response->GetContentAsString());
 
-    APlayerController* PlayerController = AdhocPlayerController->GetOwner<APlayerController>();
-    check(PlayerController);
+    APlayerController* PlayerController = AdhocController->GetOwner<APlayerController>();
 
     if (!bWasSuccessful || Response->GetResponseCode() != 200)
     {
-        UE_LOG(LogAdhocGameModeComponent, Log, TEXT("Player login response failure: ResponseCode=%d Content=%s"), Response->GetResponseCode(), *Response->GetContentAsString());
-        if (bKickOnFailure)
+        UE_LOG(LogAdhocGameModeComponent, Log, TEXT("User join response failure: ResponseCode=%d Content=%s"), Response->GetResponseCode(), *Response->GetContentAsString());
+        if (PlayerController && bKickOnFailure)
         {
             GameMode->GameSession->KickPlayer(PlayerController, FText::FromString(TEXT("Login failure")));
         }
@@ -1268,8 +1297,8 @@ void UAdhocGameModeComponent::OnUserJoinResponse(
     TSharedPtr<FJsonObject> JsonObject;
     if (!FJsonSerializer::Deserialize(Reader, JsonObject))
     {
-        UE_LOG(LogAdhocGameModeComponent, Log, TEXT("Failed to deserialize player login response: %s"), *Response->GetContentAsString());
-        if (bKickOnFailure)
+        UE_LOG(LogAdhocGameModeComponent, Log, TEXT("Failed to deserialize user join response: %s"), *Response->GetContentAsString());
+        if (PlayerController && bKickOnFailure)
         {
             GameMode->GameSession->KickPlayer(PlayerController, FText::FromString(TEXT("Login failure")));
         }
@@ -1295,7 +1324,7 @@ void UAdhocGameModeComponent::OnUserJoinResponse(
         {
             X = -X;
 
-            UE_LOG(LogAdhocGameModeComponent, Log, TEXT("Player location information: ServerID=%d X=%f Y=%f Z=%f Yaw=%f Pitch=%f"), ServerID, X, Y, Z, Yaw, Pitch);
+            UE_LOG(LogAdhocGameModeComponent, Log, TEXT("User location information: ServerID=%d X=%f Y=%f Z=%f Yaw=%f Pitch=%f"), ServerID, X, Y, Z, Yaw, Pitch);
 
             // TODO: kick em if wrong server? (can this even happen?)
             if (ServerID != AdhocGameState->GetServerID())
@@ -1303,38 +1332,44 @@ void UAdhocGameModeComponent::OnUserJoinResponse(
                 UE_LOG(LogAdhocGameModeComponent, Log, TEXT("Location information server %d does not match this server %d!"), ServerID, AdhocGameState->GetServerID());
             }
 
-            AdhocPlayerController->SetImmediateSpawnTransform(FTransform(FRotator(Pitch, Yaw, 0), FVector(X, Y, Z)));
+            AdhocController->SetImmediateSpawnTransform(FTransform(FRotator(Pitch, Yaw, 0), FVector(X, Y, Z)));
         }
     }
 
-    AdhocPlayerController->SetFriendlyName(UserName);
-    AdhocPlayerController->SetFactionIndex(UserFactionIndex);
-    AdhocPlayerController->SetToken(UserToken);
+    AdhocController->SetFriendlyName(UserName);
+    AdhocController->SetFactionIndex(UserFactionIndex);
+
+    UAdhocPlayerControllerComponent* AdhocPlayerController = Cast<UAdhocPlayerControllerComponent>(AdhocController);
+    if (AdhocPlayerController)
+    {
+        AdhocPlayerController->SetToken(UserToken);
+    }
 
     APlayerState* PlayerState = PlayerController->GetPlayerState<APlayerState>();
-    check(PlayerState);
+    if (PlayerState)
+    {
+        PlayerState->SetPlayerName(UserName);
 
-    PlayerState->SetPlayerName(UserName);
+        UAdhocPlayerStateComponent* AdhocPlayerState =
+            CastChecked<UAdhocPlayerStateComponent>(PlayerState->GetComponentByClass(UAdhocPlayerStateComponent::StaticClass()));
 
-    UAdhocPlayerStateComponent* AdhocPlayerStateComponent =
-        CastChecked<UAdhocPlayerStateComponent>(PlayerState->GetComponentByClass(UAdhocPlayerStateComponent::StaticClass()));
+        AdhocPlayerState->SetUserID(UserID);
+        AdhocPlayerState->SetFactionIndex(UserFactionIndex);
+    }
 
-    AdhocPlayerStateComponent->SetUserID(UserID);
-    AdhocPlayerStateComponent->SetFactionIndex(UserFactionIndex);
-
-    // if player is controlling a pawn currently, flip the faction there too
-    APawn* Pawn = PlayerController->GetPawn();
+    // if controller is controlling a pawn currently, flip the faction there too
+    const APawn* Pawn = PlayerController->GetPawn();
     if (Pawn)
     {
-        UAdhocPawnComponent* AdhocPawnComponent = Cast<UAdhocPawnComponent>(Pawn->GetComponentByClass(UAdhocPawnComponent::StaticClass()));
-        if (AdhocPawnComponent)
+        UAdhocPawnComponent* AdhocPawn = Cast<UAdhocPawnComponent>(Pawn->GetComponentByClass(UAdhocPawnComponent::StaticClass()));
+        if (AdhocPawn)
         {
             // TODO: push the name too?
-            AdhocPawnComponent->SetFactionIndex(UserFactionIndex);
+            AdhocPawn->SetFactionIndex(UserFactionIndex);
         }
     }
 
-    UE_LOG(LogAdhocGameModeComponent, Log, TEXT("Player login success: UserID=%d UserName=%s UserFactionID=%d UserFactionIndex=%d UserToken=%s"), UserID, *UserName,
+    UE_LOG(LogAdhocGameModeComponent, Log, TEXT("User login success: UserID=%d UserName=%s UserFactionID=%d UserFactionIndex=%d UserToken=%s"), UserID, *UserName,
         UserFactionID, UserFactionIndex, *UserToken);
 
     TOptional<FTransform> ImmediateSpawnTransform = AdhocPlayerController->GetImmediateSpawnTransform();
@@ -1432,6 +1467,15 @@ void UAdhocGameModeComponent::OnNavigateResponse(
     {
         URL += FString::Printf(TEXT("?UserID=%d"), AdhocPlayerController->GetUserID());
     }
+    if (AdhocPlayerController->GetFactionIndex() != -1)
+    {
+        const FAdhocFactionState& AdhocFactionState = AdhocGameState->GetFaction(AdhocPlayerController->GetFactionIndex());
+
+        if (AdhocFactionState.ID != -1)
+        {
+            URL += FString::Printf(TEXT("?FactionID=%d"), AdhocFactionState.ID);
+        }
+    }
     if (!AdhocPlayerController->GetToken().IsEmpty())
     {
         URL += FString::Printf(TEXT("?Token=%s"), *AdhocPlayerController->GetToken());
@@ -1471,21 +1515,21 @@ void UAdhocGameModeComponent::OnTimer_ServerPawns() const
     int32 PawnIndex = 0;
     for (TActorIterator<APawn> It = TActorIterator<APawn>(World); It; ++It)
     {
-        const UAdhocPawnComponent* AdhocPawnComponent = Cast<UAdhocPawnComponent>((*It)->GetComponentByClass(UAdhocPawnComponent::StaticClass()));
-        if (!AdhocPawnComponent)
+        const UAdhocPawnComponent* AdhocPawn = Cast<UAdhocPawnComponent>((*It)->GetComponentByClass(UAdhocPawnComponent::StaticClass()));
+        if (!AdhocPawn)
         {
             continue;
         }
 
         Writer->WriteObjectStart();
-        Writer->WriteValue(TEXT("uuid"), AdhocPawnComponent->GetUUID().ToString(EGuidFormats::DigitsWithHyphens));
-        Writer->WriteValue(TEXT("name"), AdhocPawnComponent->GetFriendlyName());
+        Writer->WriteValue(TEXT("uuid"), AdhocPawn->GetUUID().ToString(EGuidFormats::DigitsWithHyphens));
+        Writer->WriteValue(TEXT("name"), AdhocPawn->GetFriendlyName());
         Writer->WriteValue(TEXT("serverId"), AdhocGameState->GetServerID());
         Writer->WriteValue(TEXT("index"), PawnIndex);
 
-        if (AdhocPawnComponent->GetFactionIndex() != -1)
+        if (AdhocPawn->GetFactionIndex() != -1)
         {
-            Writer->WriteValue(TEXT("factionIndex"), AdhocPawnComponent->GetFactionIndex());
+            Writer->WriteValue(TEXT("factionIndex"), AdhocPawn->GetFactionIndex());
         }
         else
         {

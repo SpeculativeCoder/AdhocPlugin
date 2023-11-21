@@ -174,9 +174,9 @@ private:
     /** Called when a WorldUpdated event occurs. */
     void OnWorldUpdatedEvent(int64 WorldWorldID, int64 WorldVersion, const TArray<FString>& WorldManagerHosts);
 
-    void SubmitUserJoin(class UAdhocPlayerControllerComponent* AdhocPlayerController);
-    /** When details of the user are received (from either user join or register) - update the player state (e.g. to set faction). */
-    void OnUserJoinResponse(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful, UAdhocPlayerControllerComponent* AdhocPlayerController, bool bKickOnFailure);
+    void SubmitUserJoin(class UAdhocControllerComponent* AdhocController);
+    /** When details of the user are received - update the controller to set faction etc. */
+    void OnUserJoinResponse(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful, UAdhocControllerComponent* AdhocController, bool bKickOnFailure);
 
     void SubmitNavigate(class UAdhocPlayerControllerComponent* AdhocPlayerController, int32 AreaID) const;
     void OnNavigateResponse(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful, UAdhocPlayerControllerComponent* AdhocPlayerController) const;

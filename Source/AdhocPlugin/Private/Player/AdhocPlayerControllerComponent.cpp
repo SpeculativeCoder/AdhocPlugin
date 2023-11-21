@@ -24,10 +24,3 @@
 
 UAdhocPlayerControllerComponent::UAdhocPlayerControllerComponent(const FObjectInitializer& ObjectInitializer)
     : Super(ObjectInitializer) {}
-
-void UAdhocPlayerControllerComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
-{
-    Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-
-    DOREPLIFETIME(UAdhocPlayerControllerComponent, UserID);
-}

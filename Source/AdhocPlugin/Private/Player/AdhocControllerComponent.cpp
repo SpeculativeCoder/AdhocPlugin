@@ -38,6 +38,7 @@ void UAdhocControllerComponent::GetLifetimeReplicatedProps(TArray<FLifetimePrope
 {
     Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
+    DOREPLIFETIME(UAdhocControllerComponent, UserID);
     DOREPLIFETIME(UAdhocControllerComponent, FriendlyName);
     DOREPLIFETIME(UAdhocControllerComponent, FactionIndex);
 }
