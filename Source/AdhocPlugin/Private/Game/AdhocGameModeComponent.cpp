@@ -180,25 +180,25 @@ void UAdhocGameModeComponent::InitFactionStates() const
     TArray<FAdhocFactionState> Factions;
     Factions.SetNum(4);
 
-    // Factions[0].ID = 1;
+    Factions[0].ID = 1;
     Factions[0].Index = 0;
     Factions[0].Name = TEXT("Alpha");
     Factions[0].Color = FColor::FromHex(TEXT("#0088FF"));
     Factions[0].Score = 0;
 
-    // Factions[1].ID = 2;
+    Factions[1].ID = 2;
     Factions[1].Index = 1;
     Factions[1].Name = TEXT("Beta");
     Factions[1].Color = FColor::FromHex(TEXT("#FF2200"));
     Factions[1].Score = 0;
 
-    // Factions[2].ID = 3;
+    Factions[2].ID = 3;
     Factions[2].Index = 2;
     Factions[2].Name = TEXT("Gamma");
     Factions[2].Color = FColor::FromHex(TEXT("#FFFF00"));
     Factions[2].Score = 0;
 
-    // Factions[3].ID = 4;
+    Factions[3].ID = 4;
     Factions[3].Index = 3;
     Factions[3].Name = TEXT("Delta");
     Factions[3].Color = FColor::FromHex(TEXT("#8800FF"));
@@ -349,7 +349,6 @@ void UAdhocGameModeComponent::PostLogin(const APlayerController* PlayerControlle
     UE_LOG(LogAdhocGameModeComponent, Log, TEXT("PostLogin: NewPlayer=%s"), *PlayerController->GetName());
 
     const UNetConnection* NetConnection = PlayerController->GetNetConnection();
-    // check(NetConnection);
     const FString& RequestURL = NetConnection ? NetConnection->RequestURL : TEXT(""); // TODO (listen mode does not have connection)
     UE_LOG(LogAdhocGameModeComponent, Log, TEXT("PostLogin: RequestURL=%s"), *RequestURL);
 
@@ -400,8 +399,8 @@ void UAdhocGameModeComponent::PostLogin(const APlayerController* PlayerControlle
     UAdhocPlayerStateComponent* AdhocPlayerState = Cast<UAdhocPlayerStateComponent>(PlayerState->GetComponentByClass(UAdhocPlayerStateComponent::StaticClass()));
     check(AdhocPlayerState);
 
-    AdhocPlayerState->SetFactionIndex(AdhocPlayerController->GetFactionIndex());
     // NOTE: user id in player state will only be set once we have verified the user
+    AdhocPlayerState->SetFactionIndex(AdhocPlayerController->GetFactionIndex());
 
 #if WITH_SERVER_CODE && !defined(__EMSCRIPTEN__)
     UE_LOG(LogAdhocGameModeComponent, Log, TEXT("PostLogin: Submitting user join: UserID=%d Token=%s"), AdhocPlayerController->GetUserID(), *AdhocPlayerController->GetToken());
@@ -1307,7 +1306,6 @@ void UAdhocGameModeComponent::OnUserJoinResponse(
 
     const int64 UserID = JsonObject->GetIntegerField("id");
     const int64 UserFactionID = JsonObject->GetIntegerField("factionId");
-    const int32 UserFactionIndex = JsonObject->GetIntegerField("factionIndex");
     const FString UserName = JsonObject->GetStringField("name");
     const FString UserToken = JsonObject->GetStringField("token");
 
@@ -1336,8 +1334,18 @@ void UAdhocGameModeComponent::OnUserJoinResponse(
         }
     }
 
+    int32 FactionIndex = -1;
+    if (UserFactionID != -1)
+    {
+        const FAdhocFactionState* FactionState = AdhocGameState->FindFactionByID(UserFactionID);
+        if (FactionState)
+        {
+            FactionIndex = FactionState->Index;
+        }
+    }
+
     AdhocController->SetFriendlyName(UserName);
-    AdhocController->SetFactionIndex(UserFactionIndex);
+    AdhocController->SetFactionIndex(FactionIndex);
 
     UAdhocPlayerControllerComponent* AdhocPlayerController = Cast<UAdhocPlayerControllerComponent>(AdhocController);
     if (AdhocPlayerController)
@@ -1354,7 +1362,7 @@ void UAdhocGameModeComponent::OnUserJoinResponse(
             CastChecked<UAdhocPlayerStateComponent>(PlayerState->GetComponentByClass(UAdhocPlayerStateComponent::StaticClass()));
 
         AdhocPlayerState->SetUserID(UserID);
-        AdhocPlayerState->SetFactionIndex(UserFactionIndex);
+        AdhocPlayerState->SetFactionIndex(FactionIndex);
     }
 
     // if controller is controlling a pawn currently, flip the faction there too
@@ -1365,12 +1373,12 @@ void UAdhocGameModeComponent::OnUserJoinResponse(
         if (AdhocPawn)
         {
             // TODO: push the name too?
-            AdhocPawn->SetFactionIndex(UserFactionIndex);
+            AdhocPawn->SetFactionIndex(FactionIndex);
         }
     }
 
-    UE_LOG(LogAdhocGameModeComponent, Log, TEXT("User login success: UserID=%d UserName=%s UserFactionID=%d UserFactionIndex=%d UserToken=%s"), UserID, *UserName,
-        UserFactionID, UserFactionIndex, *UserToken);
+    UE_LOG(LogAdhocGameModeComponent, Log, TEXT("User join success: UserID=%d UserName=%s UserFactionID=%d FactionIndex=%d UserToken=%s"), UserID, *UserName,
+        UserFactionID, FactionIndex, *UserToken);
 
     TOptional<FTransform> ImmediateSpawnTransform = AdhocPlayerController->GetImmediateSpawnTransform();
     if (ImmediateSpawnTransform.IsSet() && PlayerController->HasActorBegunPlay()) // TODO: why this begun play check?
@@ -1402,7 +1410,8 @@ void UAdhocGameModeComponent::SubmitNavigate(UAdhocPlayerControllerComponent* Ad
     const auto& Writer = TJsonWriterFactory<TCHAR, TCondensedJsonPrintPolicy<TCHAR>>::Create(&JsonString);
     Writer->WriteObjectStart();
     Writer->WriteValue("userId", AdhocPlayerState->GetUserID());
-    Writer->WriteValue("areaId", AreaID);
+    Writer->WriteValue("sourceServerId", AdhocGameState->GetServerID());
+    Writer->WriteValue("destinationAreaId", AreaID);
     Writer->WriteValue("x", -PlayerLocation.X);
     Writer->WriteValue("y", PlayerLocation.Y);
     Writer->WriteValue("z", PlayerLocation.Z);
@@ -1414,7 +1423,7 @@ void UAdhocGameModeComponent::SubmitNavigate(UAdhocPlayerControllerComponent* Ad
     const auto& Request = Http->CreateRequest();
     Request->OnProcessRequestComplete().BindUObject(this, &UAdhocGameModeComponent::OnNavigateResponse, AdhocPlayerController);
     const FString URL =
-        FString::Printf(TEXT("http://%s:80/api/servers/%d/users/%d/navigate"), *ManagerHost, AdhocGameState->GetServerID(), AdhocPlayerState->GetUserID());
+        FString::Printf(TEXT("http://%s:80/api/servers/%d/userNavigate"), *ManagerHost, AdhocGameState->GetServerID(), AdhocPlayerState->GetUserID());
     Request->SetURL(URL);
     Request->SetVerb("POST");
     Request->SetHeader(TEXT("Content-Type"), TEXT("application/json"));
@@ -1445,12 +1454,12 @@ void UAdhocGameModeComponent::OnNavigateResponse(
         return;
     }
 
-    const int64 ServerID = JsonObject->GetIntegerField("serverId");
+    const int64 DestinationServerID = JsonObject->GetIntegerField("destinationServerId");
     // const FString ServerDomain = JsonObject->GetStringField("serverDomain");
     const FString IP = JsonObject->GetStringField("ip");
     const int32 Port = JsonObject->GetIntegerField("port");
     const FString WebSocketURL = JsonObject->GetStringField("webSocketUrl");
-    if (ServerID <= 0 || IP.IsEmpty() || Port <= 0 || WebSocketURL.IsEmpty())
+    if (DestinationServerID <= 0 || IP.IsEmpty() || Port <= 0 || WebSocketURL.IsEmpty())
     {
         UE_LOG(LogAdhocGameModeComponent, Warning, TEXT("Failed to process navigate response: %s"), *Response->GetContentAsString());
         return;
@@ -1480,7 +1489,8 @@ void UAdhocGameModeComponent::OnNavigateResponse(
     {
         URL += FString::Printf(TEXT("?Token=%s"), *AdhocPlayerController->GetToken());
     }
-    UE_LOG(LogAdhocGameModeComponent, Log, TEXT("Player %s navigate to %s"), *AdhocPlayerController->GetOwner<APlayerController>()->GetPlayerState<APlayerState>()->GetPlayerName(), *URL);
+    UE_LOG(LogAdhocGameModeComponent, Log, TEXT("Player %s navigate to server %d via URL: %s"),
+        *AdhocPlayerController->GetOwner<APlayerController>()->GetPlayerState<APlayerState>()->GetPlayerName(), DestinationServerID, *URL);
 
     APlayerController* PlayerController = AdhocPlayerController->GetOwner<APlayerController>();
     check(PlayerController);
