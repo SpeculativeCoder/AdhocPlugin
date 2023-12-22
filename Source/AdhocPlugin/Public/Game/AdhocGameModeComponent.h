@@ -38,11 +38,13 @@ class ADHOCPLUGIN_API UAdhocGameModeComponent : public UActorComponent
     DECLARE_MULTICAST_DELEGATE_TwoParams(FOnObjectiveTakenEventDelegate, FAdhocObjectiveState& OutObjective, FAdhocFactionState& Faction);
     DECLARE_MULTICAST_DELEGATE_TwoParams(FOnUserDefeatedUserEventDelegate, APlayerController* PlayerController, APlayerController* DefeatedPlayerController);
     DECLARE_MULTICAST_DELEGATE_TwoParams(FOnUserDefeatedBotEventDelegate, APlayerController* PlayerController, AController* DefeatedBotController);
+    DECLARE_MULTICAST_DELEGATE_OneParam(FOnStaggeredEmissionDelegate, const FAdhocEmission& Emission);
 
 public:
     FOnObjectiveTakenEventDelegate OnObjectiveTakenEventDelegate;
     FOnUserDefeatedUserEventDelegate OnUserDefeatedUserEventDelegate;
     FOnUserDefeatedBotEventDelegate OnUserDefeatedBotEventDelegate;
+    FOnStaggeredEmissionDelegate OnStaggeredEmissionDelegate;
 
 private:
     UPROPERTY()
@@ -196,6 +198,7 @@ private:
     static void ExtractEmissionFromJsonObject(const TSharedPtr<FJsonObject>& JsonObject, FAdhocEmission& OutEmission);
 
     void OnEmissionsEvent(const TArray<FAdhocEmission>& Emissions) const;
+    void OnStaggeredEmission(const FAdhocEmission Emission) const;
 #endif
 
 #endif

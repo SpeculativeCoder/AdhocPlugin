@@ -133,7 +133,7 @@ void UAdhocGameModeComponent::BeginPlay()
 #if WITH_SERVER_CODE && !defined(__EMSCRIPTEN__)
     if (GetNetMode() != NM_Client)
     {
-        GetWorld()->GetTimerManager().SetTimer(TimerHandle_ServerPawns, this, &UAdhocGameModeComponent::OnTimer_ServerPawns, 20, true, 20);
+        GetWorld()->GetTimerManager().SetTimer(TimerHandle_ServerPawns, this, &UAdhocGameModeComponent::OnTimer_ServerPawns, 5, true, 5);
 
 #if WITH_ADHOC_PLUGIN_EXTRA
         GetWorld()->GetTimerManager().SetTimer(TimerHandle_RecentEmissions, this, &UAdhocGameModeComponent::OnTimer_RecentEmissions, 2, true, 2);
@@ -437,7 +437,7 @@ void UAdhocGameModeComponent::ObjectiveTaken(FAdhocObjectiveState& OutObjective,
 
 void UAdhocGameModeComponent::OnObjectiveTakenEvent(FAdhocObjectiveState& OutObjective, FAdhocFactionState& Faction) const
 {
-    UE_LOG(LogAdhocGameModeComponent, Log, TEXT("OnObjectiveTakenEvent: OutObjective.ID=%d Faction.ID=%d"), OutObjective.ID, Faction.ID);
+    UE_LOG(LogAdhocGameModeComponent, Verbose, TEXT("OnObjectiveTakenEvent: OutObjective.ID=%d Faction.ID=%d"), OutObjective.ID, Faction.ID);
 
     OutObjective.FactionID = Faction.ID;
     OutObjective.FactionIndex = Faction.Index;
@@ -761,12 +761,16 @@ void UAdhocGameModeComponent::OnStompSubscriptionEvent(const IStompMessage& Mess
     }
     else if (EventType.Equals(TEXT("Emissions")))
     {
+        TArray<TSharedPtr<FJsonValue>> EmissionJsonValues = JsonObject->GetArrayField("emissions");
+
         TArray<FAdhocEmission> Emissions;
-        for (auto& EmissionValue : JsonObject->GetArrayField("emissions"))
+        Emissions.Reserve(EmissionJsonValues.Num());
+
+        for (auto& EmissionJsonValue : EmissionJsonValues)
         {
             FAdhocEmission Emission;
-            ExtractEmissionFromJsonObject(EmissionValue->AsObject(), Emission);
-            Emissions.Add(Emission);
+            ExtractEmissionFromJsonObject(EmissionJsonValue->AsObject(), Emission);
+            Emissions.Emplace(Emission);
         }
 
         OnEmissionsEvent(Emissions);

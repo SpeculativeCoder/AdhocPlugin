@@ -173,6 +173,7 @@ void UAdhocGameEngineSubsystem::OnActorSpawned(AActor* Actor) const
     check(0);
 }
 
+// ReSharper disable once CppParameterMayBeConstPtrOrRef
 void UAdhocGameEngineSubsystem::OnGameModeInitialized(AGameModeBase* GameMode) const
 {
     UE_LOG(LogAdhocGameEngineSubsystem, Verbose, TEXT("OnGameModeInitialized: GameMode=%s"), *GameMode->GetName());
