@@ -1519,6 +1519,7 @@ void UAdhocGameModeComponent::OnTimer_ServerPawns() const
     const auto& Writer = TJsonWriterFactory<TCHAR, TCondensedJsonPrintPolicy<TCHAR>>::Create(&JsonString);
 
     Writer->WriteObjectStart();
+    Writer->WriteValue(TEXT("eventType"), TEXT("ServerPawns"));
     Writer->WriteValue(TEXT("serverId"), AdhocGameState->GetServerID());
 
     Writer->WriteArrayStart(TEXT("pawns"));
