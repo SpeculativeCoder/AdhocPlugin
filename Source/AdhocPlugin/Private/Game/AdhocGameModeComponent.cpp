@@ -889,14 +889,14 @@ void UAdhocGameModeComponent::SubmitObjectives()
             Writer->WriteValue(TEXT("initialFactionIndex"), static_cast<double>(ObjectiveActor->GetInitialFactionIndex()));
         }
 
-        if (ObjectiveActor->GetFactionIndex() == -1)
-        {
-            Writer->WriteNull(TEXT("factionIndex"));
-        }
-        else
-        {
-            Writer->WriteValue(TEXT("factionIndex"), static_cast<double>(ObjectiveActor->GetFactionIndex()));
-        }
+        // if (ObjectiveActor->GetFactionIndex() != -1)
+        // {
+        //     Writer->WriteNull(TEXT("factionIndex"));
+        // }
+        // else
+        // {
+        //     Writer->WriteValue(TEXT("factionIndex"), static_cast<double>(ObjectiveActor->GetFactionIndex()));
+        // }
 
         // Writer->WriteArrayStart(TEXT("linkedObjectiveIds"));
         // for (auto& LinkedObjectiveActor : ObjectiveActor->GetLinkedObjectiveInterfaces())
