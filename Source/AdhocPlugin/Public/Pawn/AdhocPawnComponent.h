@@ -51,12 +51,18 @@ private:
     UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = true), Replicated, ReplicatedUsing = OnRep_FactionIndex)
     int32 FactionIndex = -1;
 
+    /** Was this pawn for a human/player controller? If false, this pawn was for a bot/AI controller. */
+    bool bHuman;
+
 public:
     FORCEINLINE class APawn* GetPawn() const { return GetOwner<APawn>(); }
 
     FORCEINLINE const FGuid& GetUUID() const { return UUID; }
     FORCEINLINE const FString& GetFriendlyName() const { return FriendlyName; }
     FORCEINLINE int32 GetFactionIndex() const { return FactionIndex; }
+    FORCEINLINE bool IsHuman() const { return bHuman; }
+
+    FORCEINLINE void SetHuman(const bool bNewHuman) { bHuman = bNewHuman; }
 
 private:
     explicit UAdhocPawnComponent(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());

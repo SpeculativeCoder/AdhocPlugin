@@ -20,6 +20,7 @@
 
 #pragma once
 
+#include "AIController.h"
 #include "Faction/AdhocFactionState.h"
 #include "Objective/AdhocObjectiveState.h"
 #include "CoreMinimal.h"
@@ -101,6 +102,11 @@ private:
 public:
     /** Perform a login with the web server and retrieve information about the player e.g. which faction they are etc.. */
     void PostLogin(const APlayerController* PlayerController);
+    void Logout(const AController* Controller);
+
+    /** When a bot has been created, joins a bot user to the server (will either use an existing bot user or register a new one as appropriate). */
+    void BotJoin(const AAIController* BotController);
+    void BotLeave(const AAIController* BotController);
 
     void ObjectiveTaken(struct FAdhocObjectiveState& OutObjective, struct FAdhocFactionState& Faction) const;
 

@@ -21,31 +21,19 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Subsystems/EngineSubsystem.h"
-#include "Engine/World.h"
+#include "Player/AdhocControllerComponent.h"
 
-#include "AdhocGameEngineSubsystem.generated.h"
+#include "AdhocAIControllerComponent.generated.h"
 
+class AAIController;
 UCLASS(Transient)
-class ADHOCPLUGIN_API UAdhocGameEngineSubsystem : public UEngineSubsystem
+class ADHOCPLUGIN_API UAdhocAIControllerComponent : public UAdhocControllerComponent
 {
     GENERATED_BODY()
 
+public:
+    FORCEINLINE class AAIController* GetAIController() const { return GetOwner<AAIController>(); }
+
 private:
-    virtual void Initialize(FSubsystemCollectionBase& Collection) override;
-
-    void OnPostWorldCreation(UWorld* World) const;
-    void OnWorldInitializedActors(const UWorld::FActorsInitializedParams& ActorsInitializedParams) const;
-    void OnPreWorldInitialization(UWorld* World, const UWorld::InitializationValues InitializationValues) const;
-    void OnPostWorldInitialization(UWorld* World, const UWorld::InitializationValues InitializationValues) const;
-
-    void OnWorldBeginPlay(UWorld* World) const;
-
-    void OnActorPreSpawnInitialization(AActor* Actor) const;
-    void OnActorSpawned(AActor* Actor) const;
-
-    void OnGameModeInitialized(AGameModeBase* GameMode) const;
-    void OnGameModePreLogin(AGameModeBase* GameMode, const FUniqueNetIdRepl& UniqueNetId, FString& ErrorMessage) const;
-    void OnGameModePostLogin(AGameModeBase* GameMode, APlayerController* PlayerController) const;
-    void OnGameModeLogout(AGameModeBase* GameMode, AController* Controller) const;
+    explicit UAdhocAIControllerComponent(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 };

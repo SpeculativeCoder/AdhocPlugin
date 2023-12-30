@@ -20,7 +20,9 @@
 
 #include "AdhocGameEngineSubsystem.h"
 
+#include "AIController.h"
 #include "EngineUtils.h"
+#include "Bot/AdhocAIControllerComponent.h"
 #include "Game/AdhocGameModeComponent.h"
 #include "Game/AdhocGameStateComponent.h"
 #include "GameFramework/Controller.h"
@@ -50,6 +52,7 @@ void UAdhocGameEngineSubsystem::Initialize(FSubsystemCollectionBase& Collection)
     FGameModeEvents::OnGameModeInitializedEvent().AddUObject(this, &UAdhocGameEngineSubsystem::OnGameModeInitialized);
     FGameModeEvents::OnGameModePreLoginEvent().AddUObject(this, &UAdhocGameEngineSubsystem::OnGameModePreLogin);
     FGameModeEvents::OnGameModePostLoginEvent().AddUObject(this, &UAdhocGameEngineSubsystem::OnGameModePostLogin);
+    FGameModeEvents::OnGameModeLogoutEvent().AddUObject(this, &UAdhocGameEngineSubsystem::OnGameModeLogout);
 }
 
 // ReSharper disable once CppParameterMayBeConstPtrOrRef
@@ -119,17 +122,28 @@ void UAdhocGameEngineSubsystem::OnActorPreSpawnInitialization(AActor* Actor) con
             //AdhocPlayerControllerComponent->RegisterComponent();
         }
     }
-    else if (Actor->IsA(AController::StaticClass()))
+    else if (Actor->IsA(AAIController::StaticClass()))
     {
-        UE_LOG(LogAdhocGameEngineSubsystem, Verbose, TEXT("OnActorPreSpawnInitialization: Controller=%s"), *Actor->GetName());
+        UE_LOG(LogAdhocGameEngineSubsystem, Verbose, TEXT("OnActorPreSpawnInitialization: BotController=%s"), *Actor->GetName());
 
         if (Actor->HasAuthority())
         {
-            UAdhocControllerComponent* AdhocControllerComponent = NewObject<UAdhocControllerComponent>(Actor, UAdhocControllerComponent::StaticClass(), UAdhocControllerComponent::StaticClass()->GetFName());
+            UAdhocAIControllerComponent* AdhocBotControllerComponent = NewObject<UAdhocAIControllerComponent>(Actor, UAdhocAIControllerComponent::StaticClass(), UAdhocAIControllerComponent::StaticClass()->GetFName());
 
-            //AdhocControllerComponent->RegisterComponent();
+            //AdhocBotControllerComponent->RegisterComponent();
         }
     }
+    // else if (Actor->IsA(AController::StaticClass()))
+    // {
+    //     UE_LOG(LogAdhocGameEngineSubsystem, Verbose, TEXT("OnActorPreSpawnInitialization: Controller=%s"), *Actor->GetName());
+    //
+    //     if (Actor->HasAuthority())
+    //     {
+    //         UAdhocControllerComponent* AdhocControllerComponent = NewObject<UAdhocControllerComponent>(Actor, UAdhocControllerComponent::StaticClass(), UAdhocControllerComponent::StaticClass()->GetFName());
+    //
+    //         //AdhocControllerComponent->RegisterComponent();
+    //     }
+    // }
     else if (Actor->IsA(APlayerState::StaticClass()))
     {
         UE_LOG(LogAdhocGameEngineSubsystem, Verbose, TEXT("OnActorPreSpawnInitialization: PlayerState=%s"), *Actor->GetName());
@@ -194,4 +208,15 @@ void UAdhocGameEngineSubsystem::OnGameModePostLogin(AGameModeBase* GameMode, APl
     check(AdhocGameMode);
 
     AdhocGameMode->PostLogin(PlayerController);
+}
+
+// ReSharper disable once CppParameterMayBeConstPtrOrRef
+void UAdhocGameEngineSubsystem::OnGameModeLogout(AGameModeBase* GameMode, AController* Controller) const
+{
+    UE_LOG(LogAdhocGameEngineSubsystem, Verbose, TEXT("OnGameModeLogout: GameMode=%s Controller=%s"), *GameMode->GetName(), *Controller->GetName());
+
+    UAdhocGameModeComponent* AdhocGameMode = Cast<UAdhocGameModeComponent>(GameMode->GetComponentByClass(UAdhocGameModeComponent::StaticClass()));
+    check(AdhocGameMode);
+
+    AdhocGameMode->Logout(Controller);
 }

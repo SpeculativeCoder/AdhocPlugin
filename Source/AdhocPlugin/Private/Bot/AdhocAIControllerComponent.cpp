@@ -1,4 +1,4 @@
-// Copyright (c) 2022-2023 SpeculativeCoder (https://github.com/SpeculativeCoder)
+﻿// Copyright (c) 2022-2023 SpeculativeCoder (https://github.com/SpeculativeCoder)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -18,36 +18,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using UnrealBuildTool;
+#include "Bot/AdhocAIControllerComponent.h"
 
-public class AdhocPlugin : ModuleRules
-{
-    public AdhocPlugin(ReadOnlyTargetRules Target) : base(Target)
-    {
-        PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
+#include "Net/UnrealNetwork.h"
 
-        PublicDefinitions.Add("WITH_ADHOC_PLUGIN_EXTRA=0");
-
-        PublicDependencyModuleNames.AddRange(
-            new string[]
-            {
-                "Core",
-            }
-        );
-
-        PrivateDependencyModuleNames.AddRange(
-            new string[]
-            {
-                "CoreUObject",
-                "Engine",
-                "AIModule",
-                "Slate",
-                "SlateCore",
-                "Stomp",
-                "WebSockets",
-                "Http",
-                "Json",
-            }
-        );
-    }
-}
+UAdhocAIControllerComponent::UAdhocAIControllerComponent(const FObjectInitializer& ObjectInitializer)
+    : Super(ObjectInitializer) {}

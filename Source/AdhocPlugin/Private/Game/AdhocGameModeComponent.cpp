@@ -20,6 +20,7 @@
 
 #include "Game/AdhocGameModeComponent.h"
 
+#include "AIController.h"
 #include "Area/AdhocAreaComponent.h"
 #include "Area/AdhocAreaVolume.h"
 #include "Faction/AdhocFactionState.h"
@@ -30,6 +31,7 @@
 #include "Player/AdhocPlayerStateComponent.h"
 #include "Server/AdhocServerState.h"
 #include "EngineUtils.h"
+#include "Bot/AdhocAIControllerComponent.h"
 #include "GameFramework/GameSession.h"
 #include "GameFramework/GameStateBase.h"
 #include "GameFramework/PlayerState.h"
@@ -40,6 +42,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Engine/NetConnection.h"
 
+class UAdhocAIControllerComponent;
 DEFINE_LOG_CATEGORY_STATIC(LogAdhocGameModeComponent, Log, All)
 
 UAdhocGameModeComponent::UAdhocGameModeComponent()
@@ -403,10 +406,34 @@ void UAdhocGameModeComponent::PostLogin(const APlayerController* PlayerControlle
     AdhocPlayerState->SetFactionIndex(AdhocPlayerController->GetFactionIndex());
 
 #if WITH_SERVER_CODE && !defined(__EMSCRIPTEN__)
-    UE_LOG(LogAdhocGameModeComponent, Log, TEXT("PostLogin: Submitting user join: UserID=%d Token=%s"), AdhocPlayerController->GetUserID(), *AdhocPlayerController->GetToken());
+    UE_LOG(LogAdhocGameModeComponent, Log, TEXT("PostLogin: Submitting human user join: UserID=%d Token=%s"), AdhocPlayerController->GetUserID(), *AdhocPlayerController->GetToken());
 
     SubmitUserJoin(AdhocPlayerController);
 #endif
+}
+
+void UAdhocGameModeComponent::Logout(const AController* Controller)
+{
+    UE_LOG(LogAdhocGameModeComponent, Log, TEXT("Logout: Controller=%s"), *Controller->GetName());
+}
+
+void UAdhocGameModeComponent::BotJoin(const AAIController* BotController)
+{
+    UE_LOG(LogAdhocGameModeComponent, Log, TEXT("BotJoin: BotController=%s"), *BotController->GetName());
+
+    UAdhocAIControllerComponent* AdhocBotController = Cast<UAdhocAIControllerComponent>(BotController->GetComponentByClass(UAdhocAIControllerComponent::StaticClass()));
+    check(AdhocBotController);
+
+    UE_LOG(LogAdhocGameModeComponent, Log, TEXT("BotJoin: Submitting bot user join: factionIndex=%d"), AdhocBotController->GetFactionIndex());
+
+#if WITH_SERVER_CODE && !defined(__EMSCRIPTEN__)
+    SubmitUserJoin(AdhocBotController);
+#endif
+}
+
+void UAdhocGameModeComponent::BotLeave(const AAIController* BotController)
+{
+    UE_LOG(LogAdhocGameModeComponent, Log, TEXT("BotLeave: BotController=%s"), *BotController->GetName());
 }
 
 void UAdhocGameModeComponent::ObjectiveTaken(FAdhocObjectiveState& OutObjective, FAdhocFactionState& Faction) const
@@ -491,14 +518,14 @@ void UAdhocGameModeComponent::UserDefeatedUser(APlayerController* PlayerControll
         const TSharedRef<TJsonWriter<TCHAR, TCondensedJsonPrintPolicy<TCHAR>>> Writer =
             TJsonWriterFactory<TCHAR, TCondensedJsonPrintPolicy<TCHAR>>::Create(&JsonString);
         Writer->WriteObjectStart();
-        Writer->WriteValue(TEXT("eventType"), TEXT("UserDefeatedUser"));
+        Writer->WriteValue(TEXT("eventType"), TEXT("ServerUserDefeatedUser"));
         Writer->WriteValue(TEXT("userId"), AdhocPlayerState->GetUserID());
         Writer->WriteValue(TEXT("defeatedUserId"), DefeatedAdhocPlayerState->GetUserID());
         Writer->WriteObjectEnd();
         Writer->Close();
 
         UE_LOG(LogAdhocGameModeComponent, Verbose, TEXT("Sending: %s"), *JsonString);
-        StompClient->Send("/app/UserDefeatedUser", JsonString);
+        StompClient->Send("/app/ServerUserDefeatedUser", JsonString);
 
         // TODO: trigger via event?
         OnUserDefeatedUserEvent(PlayerController, DefeatedPlayerController);
@@ -1253,9 +1280,9 @@ void UAdhocGameModeComponent::SubmitUserJoin(UAdhocControllerComponent* AdhocCon
         }
     }
 
+    // TODO
     const UAdhocPlayerControllerComponent* AdhocPlayerController = Cast<UAdhocPlayerControllerComponent>(AdhocController);
-
-    Writer->WriteValue(TEXT("bot"), !AdhocPlayerController);
+    Writer->WriteValue(TEXT("human"), !!AdhocPlayerController);
 
     if (AdhocPlayerController && !AdhocPlayerController->GetToken().IsEmpty())
     {
@@ -1284,7 +1311,8 @@ void UAdhocGameModeComponent::OnUserJoinResponse(
 {
     UE_LOG(LogAdhocGameModeComponent, Log, TEXT("User join response: ResponseCode=%d Content=%s"), Response->GetResponseCode(), *Response->GetContentAsString());
 
-    APlayerController* PlayerController = AdhocController->GetOwner<APlayerController>();
+    AController* Controller = AdhocController->GetOwner<AController>();
+    APlayerController* PlayerController = Cast<APlayerController>(Controller);
 
     if (!bWasSuccessful || Response->GetResponseCode() != 200)
     {
@@ -1357,7 +1385,13 @@ void UAdhocGameModeComponent::OnUserJoinResponse(
         AdhocPlayerController->SetToken(UserToken);
     }
 
-    APlayerState* PlayerState = PlayerController->GetPlayerState<APlayerState>();
+    UAdhocAIControllerComponent* AdhocBotControllerComponent = Cast<UAdhocAIControllerComponent>(AdhocController);
+    if (AdhocBotControllerComponent)
+    {
+        AdhocBotControllerComponent->SetUserID(UserID);
+    }
+
+    APlayerState* PlayerState = Controller->GetPlayerState<APlayerState>();
     if (PlayerState)
     {
         PlayerState->SetPlayerName(UserName);
@@ -1370,7 +1404,7 @@ void UAdhocGameModeComponent::OnUserJoinResponse(
     }
 
     // if controller is controlling a pawn currently, flip the faction there too
-    const APawn* Pawn = PlayerController->GetPawn();
+    const APawn* Pawn = Controller->GetPawn();
     if (Pawn)
     {
         UAdhocPawnComponent* AdhocPawn = Cast<UAdhocPawnComponent>(Pawn->GetComponentByClass(UAdhocPawnComponent::StaticClass()));
@@ -1381,11 +1415,10 @@ void UAdhocGameModeComponent::OnUserJoinResponse(
         }
     }
 
-    UE_LOG(LogAdhocGameModeComponent, Log, TEXT("User join success: UserID=%d UserName=%s UserFactionID=%d FactionIndex=%d UserToken=%s"), UserID, *UserName,
-        UserFactionID, FactionIndex, *UserToken);
+    UE_LOG(LogAdhocGameModeComponent, Log, TEXT("User join success: UserID=%d UserName=%s UserFactionID=%d FactionIndex=%d UserToken=%s"), UserID, *UserName, UserFactionID, FactionIndex, *UserToken);
 
-    TOptional<FTransform> ImmediateSpawnTransform = AdhocPlayerController->GetImmediateSpawnTransform();
-    if (ImmediateSpawnTransform.IsSet() && PlayerController->HasActorBegunPlay()) // TODO: why this begun play check?
+    TOptional<FTransform> ImmediateSpawnTransform = AdhocController->GetImmediateSpawnTransform();
+    if (ImmediateSpawnTransform.IsSet() && Controller->HasActorBegunPlay()) // TODO: why this begun play check?
     {
         const FVector ImmediateSpawnLocation = ImmediateSpawnTransform->GetLocation();
         const FRotator ImmediateSpawnRotation = ImmediateSpawnTransform->GetRotation().Rotator();
@@ -1393,7 +1426,7 @@ void UAdhocGameModeComponent::OnUserJoinResponse(
         UE_LOG(LogAdhocGameModeComponent, Log, TEXT("Immediately spawning new player: X=%f Y=%f Z=%f Yaw=%f Pitch=%f Roll=%f"), ImmediateSpawnLocation.X,
             ImmediateSpawnLocation.Y, ImmediateSpawnLocation.Z, ImmediateSpawnRotation.Yaw, ImmediateSpawnRotation.Pitch, ImmediateSpawnRotation.Roll);
 
-        GameMode->RestartPlayer(PlayerController);
+        GameMode->RestartPlayer(Controller);
     }
 }
 
@@ -1555,25 +1588,21 @@ void UAdhocGameModeComponent::OnTimer_ServerPawns() const
         Writer->WriteValue(TEXT("y"), (*It)->GetActorLocation().Y);
         Writer->WriteValue(TEXT("z"), (*It)->GetActorLocation().Z);
 
-        const UAdhocPlayerControllerComponent* AdhocPlayerController;
-        const APlayerController* PlayerController = (*It)->GetController<APlayerController>();
-        if (PlayerController)
-        {
-            AdhocPlayerController = CastChecked<UAdhocPlayerControllerComponent>(PlayerController->GetComponentByClass(UAdhocPlayerControllerComponent::StaticClass()));
-        }
-        else
-        {
-            AdhocPlayerController = nullptr;
-        }
+        const AController* Controller = (*It)->GetController();
+        const UAdhocControllerComponent* AdhocController = Controller
+            ? Cast<UAdhocControllerComponent>(Controller->GetComponentByClass(UAdhocControllerComponent::StaticClass()))
+            : nullptr;
 
-        if (AdhocPlayerController && AdhocPlayerController->GetUserID() != -1)
+        if (AdhocController && AdhocController->GetUserID() != -1)
         {
-            Writer->WriteValue(TEXT("userId"), AdhocPlayerController->GetUserID());
+            Writer->WriteValue(TEXT("userId"), AdhocController->GetUserID());
         }
         else
         {
             Writer->WriteNull(TEXT("userId"));
         }
+
+        Writer->WriteValue(TEXT("human"), AdhocPawn->IsHuman());
 
         Writer->WriteObjectEnd();
 
