@@ -31,11 +31,13 @@ class ADHOCPLUGIN_API UAdhocPawnComponent : public UActorComponent
     GENERATED_BODY()
 
     DECLARE_MULTICAST_DELEGATE(FOnFriendlyNameChangedDelegate);
-    DECLARE_MULTICAST_DELEGATE(FOnPawnFactionIndexChangedDelegate);
+    DECLARE_MULTICAST_DELEGATE(FOnDescriptionChangedDelegate);
+    DECLARE_MULTICAST_DELEGATE(FOnFactionIndexChangedDelegate);
 
 public:
     FOnFriendlyNameChangedDelegate OnFriendlyNameChangedDelegate;
-    FOnPawnFactionIndexChangedDelegate OnFactionIndexChangedDelegate;
+    FOnDescriptionChangedDelegate OnDescriptionChangedDelegate;
+    FOnFactionIndexChangedDelegate OnFactionIndexChangedDelegate;
 
 private:
     // TODO: is it worth replicating this to the client?
@@ -47,21 +49,29 @@ private:
     UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = true), Replicated, ReplicatedUsing = OnRep_FriendlyName)
     FString FriendlyName;
 
-    /** Index of faction for the pawn (first faction has index 0, next faction has index 1 and so on, -1 means no faction). */
-    UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = true), Replicated, ReplicatedUsing = OnRep_FactionIndex)
-    int32 FactionIndex = -1;
+    UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = true), Replicated, ReplicatedUsing = OnRep_Description)
+    FString Description;
+
+    int64 UserID = -1;
 
     /** Was this pawn for a human/player controller? If false, this pawn was for a bot/AI controller. */
     bool bHuman;
+
+    /** Index of faction for the pawn (first faction has index 0, next faction has index 1 and so on, -1 means no faction). */
+    UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = true), Replicated, ReplicatedUsing = OnRep_FactionIndex)
+    int32 FactionIndex = -1;
 
 public:
     FORCEINLINE class APawn* GetPawn() const { return GetOwner<APawn>(); }
 
     FORCEINLINE const FGuid& GetUUID() const { return UUID; }
     FORCEINLINE const FString& GetFriendlyName() const { return FriendlyName; }
-    FORCEINLINE int32 GetFactionIndex() const { return FactionIndex; }
+    FORCEINLINE const FString& GetDescription() const { return Description; }
+    FORCEINLINE int64 GetUserID() const { return UserID; }
     FORCEINLINE bool IsHuman() const { return bHuman; }
+    FORCEINLINE int32 GetFactionIndex() const { return FactionIndex; }
 
+    FORCEINLINE void SetUserID(const int64 NewUserID) { UserID = NewUserID; }
     FORCEINLINE void SetHuman(const bool bNewHuman) { bHuman = bNewHuman; }
 
 private:
@@ -71,11 +81,14 @@ private:
 
 public:
     void SetFriendlyName(const FString& NewFriendlyName);
+    void SetDescription(const FString& Description);
     void SetFactionIndex(const int32 NewFactionIndex);
 
 private:
     UFUNCTION()
     void OnRep_FriendlyName(const FString& OldFriendlyName) const;
+    UFUNCTION()
+    void OnRep_Description(const FString& OldDescription) const;
     UFUNCTION()
     void OnRep_FactionIndex(int32 OldFactionIndex) const;
 };

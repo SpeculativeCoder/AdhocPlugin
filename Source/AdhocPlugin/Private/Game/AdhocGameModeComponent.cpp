@@ -1572,17 +1572,9 @@ void UAdhocGameModeComponent::OnTimer_ServerPawns() const
         Writer->WriteObjectStart();
         Writer->WriteValue(TEXT("uuid"), AdhocPawn->GetUUID().ToString(EGuidFormats::DigitsWithHyphens));
         Writer->WriteValue(TEXT("name"), AdhocPawn->GetFriendlyName());
+        Writer->WriteValue(TEXT("description"), AdhocPawn->GetDescription());
         Writer->WriteValue(TEXT("serverId"), AdhocGameState->GetServerID());
         Writer->WriteValue(TEXT("index"), PawnIndex);
-
-        if (AdhocPawn->GetFactionIndex() != -1)
-        {
-            Writer->WriteValue(TEXT("factionIndex"), AdhocPawn->GetFactionIndex());
-        }
-        else
-        {
-            Writer->WriteNull(TEXT("factionIndex"));
-        }
 
         Writer->WriteValue(TEXT("x"), -(*It)->GetActorLocation().X);
         Writer->WriteValue(TEXT("y"), (*It)->GetActorLocation().Y);
@@ -1603,6 +1595,15 @@ void UAdhocGameModeComponent::OnTimer_ServerPawns() const
         }
 
         Writer->WriteValue(TEXT("human"), AdhocPawn->IsHuman());
+
+        if (AdhocPawn->GetFactionIndex() != -1)
+        {
+            Writer->WriteValue(TEXT("factionIndex"), AdhocPawn->GetFactionIndex());
+        }
+        else
+        {
+            Writer->WriteNull(TEXT("factionIndex"));
+        }
 
         Writer->WriteObjectEnd();
 

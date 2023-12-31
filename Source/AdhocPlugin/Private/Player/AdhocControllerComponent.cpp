@@ -91,29 +91,20 @@ void UAdhocControllerComponent::OnNewPawn(APawn* Pawn) const
         UAdhocPawnComponent* AdhocPawn = Cast<UAdhocPawnComponent>(Pawn->GetComponentByClass(UAdhocPawnComponent::StaticClass()));
         check(AdhocPawn);
 
-        if (AdhocPawn->GetFriendlyName().IsEmpty())
-        {
-            if (!FriendlyName.IsEmpty())
-            {
-                UE_LOG(LogTemp, VeryVerbose, TEXT("OnNewPawn: Setting FriendlyName=%s"), *FriendlyName);
-                AdhocPawn->SetFriendlyName(FriendlyName);
-            }
-            // else
-            // {
-            // 	const APlayerState* PlayerState = Pawn->GetPlayerState();
-            // 	if (PlayerState)
-            // 	{
-            // 		UE_LOG(LogTemp, VeryVerbose, TEXT("OnNewPawn: Setting (from PlayerState) FriendlyName=%s"), *PlayerState->GetPlayerName());
-            // 		AdhocPawn->SetFriendlyName(PlayerState->GetPlayerName());
-            // 	}
-            // }
-        }
+        AdhocPawn->SetFriendlyName(FriendlyName);
 
-        if (AdhocPawn->GetFactionIndex() == -1)
-        {
-            UE_LOG(LogTemp, VeryVerbose, TEXT("OnNewPawn: Setting FactionIndex=%d"), FactionIndex);
-            AdhocPawn->SetFactionIndex(FactionIndex);
-        }
+        // else
+        // {
+        // 	const APlayerState* PlayerState = Pawn->GetPlayerState();
+        // 	if (PlayerState)
+        // 	{
+        // 		UE_LOG(LogTemp, VeryVerbose, TEXT("OnNewPawn: Setting (from PlayerState) FriendlyName=%s"), *PlayerState->GetPlayerName());
+        // 		AdhocPawn->SetFriendlyName(PlayerState->GetPlayerName());
+        // 	}
+        // }
+
+        AdhocPawn->SetUserID(UserID);
+        AdhocPawn->SetFactionIndex(FactionIndex);
     }
 
     // TODO: clear out anything when unpossess a pawn?

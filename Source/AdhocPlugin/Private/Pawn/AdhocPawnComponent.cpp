@@ -49,6 +49,7 @@ void UAdhocPawnComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& 
     Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
     DOREPLIFETIME(UAdhocPawnComponent, FriendlyName);
+    DOREPLIFETIME(UAdhocPawnComponent, Description);
     DOREPLIFETIME(UAdhocPawnComponent, FactionIndex);
 }
 
@@ -61,6 +62,18 @@ void UAdhocPawnComponent::SetFriendlyName(const FString& NewFriendlyName)
     if (bChanged)
     {
         OnFriendlyNameChangedDelegate.Broadcast();
+    }
+}
+
+void UAdhocPawnComponent::SetDescription(const FString& NewDescription)
+{
+    const bool bChanged = Description != NewDescription;
+
+    Description = NewDescription;
+
+    if (bChanged)
+    {
+        OnDescriptionChangedDelegate.Broadcast();
     }
 }
 
@@ -79,6 +92,11 @@ void UAdhocPawnComponent::SetFactionIndex(const int32 NewFactionIndex)
 void UAdhocPawnComponent::OnRep_FriendlyName(const FString& OldFriendlyName) const
 {
     OnFriendlyNameChangedDelegate.Broadcast();
+}
+
+void UAdhocPawnComponent::OnRep_Description(const FString& OldDescription) const
+{
+    OnDescriptionChangedDelegate.Broadcast();
 }
 
 void UAdhocPawnComponent::OnRep_FactionIndex(int32 OldFactionIndex) const

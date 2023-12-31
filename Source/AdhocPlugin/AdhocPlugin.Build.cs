@@ -26,7 +26,7 @@ public class AdhocPlugin : ModuleRules
     {
         PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
 
-        PublicDefinitions.Add("WITH_ADHOC_PLUGIN_EXTRA=0");
+        PublicDefinitions.Add("WITH_ADHOC_PLUGIN_EXTRA=1");
 
         PublicDependencyModuleNames.AddRange(
             new string[]
