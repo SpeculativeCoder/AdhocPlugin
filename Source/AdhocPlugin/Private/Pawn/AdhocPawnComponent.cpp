@@ -31,6 +31,15 @@ UAdhocPawnComponent::UAdhocPawnComponent(const FObjectInitializer& ObjectInitial
     SetNetAddressable();
 }
 
+void UAdhocPawnComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+    Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+    DOREPLIFETIME(UAdhocPawnComponent, FriendlyName);
+    DOREPLIFETIME(UAdhocPawnComponent, Description);
+    DOREPLIFETIME(UAdhocPawnComponent, FactionIndex);
+}
+
 void UAdhocPawnComponent::InitializeComponent()
 {
     Super::InitializeComponent();
@@ -42,15 +51,6 @@ void UAdhocPawnComponent::InitializeComponent()
     {
         UUID = FGuid::NewGuid();
     }
-}
-
-void UAdhocPawnComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
-{
-    Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-
-    DOREPLIFETIME(UAdhocPawnComponent, FriendlyName);
-    DOREPLIFETIME(UAdhocPawnComponent, Description);
-    DOREPLIFETIME(UAdhocPawnComponent, FactionIndex);
 }
 
 void UAdhocPawnComponent::SetFriendlyName(const FString& NewFriendlyName)

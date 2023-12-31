@@ -55,8 +55,12 @@ protected:
      * and we wish to immediately spawn them at the location they were previously at. */
     TOptional<FTransform> ImmediateSpawnTransform;
 
+    explicit UAdhocControllerComponent(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
+
+    virtual void InitializeComponent() override;
+
 public:
-    FORCEINLINE class AController* GetController() const { return GetOwner<AController>(); }
+    FORCEINLINE AController* GetController() const { return GetOwner<AController>(); }
 
     FORCEINLINE int64 GetUserID() const { return UserID; }
     FORCEINLINE const FString& GetFriendlyName() const { return FriendlyName; }
@@ -65,21 +69,13 @@ public:
 
     // TODO: event broadcasts? (like with name / faction)
     FORCEINLINE void SetUserID(const int64 NewUserID) { UserID = NewUserID; }
+    void SetFriendlyName(const FString& NewFriendlyName);
+    void SetFactionIndex(const int64 NewFactionIndex);
     FORCEINLINE void SetImmediateSpawnTransform(const TOptional<FTransform>& NewImmediateSpawnTransform) { ImmediateSpawnTransform = NewImmediateSpawnTransform; }
-
     FORCEINLINE void ClearImmediateSpawnTransform() { ImmediateSpawnTransform = TOptional<FTransform>(); }
 
 protected:
-    explicit UAdhocControllerComponent(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
-
-    virtual void InitializeComponent() override;
-
-public:
-    void SetFriendlyName(const FString& NewFriendlyName);
-    void SetFactionIndex(const int64 NewFactionIndex);
-
-protected:
-    /** For convenience, when possessing a pawn, we will try to initialize the friendly name and faction index on the pawn (this will allow the pawn to show its faction via color etc. and maybe put the name of the pawn in a nameplate etc.). If these were already set on the pawn (e.g. by game code earlier during pawn construction) then this will not be done. */
+    /** When possessing a pawn, we will initialize the friendly name and faction index on the pawn (this will allow the pawn to show its faction via color etc. and maybe put the name of the pawn in a nameplate etc.) */
     void OnNewPawn(APawn* Pawn) const;
 
     UFUNCTION()

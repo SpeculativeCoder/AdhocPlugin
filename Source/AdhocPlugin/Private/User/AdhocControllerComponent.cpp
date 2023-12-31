@@ -18,7 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "Player/AdhocControllerComponent.h"
+#include "User/AdhocControllerComponent.h"
 
 #include "Net/UnrealNetwork.h"
 #include "Pawn/AdhocPawnComponent.h"

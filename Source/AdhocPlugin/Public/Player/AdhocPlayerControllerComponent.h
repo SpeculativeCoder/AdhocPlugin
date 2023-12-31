@@ -21,7 +21,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AdhocControllerComponent.h"
+#include "User/AdhocControllerComponent.h"
 #include "Components/ActorComponent.h"
 #include "GameFramework/PlayerController.h"
 
@@ -32,16 +32,14 @@ class ADHOCPLUGIN_API UAdhocPlayerControllerComponent : public UAdhocControllerC
 {
     GENERATED_BODY()
 
-private:
     FString Token;
 
+    explicit UAdhocPlayerControllerComponent(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
+
 public:
-    FORCEINLINE class APlayerController* GetPlayerController() const { return GetOwner<APlayerController>(); }
+    FORCEINLINE APlayerController* GetPlayerController() const { return GetOwner<APlayerController>(); }
 
     FORCEINLINE FString GetToken() const { return Token; }
 
     FORCEINLINE void SetToken(const FString& NewToken) { Token = NewToken; }
-
-private:
-    explicit UAdhocPlayerControllerComponent(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 };

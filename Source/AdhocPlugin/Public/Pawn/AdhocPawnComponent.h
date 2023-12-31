@@ -45,24 +45,31 @@ private:
     UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = true))
     FGuid UUID;
 
-    /** Human readable name of the pawn. This is what will appear on screen for the pawn. */
+    /** Human readable name of the pawn. This is what will appear on screen to identify who is/was controlling the pawn. */
     UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = true), Replicated, ReplicatedUsing = OnRep_FriendlyName)
     FString FriendlyName;
 
+    /** Description of the pawn. This can appear in addition to the name to provide more information to identify what the pawn is. */
     UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = true), Replicated, ReplicatedUsing = OnRep_Description)
     FString Description;
 
+    UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = true))
     int64 UserID = -1;
 
-    /** Was this pawn for a human/player controller? If false, this pawn was for a bot/AI controller. */
+    /** Was this pawn was controlled by a human/player controller? If false, this pawn was controlled by a bot/AI controller. */
+    UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = true))
     bool bHuman;
 
     /** Index of faction for the pawn (first faction has index 0, next faction has index 1 and so on, -1 means no faction). */
     UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = true), Replicated, ReplicatedUsing = OnRep_FactionIndex)
     int32 FactionIndex = -1;
 
+    explicit UAdhocPawnComponent(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
+
+    virtual void InitializeComponent() override;
+
 public:
-    FORCEINLINE class APawn* GetPawn() const { return GetOwner<APawn>(); }
+    FORCEINLINE APawn* GetPawn() const { return GetOwner<APawn>(); }
 
     FORCEINLINE const FGuid& GetUUID() const { return UUID; }
     FORCEINLINE const FString& GetFriendlyName() const { return FriendlyName; }
@@ -71,17 +78,10 @@ public:
     FORCEINLINE bool IsHuman() const { return bHuman; }
     FORCEINLINE int32 GetFactionIndex() const { return FactionIndex; }
 
-    FORCEINLINE void SetUserID(const int64 NewUserID) { UserID = NewUserID; }
-    FORCEINLINE void SetHuman(const bool bNewHuman) { bHuman = bNewHuman; }
-
-private:
-    explicit UAdhocPawnComponent(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
-
-    virtual void InitializeComponent() override;
-
-public:
     void SetFriendlyName(const FString& NewFriendlyName);
     void SetDescription(const FString& Description);
+    FORCEINLINE void SetUserID(const int64 NewUserID) { UserID = NewUserID; }
+    FORCEINLINE void SetHuman(const bool bNewHuman) { bHuman = bNewHuman; }
     void SetFactionIndex(const int32 NewFactionIndex);
 
 private:

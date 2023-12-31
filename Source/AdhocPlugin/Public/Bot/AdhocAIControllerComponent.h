@@ -21,7 +21,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Player/AdhocControllerComponent.h"
+#include "User/AdhocControllerComponent.h"
 
 #include "AdhocAIControllerComponent.generated.h"
 
@@ -31,9 +31,8 @@ class ADHOCPLUGIN_API UAdhocAIControllerComponent : public UAdhocControllerCompo
 {
     GENERATED_BODY()
 
+    explicit UAdhocAIControllerComponent(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
+
 public:
     FORCEINLINE class AAIController* GetAIController() const { return GetOwner<AAIController>(); }
-
-private:
-    explicit UAdhocAIControllerComponent(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 };
