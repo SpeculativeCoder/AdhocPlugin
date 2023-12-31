@@ -38,7 +38,6 @@ void UAdhocControllerComponent::GetLifetimeReplicatedProps(TArray<FLifetimePrope
 {
     Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-    DOREPLIFETIME(UAdhocControllerComponent, UserID);
     DOREPLIFETIME(UAdhocControllerComponent, FriendlyName);
     DOREPLIFETIME(UAdhocControllerComponent, FactionIndex);
 }
@@ -79,6 +78,16 @@ void UAdhocControllerComponent::SetFactionIndex(const int64 NewFactionIndex)
     }
 }
 
+void UAdhocControllerComponent::OnRep_FriendlyName(const FString& OldFriendlyName) const
+{
+    OnFriendlyNameChangedDelegate.Broadcast();
+}
+
+void UAdhocControllerComponent::OnRep_FactionIndex(int32 OldFactionIndex) const
+{
+    OnFactionIndexChangedDelegate.Broadcast();
+}
+
 void UAdhocControllerComponent::OnNewPawn(APawn* Pawn) const
 {
     const AController* Controller = GetController();
@@ -108,14 +117,4 @@ void UAdhocControllerComponent::OnNewPawn(APawn* Pawn) const
     }
 
     // TODO: clear out anything when unpossess a pawn?
-}
-
-void UAdhocControllerComponent::OnRep_FriendlyName(const FString& OldFriendlyName) const
-{
-    OnFriendlyNameChangedDelegate.Broadcast();
-}
-
-void UAdhocControllerComponent::OnRep_FactionIndex(int32 OldFactionIndex) const
-{
-    OnFactionIndexChangedDelegate.Broadcast();
 }

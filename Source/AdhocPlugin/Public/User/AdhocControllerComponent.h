@@ -39,7 +39,6 @@ public:
     FOnFactionIndexChangedDelegate OnFactionIndexChangedDelegate;
 
 protected:
-    UPROPERTY(Replicated)
     int64 UserID = -1;
 
     /** Human readable name of the controller. This is what will appear on screen for the controller. */
@@ -75,11 +74,11 @@ public:
     FORCEINLINE void ClearImmediateSpawnTransform() { ImmediateSpawnTransform = TOptional<FTransform>(); }
 
 protected:
-    /** When possessing a pawn, we will initialize the friendly name and faction index on the pawn (this will allow the pawn to show its faction via color etc. and maybe put the name of the pawn in a nameplate etc.) */
-    void OnNewPawn(APawn* Pawn) const;
-
     UFUNCTION()
     void OnRep_FriendlyName(const FString& OldFriendlyName) const;
     UFUNCTION()
     void OnRep_FactionIndex(int32 OldFactionIndex) const;
+
+    /** When possessing a pawn, we will initialize the friendly name and faction index on the pawn (this will allow the pawn to show its faction via color etc. and maybe put the name of the pawn in a nameplate etc.) */
+    void OnNewPawn(APawn* Pawn) const;
 };

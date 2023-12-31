@@ -349,7 +349,7 @@ void UAdhocGameModeComponent::InitObjectiveStates() const
 
 void UAdhocGameModeComponent::PostLogin(const APlayerController* PlayerController)
 {
-    UE_LOG(LogAdhocGameModeComponent, Log, TEXT("PostLogin: NewPlayer=%s"), *PlayerController->GetName());
+    UE_LOG(LogAdhocGameModeComponent, Log, TEXT("PostLogin: PlayerController=%s"), *PlayerController->GetName());
 
     const UNetConnection* NetConnection = PlayerController->GetNetConnection();
     const FString& RequestURL = NetConnection ? NetConnection->RequestURL : TEXT(""); // TODO (listen mode does not have connection)
