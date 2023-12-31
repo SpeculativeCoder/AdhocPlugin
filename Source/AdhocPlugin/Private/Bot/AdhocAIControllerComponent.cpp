@@ -23,4 +23,7 @@
 #include "Net/UnrealNetwork.h"
 
 UAdhocAIControllerComponent::UAdhocAIControllerComponent(const FObjectInitializer& ObjectInitializer)
-    : Super(ObjectInitializer) {}
+    : Super(ObjectInitializer)
+{
+    FriendlyName = TEXT("Bot");
+}

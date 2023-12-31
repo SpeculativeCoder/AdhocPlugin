@@ -389,7 +389,7 @@ void UAdhocGameModeComponent::PostLogin(const APlayerController* PlayerControlle
         UE_LOG(LogAdhocGameModeComponent, Log, TEXT("PostLogin: Picked random faction. FactionIndex=%d"), FactionID, FactionIndex);
     }
 
-    AdhocPlayerController->SetFriendlyName(TEXT("Anon"));
+    // AdhocPlayerController->SetFriendlyName(TEXT("Anon"));
     AdhocPlayerController->SetFactionIndex(FactionIndex);
     AdhocPlayerController->SetUserID(UserID);
     AdhocPlayerController->SetToken(Token);
@@ -1410,7 +1410,7 @@ void UAdhocGameModeComponent::OnUserJoinResponse(
         UAdhocPawnComponent* AdhocPawn = Cast<UAdhocPawnComponent>(Pawn->GetComponentByClass(UAdhocPawnComponent::StaticClass()));
         if (AdhocPawn)
         {
-            // TODO: push the name too?
+            AdhocPawn->SetFriendlyName(UserName);
             AdhocPawn->SetFactionIndex(FactionIndex);
         }
     }

@@ -23,4 +23,7 @@
 #include "Net/UnrealNetwork.h"
 
 UAdhocPlayerControllerComponent::UAdhocPlayerControllerComponent(const FObjectInitializer& ObjectInitializer)
-    : Super(ObjectInitializer) {}
+    : Super(ObjectInitializer)
+{
+    FriendlyName = TEXT("Anon");
+}
