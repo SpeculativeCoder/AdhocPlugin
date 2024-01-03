@@ -143,7 +143,8 @@ public:
 #if WITH_SERVER_CODE && !defined(__EMSCRIPTEN__)
 
 private:
-    void ShutdownIfNotInEditor() const;
+    void ShutdownIfNotPlayInEditor() const;
+    void KickPlayerIfNotPlayInEditor(APlayerController* PlayerController, const FString& KickReason) const;
 
     void OnStompConnected(const FString& ProtocolVersion, const FString& SessionId, const FString& ServerString);
     void OnStompClosed(const FString& Reason) const;
