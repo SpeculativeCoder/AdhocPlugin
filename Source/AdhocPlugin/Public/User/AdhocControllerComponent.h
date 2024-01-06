@@ -26,7 +26,7 @@
 
 #include "AdhocControllerComponent.generated.h"
 
-UCLASS(Transient)
+UCLASS(Abstract, Transient)
 class ADHOCPLUGIN_API UAdhocControllerComponent : public UActorComponent
 {
     GENERATED_BODY()
@@ -63,6 +63,7 @@ public:
 
     FORCEINLINE int64 GetUserID() const { return UserID; }
     FORCEINLINE const FString& GetFriendlyName() const { return FriendlyName; }
+    virtual bool IsHuman() const PURE_VIRTUAL(UAdhocControllerComponent::IsHuman, return false;);
     FORCEINLINE int32 GetFactionIndex() const { return FactionIndex; }
     FORCEINLINE TOptional<FTransform> GetImmediateSpawnTransform() const { return ImmediateSpawnTransform; }
 

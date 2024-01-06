@@ -113,6 +113,7 @@ void UAdhocControllerComponent::OnNewPawn(APawn* Pawn) const
         // }
 
         AdhocPawn->SetUserID(UserID);
+        AdhocPawn->SetHuman(IsHuman());
         AdhocPawn->SetFactionIndex(FactionIndex);
     }
 

@@ -35,4 +35,5 @@ class ADHOCPLUGIN_API UAdhocAIControllerComponent : public UAdhocControllerCompo
 
 public:
     FORCEINLINE class AAIController* GetAIController() const { return GetOwner<AAIController>(); }
+    FORCEINLINE virtual bool IsHuman() const override { return false; }
 };
