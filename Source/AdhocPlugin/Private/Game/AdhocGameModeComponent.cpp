@@ -502,25 +502,23 @@ void UAdhocGameModeComponent::CreateStructure(
 }
 #endif
 
-void UAdhocGameModeComponent::UserDefeatedUser(APlayerController* PlayerController, APlayerController* DefeatedPlayerController) const
+void UAdhocGameModeComponent::UserDefeatedUser(AController* Controller, AController* DefeatedController) const
 {
 #if WITH_SERVER_CODE && !defined(__EMSCRIPTEN__)
     if (StompClient && StompClient->IsConnected())
     {
-        const UAdhocPlayerStateComponent* AdhocPlayerState =
-            Cast<UAdhocPlayerStateComponent>(PlayerController->GetPlayerState<APlayerState>()->GetComponentByClass(UAdhocPlayerStateComponent::StaticClass()));
-        const UAdhocPlayerStateComponent* DefeatedAdhocPlayerState = Cast<UAdhocPlayerStateComponent>(
-            DefeatedPlayerController->GetPlayerState<APlayerState>()->GetComponentByClass(UAdhocPlayerStateComponent::StaticClass()));
-        check(AdhocPlayerState);
-        check(DefeatedAdhocPlayerState);
+        const UAdhocControllerComponent* AdhocController = CastChecked<UAdhocControllerComponent>(
+            Controller->GetComponentByClass(UAdhocControllerComponent::StaticClass()));
+        const UAdhocControllerComponent* DefeatedAdhocController = CastChecked<UAdhocControllerComponent>(
+            DefeatedController->GetComponentByClass(UAdhocControllerComponent::StaticClass()));
 
         FString JsonString;
         const TSharedRef<TJsonWriter<TCHAR, TCondensedJsonPrintPolicy<TCHAR>>> Writer =
             TJsonWriterFactory<TCHAR, TCondensedJsonPrintPolicy<TCHAR>>::Create(&JsonString);
         Writer->WriteObjectStart();
         Writer->WriteValue(TEXT("eventType"), TEXT("ServerUserDefeatedUser"));
-        Writer->WriteValue(TEXT("userId"), AdhocPlayerState->GetUserID());
-        Writer->WriteValue(TEXT("defeatedUserId"), DefeatedAdhocPlayerState->GetUserID());
+        Writer->WriteValue(TEXT("userId"), AdhocController->GetUserID());
+        Writer->WriteValue(TEXT("defeatedUserId"), DefeatedAdhocController->GetUserID());
         Writer->WriteObjectEnd();
         Writer->Close();
 
@@ -528,49 +526,18 @@ void UAdhocGameModeComponent::UserDefeatedUser(APlayerController* PlayerControll
         StompClient->Send("/app/ServerUserDefeatedUser", JsonString);
 
         // TODO: trigger via event?
-        OnUserDefeatedUserEvent(PlayerController, DefeatedPlayerController);
+        OnUserDefeatedUserEvent(Controller, DefeatedController);
     }
     else
 #endif
     {
-        OnUserDefeatedUserEvent(PlayerController, DefeatedPlayerController);
+        OnUserDefeatedUserEvent(Controller, DefeatedController);
     }
 }
 
-void UAdhocGameModeComponent::UserDefeatedBot(APlayerController* PlayerController, AController* DefeatedBotController) const
+void UAdhocGameModeComponent::OnUserDefeatedUserEvent(AController* Controller, AController* DefeatedController) const
 {
-#if WITH_SERVER_CODE && !defined(__EMSCRIPTEN__)
-    if (StompClient && StompClient->IsConnected())
-    {
-        FString JsonString;
-        const auto& Writer = TJsonWriterFactory<TCHAR, TCondensedJsonPrintPolicy<TCHAR>>::Create(&JsonString);
-        Writer->WriteObjectStart();
-        Writer->WriteValue(TEXT("eventType"), TEXT("UserDefeatedBot"));
-        Writer->WriteValue(TEXT("userId"), Cast<UAdhocPlayerStateComponent>(PlayerController->GetPlayerState<APlayerState>()->GetComponentByClass(UAdhocPlayerStateComponent::StaticClass()))->GetUserID());
-        Writer->WriteObjectEnd();
-        Writer->Close();
-
-        UE_LOG(LogAdhocGameModeComponent, Verbose, TEXT("Sending: %s"), *JsonString);
-        StompClient->Send("/app/UserDefeatedBot", JsonString);
-
-        // TODO: trigger via event?
-        OnUserDefeatedBotEvent(PlayerController, DefeatedBotController);
-    }
-    else
-#endif
-    {
-        OnUserDefeatedBotEvent(PlayerController, DefeatedBotController);
-    }
-}
-
-void UAdhocGameModeComponent::OnUserDefeatedUserEvent(APlayerController* PlayerController, APlayerController* DefeatedPlayerController) const
-{
-    OnUserDefeatedUserEventDelegate.Broadcast(PlayerController, DefeatedPlayerController);
-}
-
-void UAdhocGameModeComponent::OnUserDefeatedBotEvent(APlayerController* PlayerController, AController* DefeatedBotController) const
-{
-    OnUserDefeatedBotEventDelegate.Broadcast(PlayerController, DefeatedBotController);
+    OnUserDefeatedUserEventDelegate.Broadcast(Controller, DefeatedController);
 }
 
 void UAdhocGameModeComponent::PlayerEnterArea(APlayerController* PlayerController, const int32 AreaIndex) const

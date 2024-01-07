@@ -37,14 +37,12 @@ class ADHOCPLUGIN_API UAdhocGameModeComponent : public UActorComponent
     GENERATED_BODY()
 
     DECLARE_MULTICAST_DELEGATE_TwoParams(FOnObjectiveTakenEventDelegate, FAdhocObjectiveState& OutObjective, FAdhocFactionState& Faction);
-    DECLARE_MULTICAST_DELEGATE_TwoParams(FOnUserDefeatedUserEventDelegate, APlayerController* PlayerController, APlayerController* DefeatedPlayerController);
-    DECLARE_MULTICAST_DELEGATE_TwoParams(FOnUserDefeatedBotEventDelegate, APlayerController* PlayerController, AController* DefeatedBotController);
+    DECLARE_MULTICAST_DELEGATE_TwoParams(FOnUserDefeatedUserEventDelegate, AController* Controller, AController* DefeatedController);
     DECLARE_MULTICAST_DELEGATE_OneParam(FOnStaggeredEmissionDelegate, const FAdhocEmission& Emission);
 
 public:
     FOnObjectiveTakenEventDelegate OnObjectiveTakenEventDelegate;
     FOnUserDefeatedUserEventDelegate OnUserDefeatedUserEventDelegate;
-    FOnUserDefeatedBotEventDelegate OnUserDefeatedBotEventDelegate;
     FOnStaggeredEmissionDelegate OnStaggeredEmissionDelegate;
 
 private:
@@ -125,16 +123,12 @@ private:
 #endif
 
 public:
-    /** Trigger an event appropriate for when a player killed another player. */
-    void UserDefeatedUser(class APlayerController* PlayerController, class APlayerController* DefeatedPlayerController) const;
-    /** Trigger an event appropriate for when a player killed a bot. */
-    void UserDefeatedBot(class APlayerController* PlayerController, class AController* DefeatedBotController) const;
+    /** Trigger an event appropriate for when a human/bot defeated another human/bot. */
+    void UserDefeatedUser(class AController* Controller, class AController* DefeatedController) const;
 
 private:
-    /** Called when a DefeatedUser event occurs. Broadcasts a message to all users in the server. */
-    void OnUserDefeatedUserEvent(class APlayerController* PlayerController, class APlayerController* DefeatedPlayerController) const;
-    /** Called when a DefeatedBot event occurs. */
-    void OnUserDefeatedBotEvent(class APlayerController* PlayerController, class AController* DefeatedBotController) const;
+    /** Called when a UserDefeatedUser event occurs. Broadcasts a message to all users in the server. */
+    void OnUserDefeatedUserEvent(class AController* Controller, class AController* DefeatedController) const;
 
 public:
     /** Called when player enters an area volume and may cause the player to connect to different server managing that area. */
