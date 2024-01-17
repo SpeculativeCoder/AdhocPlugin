@@ -61,6 +61,8 @@ protected:
 public:
     FORCEINLINE AController* GetController() const { return GetOwner<AController>(); }
 
+    class UAdhocGameModeComponent* GetAdhocGameModeChecked();
+
     FORCEINLINE int64 GetUserID() const { return UserID; }
     FORCEINLINE const FString& GetFriendlyName() const { return FriendlyName; }
     virtual bool IsHuman() const PURE_VIRTUAL(UAdhocControllerComponent::IsHuman, return false;);

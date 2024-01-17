@@ -25,7 +25,6 @@
 
 #include "AdhocAIControllerComponent.generated.h"
 
-class AAIController;
 UCLASS(Transient)
 class ADHOCPLUGIN_API UAdhocAIControllerComponent : public UAdhocControllerComponent
 {
@@ -35,5 +34,10 @@ class ADHOCPLUGIN_API UAdhocAIControllerComponent : public UAdhocControllerCompo
 
 public:
     FORCEINLINE class AAIController* GetAIController() const { return GetOwner<AAIController>(); }
+
     FORCEINLINE virtual bool IsHuman() const override { return false; }
+
+    virtual void InitializeComponent() override;
+    virtual void BeginPlay() override;
+    virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 };

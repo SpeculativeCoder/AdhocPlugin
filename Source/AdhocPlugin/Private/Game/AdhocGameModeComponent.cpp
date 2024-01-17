@@ -42,7 +42,6 @@
 #include "Kismet/GameplayStatics.h"
 #include "Engine/NetConnection.h"
 
-class UAdhocAIControllerComponent;
 DEFINE_LOG_CATEGORY_STATIC(LogAdhocGameModeComponent, Log, All)
 
 UAdhocGameModeComponent::UAdhocGameModeComponent()

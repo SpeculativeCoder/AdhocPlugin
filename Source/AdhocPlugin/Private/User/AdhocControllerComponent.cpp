@@ -20,6 +20,8 @@
 
 #include "User/AdhocControllerComponent.h"
 
+#include "Game/AdhocGameModeComponent.h"
+#include "GameFramework/GameModeBase.h"
 #include "Net/UnrealNetwork.h"
 #include "Pawn/AdhocPawnComponent.h"
 
@@ -40,6 +42,17 @@ void UAdhocControllerComponent::GetLifetimeReplicatedProps(TArray<FLifetimePrope
 
     DOREPLIFETIME(UAdhocControllerComponent, FriendlyName);
     DOREPLIFETIME(UAdhocControllerComponent, FactionIndex);
+}
+
+UAdhocGameModeComponent* UAdhocControllerComponent::GetAdhocGameModeChecked()
+{
+    const UWorld* World = GetWorld();
+    check(World);
+
+    const AGameModeBase* GameMode = World->GetAuthGameMode();
+    check(GameMode);
+
+    return CastChecked<UAdhocGameModeComponent>(GameMode->GetComponentByClass(UAdhocGameModeComponent::StaticClass()));
 }
 
 void UAdhocControllerComponent::InitializeComponent()

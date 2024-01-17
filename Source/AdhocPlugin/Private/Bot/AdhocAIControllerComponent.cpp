@@ -20,10 +20,50 @@
 
 #include "Bot/AdhocAIControllerComponent.h"
 
-#include "Net/UnrealNetwork.h"
+#include "Game/AdhocGameModeComponent.h"
+
+DEFINE_LOG_CATEGORY_STATIC(LogAdhocAIControllerComponent, Log, All)
 
 UAdhocAIControllerComponent::UAdhocAIControllerComponent(const FObjectInitializer& ObjectInitializer)
     : Super(ObjectInitializer)
 {
     FriendlyName = TEXT("Bot");
+
+    bWantsInitializeComponent = true;
+}
+
+void UAdhocAIControllerComponent::InitializeComponent()
+{
+    Super::InitializeComponent();
+
+    const AAIController* AIController = GetAIController();
+    check(AIController);
+
+    UE_LOG(LogAdhocAIControllerComponent, Verbose, TEXT("InitializeComponent: AIController=%s"), *AIController->GetName());
+
+    // TODO: if no faction set by game mode, pick a random faction?
+}
+
+void UAdhocAIControllerComponent::BeginPlay()
+{
+    Super::BeginPlay();
+
+    const AAIController* AIController = GetAIController();
+    check(AIController);
+
+    UE_LOG(LogAdhocAIControllerComponent, Verbose, TEXT("BeginPlay: AIController=%s"), *AIController->GetName());
+
+    GetAdhocGameModeChecked()->BotJoin(AIController);
+}
+
+void UAdhocAIControllerComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+    Super::EndPlay(EndPlayReason);
+
+    const AAIController* AIController = GetAIController();
+    check(AIController);
+
+    UE_LOG(LogAdhocAIControllerComponent, Verbose, TEXT("EndPlay: AIController=%s"), *AIController->GetName());
+
+    GetAdhocGameModeChecked()->BotLeave(AIController);
 }
