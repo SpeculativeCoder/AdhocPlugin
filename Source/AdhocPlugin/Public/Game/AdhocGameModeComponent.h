@@ -147,22 +147,21 @@ private:
     void OnStompSubscriptionEvent(const class IStompMessage& Message);
 
     void RetrieveFactions();
+    void OnFactionsResponse(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful) const;
+
     void RetrieveServers();
+    void OnServersResponse(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful) const;
+
     void SubmitAreas();
+    void OnAreasResponse(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
+
     void SubmitObjectives();
+    void OnObjectivesResponse(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
+
 #if WITH_ADHOC_PLUGIN_EXTRA
     void SubmitStructures();
-#endif
-
-    void OnFactionsResponse(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful) const;
-    void OnServersResponse(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful) const;
-    void OnAreasResponse(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
-    void OnObjectivesResponse(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
-#if WITH_ADHOC_PLUGIN_EXTRA
     void OnStructuresResponse(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful) const;
-#endif
 
-#if WITH_ADHOC_PLUGIN_EXTRA
     static void ExtractStructureFromJsonObject(const TSharedPtr<FJsonObject>& JsonObject, FAdhocStructureState& OutStructure);
 #endif
 

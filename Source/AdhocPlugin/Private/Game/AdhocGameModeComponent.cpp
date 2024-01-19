@@ -794,6 +794,42 @@ void UAdhocGameModeComponent::RetrieveFactions()
     Request->ProcessRequest();
 }
 
+void UAdhocGameModeComponent::OnFactionsResponse(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful) const
+{
+    UE_LOG(LogAdhocGameModeComponent, Log, TEXT("Factions response: ResponseCode=%d Content=%s"), Response->GetResponseCode(), *Response->GetContentAsString());
+
+    if (!bWasSuccessful || Response->GetResponseCode() != 200)
+    {
+        UE_LOG(LogAdhocGameModeComponent, Warning, TEXT("Factions response failure: ResponseCode=%d Content=%s"), Response->GetResponseCode(), *Response->GetContentAsString());
+        ShutdownIfNotPlayInEditor();
+        return;
+    }
+
+    const auto& Reader = TJsonReaderFactory<>::Create(Response->GetContentAsString());
+    TArray<TSharedPtr<FJsonValue>> JsonValues;
+    if (!FJsonSerializer::Deserialize(Reader, JsonValues))
+    {
+        UE_LOG(LogAdhocGameModeComponent, Log, TEXT("Failed to deserialize factions response: Content=%s"), *Response->GetContentAsString());
+        ShutdownIfNotPlayInEditor();
+        return;
+    }
+
+    TArray<FAdhocFactionState> Factions;
+    Factions.SetNum(JsonValues.Num());
+
+    for (int FactionID = 0; FactionID < JsonValues.Num(); FactionID++)
+    {
+        const TSharedPtr<FJsonObject> JsonObject = JsonValues[FactionID]->AsObject();
+        Factions[FactionID].ID = JsonObject->GetIntegerField("id");
+        Factions[FactionID].Index = JsonObject->GetIntegerField("index");
+        Factions[FactionID].Name = JsonObject->GetStringField("name");
+        Factions[FactionID].Color = FColor::FromHex(JsonObject->GetStringField("color"));
+        Factions[FactionID].Score = JsonObject->GetIntegerField("score");
+    }
+
+    AdhocGameState->SetFactions(Factions);
+}
+
 void UAdhocGameModeComponent::RetrieveServers()
 {
     const auto& Request = Http->CreateRequest();
@@ -805,6 +841,60 @@ void UAdhocGameModeComponent::RetrieveServers()
 
     UE_LOG(LogAdhocGameModeComponent, Log, TEXT("GET %s"), *URL);
     Request->ProcessRequest();
+}
+
+void UAdhocGameModeComponent::OnServersResponse(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful) const
+{
+    UE_LOG(LogAdhocGameModeComponent, Log, TEXT("Servers response: ResponseCode=%d Content=%s"), Response->GetResponseCode(), *Response->GetContentAsString());
+
+    if (!bWasSuccessful || Response->GetResponseCode() != 200)
+    {
+        UE_LOG(LogAdhocGameModeComponent, Log, TEXT("Servers response failure: ResponseCode=%d Content=%s"), Response->GetResponseCode(), *Response->GetContentAsString());
+        ShutdownIfNotPlayInEditor();
+        return;
+    }
+
+    const auto& Reader = TJsonReaderFactory<>::Create(Response->GetContentAsString());
+    TArray<TSharedPtr<FJsonValue>> JsonValues;
+    if (!FJsonSerializer::Deserialize(Reader, JsonValues))
+    {
+        UE_LOG(LogAdhocGameModeComponent, Log, TEXT("Failed to deserialize get servers response: Content=%s"), *Response->GetContentAsString());
+        ShutdownIfNotPlayInEditor();
+        return;
+    }
+
+    TArray<FAdhocServerState> Servers;
+    Servers.SetNum(JsonValues.Num());
+
+    for (int i = 0; i < Servers.Num(); i++)
+    {
+        const TSharedPtr<FJsonObject> JsonObject = JsonValues[i]->AsObject();
+
+        Servers[i].ID = JsonObject->GetIntegerField("id");
+        Servers[i].Name = JsonObject->GetStringField("name");
+        // Servers[i].HostingType = NewServer->GetStringField("hostingType");
+        Servers[i].Status = JsonObject->GetStringField("status");
+        JsonObject->TryGetStringField("privateIP", Servers[i].PrivateIP);
+        JsonObject->TryGetStringField("publicIP", Servers[i].PublicIP);
+        JsonObject->TryGetNumberField("publicWebSocketPort", Servers[i].PublicWebSocketPort);
+        Servers[i].RegionID = JsonObject->GetIntegerField("regionId");
+        for (auto& AreaIDValue : JsonObject->GetArrayField("areaIds"))
+        {
+            Servers[i].AreaIDs.AddUnique(AreaIDValue->AsNumber());
+        }
+        for (auto& AreaIndexValue : JsonObject->GetArrayField("areaIndexes"))
+        {
+            Servers[i].AreaIndexes.AddUnique(AreaIndexValue->AsNumber());
+        }
+
+        // if it is my server ID - what areas are assigned to this server?
+        if (AdhocGameState->GetServerID() == Servers[i].ID)
+        {
+            SetActiveAreas(Servers[i].RegionID, Servers[i].AreaIndexes);
+        }
+    }
+
+    AdhocGameState->SetServers(Servers);
 }
 
 // PUT AREAS (the map defines the areas, and should override what is on the server, but the server will choose the IDs)
@@ -846,6 +936,58 @@ void UAdhocGameModeComponent::SubmitAreas()
 
     UE_LOG(LogAdhocGameModeComponent, Log, TEXT("PUT %s: %s"), *URL, *JsonString);
     Request->ProcessRequest();
+}
+
+void UAdhocGameModeComponent::OnAreasResponse(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
+{
+    UE_LOG(LogAdhocGameModeComponent, Log, TEXT("Areas response: ResponseCode=%d Content=%s"), Response->GetResponseCode(), *Response->GetContentAsString());
+
+    if (!bWasSuccessful || Response->GetResponseCode() != 200)
+    {
+        UE_LOG(LogAdhocGameModeComponent, Log, TEXT("Areas response failure: ResponseCode=%d Content=%s"), Response->GetResponseCode(), *Response->GetContentAsString());
+        ShutdownIfNotPlayInEditor();
+        return;
+    }
+
+    const auto& Reader = TJsonReaderFactory<>::Create(Response->GetContentAsString());
+    TArray<TSharedPtr<FJsonValue>> JsonValues;
+    if (!FJsonSerializer::Deserialize(Reader, JsonValues))
+    {
+        UE_LOG(LogAdhocGameModeComponent, Log, TEXT("Failed to deserialize areas response: %s"), *Response->GetContentAsString());
+        ShutdownIfNotPlayInEditor();
+        return;
+    }
+
+    TArray<FAdhocAreaState> Areas;
+    Areas.SetNum(JsonValues.Num());
+
+    for (int i = 0; i < Areas.Num(); i++)
+    {
+        const TSharedPtr<FJsonObject> JsonObject = JsonValues[i]->AsObject();
+
+        Areas[i].ID = JsonObject->GetIntegerField("id");
+        Areas[i].RegionID = JsonObject->GetIntegerField("regionId");
+        Areas[i].Index = JsonObject->GetIntegerField("index");
+        Areas[i].Name = JsonObject->GetStringField("name");
+        JsonObject->TryGetNumberField("serverId", Areas[i].ServerID);
+
+        // // any area actors in this region should be updated with IDs etc.
+        // if (Areas[i].RegionID == AdhocGameState->GetRegionID())
+        // {
+        // 	for (TActorIterator<AAreaVolume> AreaVolumeIter(GetWorld()); AreaVolumeIter; ++AreaVolumeIter)
+        // 	{
+        // 		AAreaVolume* AreaVolume = *AreaVolumeIter;
+        // 		if (AreaVolume->GetAreaIndex() == Areas[i].Index)
+        // 		{
+        // 			AreaVolume->SetAreaID(Areas[i].ID);
+        // 		}
+        // 	}
+        // }
+    }
+
+    AdhocGameState->SetAreas(Areas);
+
+    SubmitObjectives();
 }
 
 // PUT OBJECTIVES (the map defines the objectives, and should override what is on the server, but the server will choose the IDs)
@@ -940,148 +1082,6 @@ void UAdhocGameModeComponent::SubmitObjectives()
 
     UE_LOG(LogAdhocGameModeComponent, Log, TEXT("PUT %s: %s"), *URL, *JsonString);
     Request->ProcessRequest();
-}
-
-void UAdhocGameModeComponent::OnFactionsResponse(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful) const
-{
-    UE_LOG(LogAdhocGameModeComponent, Log, TEXT("Factions response: ResponseCode=%d Content=%s"), Response->GetResponseCode(), *Response->GetContentAsString());
-
-    if (!bWasSuccessful || Response->GetResponseCode() != 200)
-    {
-        UE_LOG(LogAdhocGameModeComponent, Warning, TEXT("Factions response failure: ResponseCode=%d Content=%s"), Response->GetResponseCode(), *Response->GetContentAsString());
-        ShutdownIfNotPlayInEditor();
-        return;
-    }
-
-    const auto& Reader = TJsonReaderFactory<>::Create(Response->GetContentAsString());
-    TArray<TSharedPtr<FJsonValue>> JsonValues;
-    if (!FJsonSerializer::Deserialize(Reader, JsonValues))
-    {
-        UE_LOG(LogAdhocGameModeComponent, Log, TEXT("Failed to deserialize factions response: Content=%s"), *Response->GetContentAsString());
-        ShutdownIfNotPlayInEditor();
-        return;
-    }
-
-    TArray<FAdhocFactionState> Factions;
-    Factions.SetNum(JsonValues.Num());
-
-    for (int FactionID = 0; FactionID < JsonValues.Num(); FactionID++)
-    {
-        const TSharedPtr<FJsonObject> JsonObject = JsonValues[FactionID]->AsObject();
-        Factions[FactionID].ID = JsonObject->GetIntegerField("id");
-        Factions[FactionID].Index = JsonObject->GetIntegerField("index");
-        Factions[FactionID].Name = JsonObject->GetStringField("name");
-        Factions[FactionID].Color = FColor::FromHex(JsonObject->GetStringField("color"));
-        Factions[FactionID].Score = JsonObject->GetIntegerField("score");
-    }
-
-    AdhocGameState->SetFactions(Factions);
-}
-
-void UAdhocGameModeComponent::OnServersResponse(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful) const
-{
-    UE_LOG(LogAdhocGameModeComponent, Log, TEXT("Servers response: ResponseCode=%d Content=%s"), Response->GetResponseCode(), *Response->GetContentAsString());
-
-    if (!bWasSuccessful || Response->GetResponseCode() != 200)
-    {
-        UE_LOG(LogAdhocGameModeComponent, Log, TEXT("Servers response failure: ResponseCode=%d Content=%s"), Response->GetResponseCode(), *Response->GetContentAsString());
-        ShutdownIfNotPlayInEditor();
-        return;
-    }
-
-    const auto& Reader = TJsonReaderFactory<>::Create(Response->GetContentAsString());
-    TArray<TSharedPtr<FJsonValue>> JsonValues;
-    if (!FJsonSerializer::Deserialize(Reader, JsonValues))
-    {
-        UE_LOG(LogAdhocGameModeComponent, Log, TEXT("Failed to deserialize get servers response: Content=%s"), *Response->GetContentAsString());
-        ShutdownIfNotPlayInEditor();
-        return;
-    }
-
-    TArray<FAdhocServerState> Servers;
-    Servers.SetNum(JsonValues.Num());
-
-    for (int i = 0; i < Servers.Num(); i++)
-    {
-        const TSharedPtr<FJsonObject> JsonObject = JsonValues[i]->AsObject();
-
-        Servers[i].ID = JsonObject->GetIntegerField("id");
-        Servers[i].Name = JsonObject->GetStringField("name");
-        // Servers[i].HostingType = NewServer->GetStringField("hostingType");
-        Servers[i].Status = JsonObject->GetStringField("status");
-        JsonObject->TryGetStringField("privateIP", Servers[i].PrivateIP);
-        JsonObject->TryGetStringField("publicIP", Servers[i].PublicIP);
-        JsonObject->TryGetNumberField("publicWebSocketPort", Servers[i].PublicWebSocketPort);
-        Servers[i].RegionID = JsonObject->GetIntegerField("regionId");
-        for (auto& AreaIDValue : JsonObject->GetArrayField("areaIds"))
-        {
-            Servers[i].AreaIDs.AddUnique(AreaIDValue->AsNumber());
-        }
-        for (auto& AreaIndexValue : JsonObject->GetArrayField("areaIndexes"))
-        {
-            Servers[i].AreaIndexes.AddUnique(AreaIndexValue->AsNumber());
-        }
-
-        // if it is my server ID - what areas are assigned to this server?
-        if (AdhocGameState->GetServerID() == Servers[i].ID)
-        {
-            SetActiveAreas(Servers[i].RegionID, Servers[i].AreaIndexes);
-        }
-    }
-
-    AdhocGameState->SetServers(Servers);
-}
-
-void UAdhocGameModeComponent::OnAreasResponse(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
-{
-    UE_LOG(LogAdhocGameModeComponent, Log, TEXT("Areas response: ResponseCode=%d Content=%s"), Response->GetResponseCode(), *Response->GetContentAsString());
-
-    if (!bWasSuccessful || Response->GetResponseCode() != 200)
-    {
-        UE_LOG(LogAdhocGameModeComponent, Log, TEXT("Areas response failure: ResponseCode=%d Content=%s"), Response->GetResponseCode(), *Response->GetContentAsString());
-        ShutdownIfNotPlayInEditor();
-        return;
-    }
-
-    const auto& Reader = TJsonReaderFactory<>::Create(Response->GetContentAsString());
-    TArray<TSharedPtr<FJsonValue>> JsonValues;
-    if (!FJsonSerializer::Deserialize(Reader, JsonValues))
-    {
-        UE_LOG(LogAdhocGameModeComponent, Log, TEXT("Failed to deserialize areas response: %s"), *Response->GetContentAsString());
-        ShutdownIfNotPlayInEditor();
-        return;
-    }
-
-    TArray<FAdhocAreaState> Areas;
-    Areas.SetNum(JsonValues.Num());
-
-    for (int i = 0; i < Areas.Num(); i++)
-    {
-        const TSharedPtr<FJsonObject> JsonObject = JsonValues[i]->AsObject();
-
-        Areas[i].ID = JsonObject->GetIntegerField("id");
-        Areas[i].RegionID = JsonObject->GetIntegerField("regionId");
-        Areas[i].Index = JsonObject->GetIntegerField("index");
-        Areas[i].Name = JsonObject->GetStringField("name");
-        JsonObject->TryGetNumberField("serverId", Areas[i].ServerID);
-
-        // // any area actors in this region should be updated with IDs etc.
-        // if (Areas[i].RegionID == AdhocGameState->GetRegionID())
-        // {
-        // 	for (TActorIterator<AAreaVolume> AreaVolumeIter(GetWorld()); AreaVolumeIter; ++AreaVolumeIter)
-        // 	{
-        // 		AAreaVolume* AreaVolume = *AreaVolumeIter;
-        // 		if (AreaVolume->GetAreaIndex() == Areas[i].Index)
-        // 		{
-        // 			AreaVolume->SetAreaID(Areas[i].ID);
-        // 		}
-        // 	}
-        // }
-    }
-
-    AdhocGameState->SetAreas(Areas);
-
-    SubmitObjectives();
 }
 
 void UAdhocGameModeComponent::OnObjectivesResponse(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
