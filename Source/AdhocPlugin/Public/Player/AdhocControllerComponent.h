@@ -47,11 +47,11 @@ protected:
      * and we wish to immediately spawn them at the location they were previously at. */
     TOptional<FTransform> ImmediateSpawnTransform;
 
-public:
     DECLARE_MULTICAST_DELEGATE(FOnFriendlyNameChangedDelegate);
-    FOnFriendlyNameChangedDelegate OnFriendlyNameChangedDelegate;
-
     DECLARE_MULTICAST_DELEGATE(FOnFactionIndexChangedDelegate);
+
+public:
+    FOnFriendlyNameChangedDelegate OnFriendlyNameChangedDelegate;
     FOnFactionIndexChangedDelegate OnFactionIndexChangedDelegate;
 
 protected:

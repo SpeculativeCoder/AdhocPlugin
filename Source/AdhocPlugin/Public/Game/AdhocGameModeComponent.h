@@ -36,16 +36,6 @@ class ADHOCPLUGIN_API UAdhocGameModeComponent : public UActorComponent
 {
     GENERATED_BODY()
 
-    DECLARE_MULTICAST_DELEGATE_TwoParams(FOnObjectiveTakenEventDelegate, FAdhocObjectiveState& OutObjective, FAdhocFactionState& Faction);
-    DECLARE_MULTICAST_DELEGATE_TwoParams(FOnUserDefeatedUserEventDelegate, AController* Controller, AController* DefeatedController);
-    DECLARE_MULTICAST_DELEGATE_OneParam(FOnStaggeredEmissionDelegate, const FAdhocEmission& Emission);
-
-public:
-    FOnObjectiveTakenEventDelegate OnObjectiveTakenEventDelegate;
-    FOnUserDefeatedUserEventDelegate OnUserDefeatedUserEventDelegate;
-    FOnStaggeredEmissionDelegate OnStaggeredEmissionDelegate;
-
-private:
     UPROPERTY()
     class AGameModeBase* GameMode;
 
@@ -81,6 +71,15 @@ private:
     TArray<FAdhocEmission> RecentEmissions;
 #endif
 #endif
+
+    DECLARE_MULTICAST_DELEGATE_TwoParams(FOnObjectiveTakenEventDelegate, FAdhocObjectiveState& OutObjective, FAdhocFactionState& Faction);
+    DECLARE_MULTICAST_DELEGATE_TwoParams(FOnUserDefeatedUserEventDelegate, AController* Controller, AController* DefeatedController);
+    DECLARE_MULTICAST_DELEGATE_OneParam(FOnStaggeredEmissionDelegate, const FAdhocEmission& Emission);
+
+public:
+    FOnObjectiveTakenEventDelegate OnObjectiveTakenEventDelegate;
+    FOnUserDefeatedUserEventDelegate OnUserDefeatedUserEventDelegate;
+    FOnStaggeredEmissionDelegate OnStaggeredEmissionDelegate;
 
     UAdhocGameModeComponent();
 
