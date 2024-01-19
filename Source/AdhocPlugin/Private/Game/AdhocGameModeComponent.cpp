@@ -31,7 +31,7 @@
 #include "Player/AdhocPlayerStateComponent.h"
 #include "Server/AdhocServerState.h"
 #include "EngineUtils.h"
-#include "Bot/AdhocAIControllerComponent.h"
+#include "AI/AdhocAIControllerComponent.h"
 #include "GameFramework/GameSession.h"
 #include "GameFramework/GameStateBase.h"
 #include "GameFramework/PlayerState.h"

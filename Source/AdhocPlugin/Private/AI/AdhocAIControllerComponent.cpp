@@ -18,7 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "Bot/AdhocAIControllerComponent.h"
+#include "AI/AdhocAIControllerComponent.h"
 
 #include "Game/AdhocGameModeComponent.h"
 

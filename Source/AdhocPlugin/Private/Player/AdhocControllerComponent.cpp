@@ -18,7 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "User/AdhocControllerComponent.h"
+#include "Player/AdhocControllerComponent.h"
 
 #include "Game/AdhocGameModeComponent.h"
 #include "GameFramework/GameModeBase.h"

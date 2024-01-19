@@ -22,7 +22,7 @@
 
 #include "AIController.h"
 #include "EngineUtils.h"
-#include "Bot/AdhocAIControllerComponent.h"
+#include "AI/AdhocAIControllerComponent.h"
 #include "Game/AdhocGameModeComponent.h"
 #include "Game/AdhocGameStateComponent.h"
 #include "GameFramework/Controller.h"
@@ -32,7 +32,7 @@
 #include "GameFramework/PlayerState.h"
 #include "GameFramework/SpectatorPawn.h"
 #include "Pawn/AdhocPawnComponent.h"
-#include "User/AdhocControllerComponent.h"
+#include "Player/AdhocControllerComponent.h"
 #include "Player/AdhocPlayerControllerComponent.h"
 #include "Player/AdhocPlayerStateComponent.h"
 
@@ -108,7 +108,7 @@ void UAdhocGameEngineSubsystem::OnActorPreSpawnInitialization(AActor* Actor) con
         {
             UAdhocPawnComponent* AdhocPawnComponent = NewObject<UAdhocPawnComponent>(Actor, UAdhocPawnComponent::StaticClass(), UAdhocPawnComponent::StaticClass()->GetFName());
 
-            //AdhocPawnComponent->RegisterComponent();
+            // AdhocPawnComponent->RegisterComponent();
         }
     }
     else if (Actor->IsA(APlayerController::StaticClass()))
@@ -119,7 +119,7 @@ void UAdhocGameEngineSubsystem::OnActorPreSpawnInitialization(AActor* Actor) con
         {
             UAdhocPlayerControllerComponent* AdhocPlayerControllerComponent = NewObject<UAdhocPlayerControllerComponent>(Actor, UAdhocPlayerControllerComponent::StaticClass(), UAdhocPlayerControllerComponent::StaticClass()->GetFName());
 
-            //AdhocPlayerControllerComponent->RegisterComponent();
+            // AdhocPlayerControllerComponent->RegisterComponent();
         }
     }
     else if (Actor->IsA(AAIController::StaticClass()))
@@ -130,7 +130,7 @@ void UAdhocGameEngineSubsystem::OnActorPreSpawnInitialization(AActor* Actor) con
         {
             UAdhocAIControllerComponent* AdhocBotControllerComponent = NewObject<UAdhocAIControllerComponent>(Actor, UAdhocAIControllerComponent::StaticClass(), UAdhocAIControllerComponent::StaticClass()->GetFName());
 
-            //AdhocBotControllerComponent->RegisterComponent();
+            // AdhocBotControllerComponent->RegisterComponent();
         }
     }
     // else if (Actor->IsA(AController::StaticClass()))
@@ -152,7 +152,7 @@ void UAdhocGameEngineSubsystem::OnActorPreSpawnInitialization(AActor* Actor) con
         {
             UAdhocPlayerStateComponent* AdhocPlayerStateComponent = NewObject<UAdhocPlayerStateComponent>(Actor, UAdhocPlayerStateComponent::StaticClass(), UAdhocPlayerStateComponent::StaticClass()->GetFName());
 
-            //AdhocPlayerStateComponent->RegisterComponent();
+            // AdhocPlayerStateComponent->RegisterComponent();
         }
     }
     else if (Actor->IsA(AGameStateBase::StaticClass()))
@@ -163,7 +163,7 @@ void UAdhocGameEngineSubsystem::OnActorPreSpawnInitialization(AActor* Actor) con
         {
             UAdhocGameStateComponent* AdhocGameStateComponent = NewObject<UAdhocGameStateComponent>(Actor, UAdhocGameStateComponent::StaticClass(), UAdhocGameStateComponent::StaticClass()->GetFName());
 
-            //AdhocGameStateComponent->RegisterComponent();
+            // AdhocGameStateComponent->RegisterComponent();
         }
     }
     else if (Actor->IsA(AGameModeBase::StaticClass()))
@@ -174,7 +174,7 @@ void UAdhocGameEngineSubsystem::OnActorPreSpawnInitialization(AActor* Actor) con
         {
             UAdhocGameModeComponent* AdhocGameModeComponent = NewObject<UAdhocGameModeComponent>(Actor, UAdhocGameModeComponent::StaticClass(), UAdhocGameModeComponent::StaticClass()->GetFName());
 
-            //AdhocGameModeComponent->RegisterComponent();
+            // AdhocGameModeComponent->RegisterComponent();
         }
     }
 }

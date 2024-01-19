@@ -21,7 +21,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "User/AdhocControllerComponent.h"
+#include "Player/AdhocControllerComponent.h"
 
 #include "AdhocAIControllerComponent.generated.h"
 
