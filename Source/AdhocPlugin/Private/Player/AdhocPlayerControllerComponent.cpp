@@ -20,8 +20,6 @@
 
 #include "Player/AdhocPlayerControllerComponent.h"
 
-#include "Net/UnrealNetwork.h"
-
 UAdhocPlayerControllerComponent::UAdhocPlayerControllerComponent(const FObjectInitializer& ObjectInitializer)
     : Super(ObjectInitializer)
 {

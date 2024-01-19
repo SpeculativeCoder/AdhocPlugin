@@ -31,13 +31,6 @@ class ADHOCPLUGIN_API UAdhocControllerComponent : public UActorComponent
 {
     GENERATED_BODY()
 
-public:
-    DECLARE_MULTICAST_DELEGATE(FOnFriendlyNameChangedDelegate);
-    DECLARE_MULTICAST_DELEGATE(FOnFactionIndexChangedDelegate);
-
-    FOnFriendlyNameChangedDelegate OnFriendlyNameChangedDelegate;
-    FOnFactionIndexChangedDelegate OnFactionIndexChangedDelegate;
-
 protected:
     int64 UserID = -1;
 
@@ -54,29 +47,37 @@ protected:
      * and we wish to immediately spawn them at the location they were previously at. */
     TOptional<FTransform> ImmediateSpawnTransform;
 
+public:
+    DECLARE_MULTICAST_DELEGATE(FOnFriendlyNameChangedDelegate);
+    FOnFriendlyNameChangedDelegate OnFriendlyNameChangedDelegate;
+
+    DECLARE_MULTICAST_DELEGATE(FOnFactionIndexChangedDelegate);
+    FOnFactionIndexChangedDelegate OnFactionIndexChangedDelegate;
+
+protected:
     explicit UAdhocControllerComponent(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
-    virtual void InitializeComponent() override;
-
 public:
-    FORCEINLINE AController* GetController() const { return GetOwner<AController>(); }
-
-    class UAdhocGameModeComponent* GetAdhocGameModeChecked();
-
     FORCEINLINE int64 GetUserID() const { return UserID; }
     FORCEINLINE const FString& GetFriendlyName() const { return FriendlyName; }
-    virtual bool IsHuman() const PURE_VIRTUAL(UAdhocControllerComponent::IsHuman, return false;);
     FORCEINLINE int32 GetFactionIndex() const { return FactionIndex; }
     FORCEINLINE TOptional<FTransform> GetImmediateSpawnTransform() const { return ImmediateSpawnTransform; }
 
-    // TODO: event broadcasts? (like with name / faction)
     FORCEINLINE void SetUserID(const int64 NewUserID) { UserID = NewUserID; }
     void SetFriendlyName(const FString& NewFriendlyName);
     void SetFactionIndex(const int64 NewFactionIndex);
-    FORCEINLINE void SetImmediateSpawnTransform(const TOptional<FTransform>& NewImmediateSpawnTransform) { ImmediateSpawnTransform = NewImmediateSpawnTransform; }
     FORCEINLINE void ClearImmediateSpawnTransform() { ImmediateSpawnTransform = TOptional<FTransform>(); }
+    FORCEINLINE void SetImmediateSpawnTransform(const TOptional<FTransform>& NewImmediateSpawnTransform) { ImmediateSpawnTransform = NewImmediateSpawnTransform; }
+
+    FORCEINLINE AController* GetController() const { return GetOwner<AController>(); }
+
+    virtual bool IsHuman() const PURE_VIRTUAL(UAdhocControllerComponent::IsHuman, return false;);
+
+    class UAdhocGameModeComponent* GetAdhocGameModeChecked() const;
 
 protected:
+    virtual void InitializeComponent() override;
+
     UFUNCTION()
     void OnRep_FriendlyName(const FString& OldFriendlyName) const;
     UFUNCTION()

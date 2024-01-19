@@ -44,7 +44,7 @@ void UAdhocControllerComponent::GetLifetimeReplicatedProps(TArray<FLifetimePrope
     DOREPLIFETIME(UAdhocControllerComponent, FactionIndex);
 }
 
-UAdhocGameModeComponent* UAdhocControllerComponent::GetAdhocGameModeChecked()
+UAdhocGameModeComponent* UAdhocControllerComponent::GetAdhocGameModeChecked() const
 {
     const UWorld* World = GetWorld();
     check(World);
