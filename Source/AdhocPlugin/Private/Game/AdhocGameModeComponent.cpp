@@ -1158,6 +1158,8 @@ void UAdhocGameModeComponent::OnObjectivesResponse(FHttpRequestPtr Request, FHtt
 
 #if WITH_ADHOC_PLUGIN_EXTRA
     SubmitStructures();
+#else
+    ServerStarted();
 #endif
 }
 
