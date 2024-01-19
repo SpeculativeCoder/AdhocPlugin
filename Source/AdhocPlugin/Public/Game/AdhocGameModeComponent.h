@@ -24,7 +24,7 @@
 #include "Faction/AdhocFactionState.h"
 #include "Objective/AdhocObjectiveState.h"
 #include "CoreMinimal.h"
-#include "AdhocEmission.h"
+#include "Emission/AdhocEmission.h"
 #include "Components/ActorComponent.h"
 #include "GameFramework/Controller.h"
 #include "Interfaces/IHttpRequest.h"
@@ -35,15 +35,6 @@ UCLASS(Transient)
 class ADHOCPLUGIN_API UAdhocGameModeComponent : public UActorComponent
 {
     GENERATED_BODY()
-
-    UPROPERTY()
-    class AGameModeBase* GameMode;
-
-    UPROPERTY()
-    class AGameStateBase* GameState;
-
-    UPROPERTY()
-    class UAdhocGameStateComponent* AdhocGameState;
 
 #if WITH_SERVER_CODE && !defined(__EMSCRIPTEN__)
     FString PrivateIP = TEXT("127.0.0.1");   // non-public IP of the server within its hosting service / cluster etc.
@@ -80,6 +71,14 @@ public:
     FOnObjectiveTakenEventDelegate OnObjectiveTakenEventDelegate;
     FOnUserDefeatedUserEventDelegate OnUserDefeatedUserEventDelegate;
     FOnStaggeredEmissionDelegate OnStaggeredEmissionDelegate;
+
+private:
+    UPROPERTY()
+    class AGameModeBase* GameMode;
+    UPROPERTY()
+    class AGameStateBase* GameState;
+    UPROPERTY()
+    class UAdhocGameStateComponent* AdhocGameState;
 
     UAdhocGameModeComponent();
 
