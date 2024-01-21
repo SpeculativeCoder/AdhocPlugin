@@ -418,12 +418,12 @@ void UAdhocGameModeComponent::Logout(const AController* Controller)
 
 void UAdhocGameModeComponent::BotJoin(const AAIController* BotController)
 {
-    UE_LOG(LogAdhocGameModeComponent, Log, TEXT("BotJoin: BotController=%s"), *BotController->GetName());
+    UE_LOG(LogAdhocGameModeComponent, VeryVerbose, TEXT("BotJoin: BotController=%s"), *BotController->GetName());
 
     UAdhocAIControllerComponent* AdhocBotController = Cast<UAdhocAIControllerComponent>(BotController->GetComponentByClass(UAdhocAIControllerComponent::StaticClass()));
     check(AdhocBotController);
 
-    UE_LOG(LogAdhocGameModeComponent, Log, TEXT("BotJoin: Submitting bot user join: factionIndex=%d"), AdhocBotController->GetFactionIndex());
+    UE_LOG(LogAdhocGameModeComponent, VeryVerbose, TEXT("BotJoin: Submitting bot user join: factionIndex=%d"), AdhocBotController->GetFactionIndex());
 
 #if WITH_SERVER_CODE && !defined(__EMSCRIPTEN__)
     SubmitUserJoin(AdhocBotController);
@@ -1280,14 +1280,14 @@ void UAdhocGameModeComponent::SubmitUserJoin(UAdhocControllerComponent* AdhocCon
     Request->SetHeader(BasicAuthHeaderName, BasicAuthHeaderValue);
     Request->SetContentAsString(JsonString);
 
-    UE_LOG(LogAdhocGameModeComponent, Log, TEXT("POST %s: %s"), *URL, *JsonString);
+    UE_LOG(LogAdhocGameModeComponent, Verbose, TEXT("POST %s: %s"), *URL, *JsonString);
     Request->ProcessRequest();
 }
 
 void UAdhocGameModeComponent::OnUserJoinResponse(
     FHttpRequestPtr Request, const FHttpResponsePtr Response, const bool bWasSuccessful, UAdhocControllerComponent* AdhocController, const bool bKickOnFailure)
 {
-    UE_LOG(LogAdhocGameModeComponent, Log, TEXT("User join response: ResponseCode=%d Content=%s"), Response->GetResponseCode(), *Response->GetContentAsString());
+    UE_LOG(LogAdhocGameModeComponent, Verbose, TEXT("User join response: ResponseCode=%d Content=%s"), Response->GetResponseCode(), *Response->GetContentAsString());
 
     AController* Controller = AdhocController->GetOwner<AController>();
     APlayerController* PlayerController = Cast<APlayerController>(Controller);
@@ -1307,7 +1307,7 @@ void UAdhocGameModeComponent::OnUserJoinResponse(
     TSharedPtr<FJsonObject> JsonObject;
     if (!FJsonSerializer::Deserialize(Reader, JsonObject))
     {
-        UE_LOG(LogAdhocGameModeComponent, Log, TEXT("Failed to deserialize user join response: %s"), *Response->GetContentAsString());
+        UE_LOG(LogAdhocGameModeComponent, Warning, TEXT("Failed to deserialize user join response: %s"), *Response->GetContentAsString());
         if (PlayerController && bKickOnFailure)
         {
             UE_LOG(LogAdhocGameModeComponent, Warning, TEXT("Login failure - should kick player"));
@@ -1395,7 +1395,7 @@ void UAdhocGameModeComponent::OnUserJoinResponse(
         }
     }
 
-    UE_LOG(LogAdhocGameModeComponent, Log, TEXT("User join success: UserID=%d UserName=%s UserFactionID=%d FactionIndex=%d UserToken=%s"), UserID, *UserName, UserFactionID, FactionIndex, *UserToken);
+    UE_LOG(LogAdhocGameModeComponent, Verbose, TEXT("User join success: UserID=%d UserName=%s UserFactionID=%d FactionIndex=%d UserToken=%s"), UserID, *UserName, UserFactionID, FactionIndex, *UserToken);
 
     TOptional<FTransform> ImmediateSpawnTransform = AdhocController->GetImmediateSpawnTransform();
     if (ImmediateSpawnTransform.IsSet() && Controller->HasActorBegunPlay()) // TODO: why this begun play check?
