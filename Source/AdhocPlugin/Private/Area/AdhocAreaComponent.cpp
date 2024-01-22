@@ -21,6 +21,7 @@
 #include "Area/AdhocAreaComponent.h"
 
 UAdhocAreaComponent::UAdhocAreaComponent(const FObjectInitializer& ObjectInitializer)
+    : Super(ObjectInitializer)
 {
     PrimaryComponentTick.bCanEverTick = false;
 }

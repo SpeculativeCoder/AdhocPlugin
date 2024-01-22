@@ -44,7 +44,8 @@
 
 DEFINE_LOG_CATEGORY_STATIC(LogAdhocGameModeComponent, Log, All)
 
-UAdhocGameModeComponent::UAdhocGameModeComponent()
+UAdhocGameModeComponent::UAdhocGameModeComponent(const FObjectInitializer& ObjectInitializer)
+    : Super(ObjectInitializer)
 {
     bWantsInitializeComponent = true;
     PrimaryComponentTick.bCanEverTick = false;

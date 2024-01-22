@@ -30,5 +30,5 @@ class ADHOCPLUGIN_API UAdhocObjectiveComponent : public UActorComponent
 {
     GENERATED_BODY()
 
-    UAdhocObjectiveComponent(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
+    explicit UAdhocObjectiveComponent(const FObjectInitializer& ObjectInitializer);
 };

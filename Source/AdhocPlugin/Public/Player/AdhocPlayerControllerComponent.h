@@ -34,8 +34,6 @@ class ADHOCPLUGIN_API UAdhocPlayerControllerComponent : public UAdhocControllerC
 
     FString Token;
 
-    explicit UAdhocPlayerControllerComponent(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
-
 public:
     FORCEINLINE APlayerController* GetPlayerController() const { return GetOwner<APlayerController>(); }
 
@@ -44,4 +42,7 @@ public:
     FORCEINLINE FString GetToken() const { return Token; }
 
     FORCEINLINE void SetToken(const FString& NewToken) { Token = NewToken; }
+
+private:
+    explicit UAdhocPlayerControllerComponent(const FObjectInitializer& ObjectInitializer);
 };

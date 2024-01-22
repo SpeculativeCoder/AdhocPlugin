@@ -31,7 +31,6 @@ class UAdhocObjectiveInterface : public UInterface
     GENERATED_BODY()
 };
 
-
 class IAdhocObjectiveInterface
 {
     GENERATED_BODY()

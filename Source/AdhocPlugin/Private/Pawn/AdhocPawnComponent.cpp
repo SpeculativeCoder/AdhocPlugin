@@ -23,6 +23,7 @@
 #include "Net/UnrealNetwork.h"
 
 UAdhocPawnComponent::UAdhocPawnComponent(const FObjectInitializer& ObjectInitializer)
+    : Super(ObjectInitializer)
 {
     bWantsInitializeComponent = true;
     PrimaryComponentTick.bCanEverTick = false;

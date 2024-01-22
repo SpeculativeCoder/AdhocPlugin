@@ -21,6 +21,7 @@
 #include "Objective/AdhocObjectiveComponent.h"
 
 UAdhocObjectiveComponent::UAdhocObjectiveComponent(const FObjectInitializer& ObjectInitializer)
+    : Super(ObjectInitializer)
 {
     PrimaryComponentTick.bCanEverTick = false;
 

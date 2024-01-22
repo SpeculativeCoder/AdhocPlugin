@@ -23,6 +23,7 @@
 #include "Net/UnrealNetwork.h"
 
 UAdhocGameStateComponent::UAdhocGameStateComponent(const FObjectInitializer& ObjectInitializer)
+    : Super(ObjectInitializer)
 {
     PrimaryComponentTick.bCanEverTick = false;
 

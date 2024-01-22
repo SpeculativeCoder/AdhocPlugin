@@ -6,3 +6,9 @@ indent_style = space
 indent_size = 4
 trim_trailing_whitespace = true
 insert_final_newline = true
+max_line_length = off
+
+[*.{cpp,h}]
+resharper_cpp_align_multiline_parameter = false
+resharper_cpp_align_multiline_argument = false
+resharper_align_ternary = none

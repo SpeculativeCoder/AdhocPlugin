@@ -64,10 +64,6 @@ private:
     UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = true), Replicated, ReplicatedUsing = OnRep_FactionIndex)
     int32 FactionIndex = -1;
 
-    explicit UAdhocPawnComponent(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
-
-    virtual void InitializeComponent() override;
-
 public:
     FORCEINLINE APawn* GetPawn() const { return GetOwner<APawn>(); }
 
@@ -78,10 +74,17 @@ public:
     FORCEINLINE bool IsHuman() const { return bHuman; }
     FORCEINLINE int32 GetFactionIndex() const { return FactionIndex; }
 
-    void SetFriendlyName(const FString& NewFriendlyName);
-    void SetDescription(const FString& Description);
     FORCEINLINE void SetUserID(const int64 NewUserID) { UserID = NewUserID; }
     FORCEINLINE void SetHuman(const bool bNewHuman) { bHuman = bNewHuman; }
+
+private:
+    explicit UAdhocPawnComponent(const FObjectInitializer& ObjectInitializer);
+
+    virtual void InitializeComponent() override;
+
+public:
+    void SetFriendlyName(const FString& NewFriendlyName);
+    void SetDescription(const FString& Description);
     void SetFactionIndex(const int32 NewFactionIndex);
 
 private:

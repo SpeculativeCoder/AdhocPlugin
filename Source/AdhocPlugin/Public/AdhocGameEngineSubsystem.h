@@ -31,7 +31,6 @@ class ADHOCPLUGIN_API UAdhocGameEngineSubsystem : public UEngineSubsystem
 {
     GENERATED_BODY()
 
-private:
     virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 
     void OnPostWorldCreation(UWorld* World) const;

@@ -54,18 +54,12 @@ public:
     FOnFriendlyNameChangedDelegate OnFriendlyNameChangedDelegate;
     FOnFactionIndexChangedDelegate OnFactionIndexChangedDelegate;
 
-protected:
-    explicit UAdhocControllerComponent(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
-
-public:
     FORCEINLINE int64 GetUserID() const { return UserID; }
     FORCEINLINE const FString& GetFriendlyName() const { return FriendlyName; }
     FORCEINLINE int32 GetFactionIndex() const { return FactionIndex; }
     FORCEINLINE TOptional<FTransform> GetImmediateSpawnTransform() const { return ImmediateSpawnTransform; }
 
     FORCEINLINE void SetUserID(const int64 NewUserID) { UserID = NewUserID; }
-    void SetFriendlyName(const FString& NewFriendlyName);
-    void SetFactionIndex(const int64 NewFactionIndex);
     FORCEINLINE void ClearImmediateSpawnTransform() { ImmediateSpawnTransform = TOptional<FTransform>(); }
     FORCEINLINE void SetImmediateSpawnTransform(const TOptional<FTransform>& NewImmediateSpawnTransform) { ImmediateSpawnTransform = NewImmediateSpawnTransform; }
 
@@ -73,11 +67,18 @@ public:
 
     virtual bool IsHuman() const PURE_VIRTUAL(UAdhocControllerComponent::IsHuman, return false;);
 
-    class UAdhocGameModeComponent* GetAdhocGameModeChecked() const;
-
 protected:
+    explicit UAdhocControllerComponent(const FObjectInitializer& ObjectInitializer);
+
     virtual void InitializeComponent() override;
 
+public:
+    class UAdhocGameModeComponent* GetAdhocGameModeChecked() const;
+
+    void SetFriendlyName(const FString& NewFriendlyName);
+    void SetFactionIndex(const int64 NewFactionIndex);
+
+protected:
     UFUNCTION()
     void OnRep_FriendlyName(const FString& OldFriendlyName) const;
     UFUNCTION()

@@ -25,6 +25,7 @@ static const FString EmissionCategory_Explosion(TEXT("Explosion"));
 struct FAdhocEmission
 {
     int64 ServerID;
+
     FString Category;
     FString Type;
 

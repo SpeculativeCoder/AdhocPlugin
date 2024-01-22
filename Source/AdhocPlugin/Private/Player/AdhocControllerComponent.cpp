@@ -28,6 +28,7 @@
 DEFINE_LOG_CATEGORY_STATIC(LogAdhocControllerComponent, Log, All)
 
 UAdhocControllerComponent::UAdhocControllerComponent(const FObjectInitializer& ObjectInitializer)
+    : Super(ObjectInitializer)
 {
     bWantsInitializeComponent = true;
     PrimaryComponentTick.bCanEverTick = false;
@@ -44,17 +45,6 @@ void UAdhocControllerComponent::GetLifetimeReplicatedProps(TArray<FLifetimePrope
     DOREPLIFETIME(UAdhocControllerComponent, FactionIndex);
 }
 
-UAdhocGameModeComponent* UAdhocControllerComponent::GetAdhocGameModeChecked() const
-{
-    const UWorld* World = GetWorld();
-    check(World);
-
-    const AGameModeBase* GameMode = World->GetAuthGameMode();
-    check(GameMode);
-
-    return CastChecked<UAdhocGameModeComponent>(GameMode->GetComponentByClass(UAdhocGameModeComponent::StaticClass()));
-}
-
 void UAdhocControllerComponent::InitializeComponent()
 {
     Super::InitializeComponent();
@@ -65,6 +55,17 @@ void UAdhocControllerComponent::InitializeComponent()
     UE_LOG(LogAdhocControllerComponent, Verbose, TEXT("InitializeComponent: Controller=%s"), *Controller->GetName());
 
     Controller->GetOnNewPawnNotifier().AddUObject(this, &UAdhocControllerComponent::OnNewPawn);
+}
+
+UAdhocGameModeComponent* UAdhocControllerComponent::GetAdhocGameModeChecked() const
+{
+    const UWorld* World = GetWorld();
+    check(World);
+
+    const AGameModeBase* GameMode = World->GetAuthGameMode();
+    check(GameMode);
+
+    return CastChecked<UAdhocGameModeComponent>(GameMode->GetComponentByClass(UAdhocGameModeComponent::StaticClass()));
 }
 
 void UAdhocControllerComponent::SetFriendlyName(const FString& NewFriendlyName)

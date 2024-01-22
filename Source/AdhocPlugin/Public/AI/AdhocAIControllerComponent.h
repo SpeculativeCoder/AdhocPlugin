@@ -30,12 +30,13 @@ class ADHOCPLUGIN_API UAdhocAIControllerComponent : public UAdhocControllerCompo
 {
     GENERATED_BODY()
 
-    explicit UAdhocAIControllerComponent(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
-
 public:
     FORCEINLINE class AAIController* GetAIController() const { return GetOwner<AAIController>(); }
 
     FORCEINLINE virtual bool IsHuman() const override { return false; }
+
+private:
+    explicit UAdhocAIControllerComponent(const FObjectInitializer& ObjectInitializer);
 
     virtual void InitializeComponent() override;
     virtual void BeginPlay() override;

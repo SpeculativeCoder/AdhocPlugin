@@ -25,7 +25,6 @@
 
 class FAdhocPluginModule : public IModuleInterface
 {
-private:
     virtual void StartupModule() override;
     virtual void ShutdownModule() override;
 };

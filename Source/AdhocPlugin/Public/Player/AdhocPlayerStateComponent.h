@@ -37,8 +37,6 @@ class ADHOCPLUGIN_API UAdhocPlayerStateComponent : public UActorComponent
     UPROPERTY(VisibleInstanceOnly, Replicated)
     int32 UserID = -1;
 
-    explicit UAdhocPlayerStateComponent(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
-
 public:
     FORCEINLINE class APlayerState* GetPlayerState() const { return GetOwner<APlayerState>(); }
 
@@ -47,4 +45,7 @@ public:
 
     FORCEINLINE void SetFactionIndex(const int32 NewFactionIndex) { FactionIndex = NewFactionIndex; }
     FORCEINLINE void SetUserID(const int32 NewUserID) { UserID = NewUserID; }
+
+private:
+    explicit UAdhocPlayerStateComponent(const FObjectInitializer& ObjectInitializer);
 };

@@ -44,7 +44,7 @@ struct FAdhocObjectiveState
     FString Name;
 
     UPROPERTY(BlueprintReadOnly)
-    FVector Location = FVector::ZeroVector;
+    FVector Location;
 
     UPROPERTY(BlueprintReadOnly)
     int64 InitialFactionID = -1;

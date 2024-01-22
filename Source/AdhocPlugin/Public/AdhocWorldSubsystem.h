@@ -30,7 +30,6 @@ class ADHOCPLUGIN_API UAdhocWorldSubsystem : public UWorldSubsystem
 {
     GENERATED_BODY()
 
-private:
     virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 
     virtual bool DoesSupportWorldType(EWorldType::Type WorldType) const override;

@@ -42,5 +42,5 @@ public:
     FORCEINLINE void SetAreaIndex(const int32 NewAreaIndex) { AreaIndex = NewAreaIndex; }
 
 private:
-    explicit UAdhocAreaComponent(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
+    explicit UAdhocAreaComponent(const FObjectInitializer& ObjectInitializer);
 };

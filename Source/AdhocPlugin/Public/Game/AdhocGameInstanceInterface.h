@@ -31,7 +31,6 @@ class UAdhocGameInstanceInterface : public UInterface
     GENERATED_BODY()
 };
 
-
 class ADHOCPLUGIN_API IAdhocGameInstanceInterface
 {
     GENERATED_BODY()

@@ -37,9 +37,9 @@ class ADHOCPLUGIN_API UAdhocGameModeComponent : public UActorComponent
     GENERATED_BODY()
 
 #if WITH_SERVER_CODE && !defined(__EMSCRIPTEN__)
-    FString PrivateIP = TEXT("127.0.0.1");   // non-public IP of the server within its hosting service / cluster etc.
+    FString PrivateIP = TEXT("127.0.0.1"); // non-public IP of the server within its hosting service / cluster etc.
     FString ManagerHost = TEXT("127.0.0.1"); // host which is managing this Unreal server (we will talk to and maintain web socket connection to this)
-    TArray<FString> ManagerHosts;            // IPs of other managers which we can fall back to
+    TArray<FString> ManagerHosts; // IPs of other managers which we can fall back to
 
     FString BasicAuthUsername = TEXT("server");
     FString BasicAuthPassword;
@@ -80,7 +80,7 @@ private:
     UPROPERTY()
     class UAdhocGameStateComponent* AdhocGameState;
 
-    UAdhocGameModeComponent();
+    explicit UAdhocGameModeComponent(const FObjectInitializer& ObjectInitializer);
 
     /** Handle command line options, start up modules, and set up some initial factions and control points in the game state (until we get the full info from web server). */
     virtual void InitializeComponent() override;
