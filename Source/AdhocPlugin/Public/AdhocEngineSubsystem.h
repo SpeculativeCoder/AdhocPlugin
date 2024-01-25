@@ -24,10 +24,10 @@
 #include "Subsystems/EngineSubsystem.h"
 #include "Engine/World.h"
 
-#include "AdhocGameEngineSubsystem.generated.h"
+#include "AdhocEngineSubsystem.generated.h"
 
 UCLASS(Transient)
-class ADHOCPLUGIN_API UAdhocGameEngineSubsystem : public UEngineSubsystem
+class ADHOCPLUGIN_API UAdhocEngineSubsystem : public UEngineSubsystem
 {
     GENERATED_BODY()
 

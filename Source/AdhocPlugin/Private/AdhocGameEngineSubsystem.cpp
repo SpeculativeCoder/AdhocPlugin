@@ -18,7 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "AdhocGameEngineSubsystem.h"
+#include "..\Public\AdhocEngineSubsystem.h"
 
 #include "AIController.h"
 #include "EngineUtils.h"
@@ -38,41 +38,41 @@
 
 DEFINE_LOG_CATEGORY_STATIC(LogAdhocGameEngineSubsystem, Log, All)
 
-void UAdhocGameEngineSubsystem::Initialize(FSubsystemCollectionBase& Collection)
+void UAdhocEngineSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
     Super::Initialize(Collection);
 
     UE_LOG(LogAdhocGameEngineSubsystem, Verbose, TEXT("Initialize"));
 
-    FWorldDelegates::OnPostWorldCreation.AddUObject(this, &UAdhocGameEngineSubsystem::OnPostWorldCreation);
-    FWorldDelegates::OnPreWorldInitialization.AddUObject(this, &UAdhocGameEngineSubsystem::OnPreWorldInitialization);
-    FWorldDelegates::OnPostWorldInitialization.AddUObject(this, &UAdhocGameEngineSubsystem::OnPostWorldInitialization);
-    FWorldDelegates::OnWorldInitializedActors.AddUObject(this, &UAdhocGameEngineSubsystem::OnWorldInitializedActors);
+    FWorldDelegates::OnPostWorldCreation.AddUObject(this, &UAdhocEngineSubsystem::OnPostWorldCreation);
+    FWorldDelegates::OnPreWorldInitialization.AddUObject(this, &UAdhocEngineSubsystem::OnPreWorldInitialization);
+    FWorldDelegates::OnPostWorldInitialization.AddUObject(this, &UAdhocEngineSubsystem::OnPostWorldInitialization);
+    FWorldDelegates::OnWorldInitializedActors.AddUObject(this, &UAdhocEngineSubsystem::OnWorldInitializedActors);
 
-    FGameModeEvents::OnGameModeInitializedEvent().AddUObject(this, &UAdhocGameEngineSubsystem::OnGameModeInitialized);
-    FGameModeEvents::OnGameModePreLoginEvent().AddUObject(this, &UAdhocGameEngineSubsystem::OnGameModePreLogin);
-    FGameModeEvents::OnGameModePostLoginEvent().AddUObject(this, &UAdhocGameEngineSubsystem::OnGameModePostLogin);
-    FGameModeEvents::OnGameModeLogoutEvent().AddUObject(this, &UAdhocGameEngineSubsystem::OnGameModeLogout);
+    FGameModeEvents::OnGameModeInitializedEvent().AddUObject(this, &UAdhocEngineSubsystem::OnGameModeInitialized);
+    FGameModeEvents::OnGameModePreLoginEvent().AddUObject(this, &UAdhocEngineSubsystem::OnGameModePreLogin);
+    FGameModeEvents::OnGameModePostLoginEvent().AddUObject(this, &UAdhocEngineSubsystem::OnGameModePostLogin);
+    FGameModeEvents::OnGameModeLogoutEvent().AddUObject(this, &UAdhocEngineSubsystem::OnGameModeLogout);
 }
 
 // ReSharper disable once CppParameterMayBeConstPtrOrRef
-void UAdhocGameEngineSubsystem::OnPostWorldCreation(UWorld* World) const
+void UAdhocEngineSubsystem::OnPostWorldCreation(UWorld* World) const
 {
     UE_LOG(LogAdhocGameEngineSubsystem, Verbose, TEXT("OnPostWorldCreation: World=%s"), *World->GetName());
 
-    World->OnWorldBeginPlay.AddUObject(this, &UAdhocGameEngineSubsystem::OnWorldBeginPlay, World);
-    World->AddOnActorPreSpawnInitialization(FOnActorSpawned::FDelegate::CreateUObject(this, &UAdhocGameEngineSubsystem::OnActorPreSpawnInitialization));
+    World->OnWorldBeginPlay.AddUObject(this, &UAdhocEngineSubsystem::OnWorldBeginPlay, World);
+    World->AddOnActorPreSpawnInitialization(FOnActorSpawned::FDelegate::CreateUObject(this, &UAdhocEngineSubsystem::OnActorPreSpawnInitialization));
     // World->AddOnActorSpawnedHandler(FOnActorSpawned::FDelegate::CreateUObject(this, &UAdhocGameEngineSubsystem::OnActorSpawned));
 }
 
 // ReSharper disable once CppParameterMayBeConstPtrOrRef
-void UAdhocGameEngineSubsystem::OnPreWorldInitialization(UWorld* World, const UWorld::InitializationValues InitializationValues) const
+void UAdhocEngineSubsystem::OnPreWorldInitialization(UWorld* World, const UWorld::InitializationValues InitializationValues) const
 {
     UE_LOG(LogAdhocGameEngineSubsystem, Verbose, TEXT("OnPreWorldInitialization: World=%s"), *World->GetName());
 }
 
 // ReSharper disable once CppParameterMayBeConstPtrOrRef
-void UAdhocGameEngineSubsystem::OnPostWorldInitialization(UWorld* World, UWorld::InitializationValues InitializationValues) const
+void UAdhocEngineSubsystem::OnPostWorldInitialization(UWorld* World, UWorld::InitializationValues InitializationValues) const
 {
     UE_LOG(LogAdhocGameEngineSubsystem, Verbose, TEXT("OnPostWorldInitialization: World=%s"), *World->GetName());
 
@@ -83,20 +83,20 @@ void UAdhocGameEngineSubsystem::OnPostWorldInitialization(UWorld* World, UWorld:
     }
 }
 
-void UAdhocGameEngineSubsystem::OnWorldInitializedActors(const UWorld::FActorsInitializedParams& ActorsInitializedParams) const
+void UAdhocEngineSubsystem::OnWorldInitializedActors(const UWorld::FActorsInitializedParams& ActorsInitializedParams) const
 {
     UE_LOG(LogAdhocGameEngineSubsystem, Verbose, TEXT("OnWorldInitializedActors: World=%s"), *ActorsInitializedParams.World->GetName());
 }
 
 // ReSharper disable once CppParameterMayBeConstPtrOrRef
-void UAdhocGameEngineSubsystem::OnWorldBeginPlay(UWorld* World) const
+void UAdhocEngineSubsystem::OnWorldBeginPlay(UWorld* World) const
 {
     UE_LOG(LogAdhocGameEngineSubsystem, Verbose, TEXT("OnWorldBeginPlay: World=%s"), *World->GetName());
 }
 
 // ReSharper disable once CppParameterMayBeConstPtrOrRef
 // ReSharper disable once CppMemberFunctionMayBeStatic
-void UAdhocGameEngineSubsystem::OnActorPreSpawnInitialization(AActor* Actor) const
+void UAdhocEngineSubsystem::OnActorPreSpawnInitialization(AActor* Actor) const
 {
     // UE_LOG(LogAdhocGameEngineSubsystem, VeryVerbose, TEXT("OnActorPreSpawnInitialization: Actor=%s"), *Actor->GetName());
 
@@ -180,7 +180,7 @@ void UAdhocGameEngineSubsystem::OnActorPreSpawnInitialization(AActor* Actor) con
 }
 
 // ReSharper disable once CppParameterMayBeConstPtrOrRef
-void UAdhocGameEngineSubsystem::OnActorSpawned(AActor* Actor) const
+void UAdhocEngineSubsystem::OnActorSpawned(AActor* Actor) const
 {
     UE_LOG(LogAdhocGameEngineSubsystem, Warning, TEXT("OnActorSpawned: Actor=%s"), *Actor->GetName());
 
@@ -188,19 +188,19 @@ void UAdhocGameEngineSubsystem::OnActorSpawned(AActor* Actor) const
 }
 
 // ReSharper disable once CppParameterMayBeConstPtrOrRef
-void UAdhocGameEngineSubsystem::OnGameModeInitialized(AGameModeBase* GameMode) const
+void UAdhocEngineSubsystem::OnGameModeInitialized(AGameModeBase* GameMode) const
 {
     UE_LOG(LogAdhocGameEngineSubsystem, Verbose, TEXT("OnGameModeInitialized: GameMode=%s"), *GameMode->GetName());
 }
 
 // ReSharper disable twice CppParameterMayBeConstPtrOrRef
-void UAdhocGameEngineSubsystem::OnGameModePreLogin(AGameModeBase* GameMode, const FUniqueNetIdRepl& UniqueNetId, FString& ErrorMessage) const
+void UAdhocEngineSubsystem::OnGameModePreLogin(AGameModeBase* GameMode, const FUniqueNetIdRepl& UniqueNetId, FString& ErrorMessage) const
 {
     UE_LOG(LogAdhocGameEngineSubsystem, Verbose, TEXT("OnGameModePreLogin: GameMode=%s UniqueNetId=%s ErrorMessage=%s"), *GameMode->GetName(), *UniqueNetId.ToString(), *ErrorMessage);
 }
 
 // ReSharper disable once CppParameterMayBeConstPtrOrRef
-void UAdhocGameEngineSubsystem::OnGameModePostLogin(AGameModeBase* GameMode, APlayerController* PlayerController) const
+void UAdhocEngineSubsystem::OnGameModePostLogin(AGameModeBase* GameMode, APlayerController* PlayerController) const
 {
     UE_LOG(LogAdhocGameEngineSubsystem, Verbose, TEXT("OnGameModePostLogin: GameMode=%s PlayerController=%s"), *GameMode->GetName(), *PlayerController->GetName());
 
@@ -211,7 +211,7 @@ void UAdhocGameEngineSubsystem::OnGameModePostLogin(AGameModeBase* GameMode, APl
 }
 
 // ReSharper disable once CppParameterMayBeConstPtrOrRef
-void UAdhocGameEngineSubsystem::OnGameModeLogout(AGameModeBase* GameMode, AController* Controller) const
+void UAdhocEngineSubsystem::OnGameModeLogout(AGameModeBase* GameMode, AController* Controller) const
 {
     UE_LOG(LogAdhocGameEngineSubsystem, Verbose, TEXT("OnGameModeLogout: GameMode=%s Controller=%s"), *GameMode->GetName(), *Controller->GetName());
 
