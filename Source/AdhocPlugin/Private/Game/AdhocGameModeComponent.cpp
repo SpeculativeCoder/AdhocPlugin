@@ -144,7 +144,7 @@ void UAdhocGameModeComponent::BeginPlay()
 
         // initiate stomp connection - only once we are sure this connection is established
         // will we then do an initial push/refresh all world state via REST calls etc.
-        UE_LOG(LogAdhocGameModeComponent, Log, TEXT("Initializing Stomp connection..."));
+        UE_LOG(LogAdhocGameModeComponent, Verbose, TEXT("Initializing Stomp connection..."));
 
         const FString& StompURL = FString::Printf(TEXT("ws://%s:80/ws/stomp/server"), *ManagerHost);
         StompClient = Stomp->CreateClient(StompURL, *BasicAuthHeaderValue);
@@ -171,7 +171,7 @@ void UAdhocGameModeComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 #if WITH_SERVER_CODE && !defined(__EMSCRIPTEN__)
     if (StompClient->IsConnected())
     {
-        UE_LOG(LogAdhocGameModeComponent, Log, TEXT("Stopping Stomp connection..."));
+        UE_LOG(LogAdhocGameModeComponent, Verbose, TEXT("Stopping Stomp connection..."));
         StompClient->Disconnect();
     }
 #endif
@@ -349,7 +349,7 @@ void UAdhocGameModeComponent::InitObjectiveStates() const
 
 void UAdhocGameModeComponent::PostLogin(const APlayerController* PlayerController)
 {
-    UE_LOG(LogAdhocGameModeComponent, Log, TEXT("PostLogin: PlayerController=%s"), *PlayerController->GetName());
+    UE_LOG(LogAdhocGameModeComponent, Verbose, TEXT("PostLogin: PlayerController=%s"), *PlayerController->GetName());
 
     const UNetConnection* NetConnection = PlayerController->GetNetConnection();
     const FString& RequestURL = NetConnection ? NetConnection->RequestURL : TEXT(""); // TODO (listen mode does not have connection)
@@ -358,14 +358,14 @@ void UAdhocGameModeComponent::PostLogin(const APlayerController* PlayerControlle
     int32 QuestionMarkPos = -1;
     RequestURL.FindChar(TCHAR('?'), QuestionMarkPos);
     const FString Options = QuestionMarkPos == -1 ? RequestURL : RequestURL.RightChop(QuestionMarkPos);
-    UE_LOG(LogAdhocGameModeComponent, Log, TEXT("PostLogin: Options=%s"), *Options);
+    UE_LOG(LogAdhocGameModeComponent, Verbose, TEXT("PostLogin: Options=%s"), *Options);
 
     const int64 UserID = UGameplayStatics::GetIntOption(Options, TEXT("UserID"), -1);
-    UE_LOG(LogAdhocGameModeComponent, Log, TEXT("PostLogin: UserID=%d"), UserID);
+    UE_LOG(LogAdhocGameModeComponent, Verbose, TEXT("PostLogin: UserID=%d"), UserID);
     const int64 FactionID = UGameplayStatics::GetIntOption(Options, TEXT("FactionID"), -1);
-    UE_LOG(LogAdhocGameModeComponent, Log, TEXT("PostLogin: FactionID=%d"), FactionID);
+    UE_LOG(LogAdhocGameModeComponent, Verbose, TEXT("PostLogin: FactionID=%d"), FactionID);
     const FString Token = UGameplayStatics::ParseOption(Options, TEXT("Token"));
-    UE_LOG(LogAdhocGameModeComponent, Log, TEXT("PostLogin: Token=%s"), *Token);
+    UE_LOG(LogAdhocGameModeComponent, Verbose, TEXT("PostLogin: Token=%s"), *Token);
 
     UAdhocPlayerControllerComponent* AdhocPlayerController = Cast<UAdhocPlayerControllerComponent>(PlayerController->GetComponentByClass(UAdhocPlayerControllerComponent::StaticClass()));
     check(AdhocPlayerController);
@@ -379,14 +379,14 @@ void UAdhocGameModeComponent::PostLogin(const APlayerController* PlayerControlle
         if (FactionState)
         {
             FactionIndex = FactionState->Index;
-            UE_LOG(LogAdhocGameModeComponent, Log, TEXT("PostLogin: Using faction specified in URL. FactionIndex=%d"), FactionID, FactionIndex);
+            UE_LOG(LogAdhocGameModeComponent, Verbose, TEXT("PostLogin: Using faction specified in URL. FactionIndex=%d"), FactionID, FactionIndex);
         }
     }
 
     if (FactionIndex == -1)
     {
         FactionIndex = FMath::RandRange(0, AdhocGameState->GetNumFactions() - 1);
-        UE_LOG(LogAdhocGameModeComponent, Log, TEXT("PostLogin: Picked random faction. FactionIndex=%d"), FactionID, FactionIndex);
+        UE_LOG(LogAdhocGameModeComponent, Verbose, TEXT("PostLogin: Picked random faction. FactionIndex=%d"), FactionID, FactionIndex);
     }
 
     // AdhocPlayerController->SetFriendlyName(TEXT("Anon"));
@@ -406,7 +406,7 @@ void UAdhocGameModeComponent::PostLogin(const APlayerController* PlayerControlle
     AdhocPlayerState->SetFactionIndex(AdhocPlayerController->GetFactionIndex());
 
 #if WITH_SERVER_CODE && !defined(__EMSCRIPTEN__)
-    UE_LOG(LogAdhocGameModeComponent, Log, TEXT("PostLogin: Submitting human user join: UserID=%d Token=%s"), AdhocPlayerController->GetUserID(), *AdhocPlayerController->GetToken());
+    UE_LOG(LogAdhocGameModeComponent, Verbose, TEXT("PostLogin: Submitting human user join: UserID=%d Token=%s"), AdhocPlayerController->GetUserID(), *AdhocPlayerController->GetToken());
 
     SubmitUserJoin(AdhocPlayerController);
 #endif
@@ -414,7 +414,7 @@ void UAdhocGameModeComponent::PostLogin(const APlayerController* PlayerControlle
 
 void UAdhocGameModeComponent::Logout(const AController* Controller)
 {
-    UE_LOG(LogAdhocGameModeComponent, Log, TEXT("Logout: Controller=%s"), *Controller->GetName());
+    UE_LOG(LogAdhocGameModeComponent, Verbose, TEXT("Logout: Controller=%s"), *Controller->GetName());
 }
 
 void UAdhocGameModeComponent::BotJoin(const AAIController* BotController)
@@ -433,7 +433,7 @@ void UAdhocGameModeComponent::BotJoin(const AAIController* BotController)
 
 void UAdhocGameModeComponent::BotLeave(const AAIController* BotController)
 {
-    UE_LOG(LogAdhocGameModeComponent, Log, TEXT("BotLeave: BotController=%s"), *BotController->GetName());
+    UE_LOG(LogAdhocGameModeComponent, Verbose, TEXT("BotLeave: BotController=%s"), *BotController->GetName());
 }
 
 void UAdhocGameModeComponent::ObjectiveTaken(FAdhocObjectiveState& OutObjective, FAdhocFactionState& Faction) const
@@ -545,11 +545,11 @@ void UAdhocGameModeComponent::PlayerEnterArea(APlayerController* PlayerControlle
     const APlayerState* PlayerState = PlayerController->GetPlayerState<APlayerState>();
     check(PlayerState);
 
-    UE_LOG(LogAdhocGameModeComponent, Log, TEXT("Player enter area: PlayerName=%s AreaIndex=%d"), *PlayerState->GetPlayerName(), AreaIndex);
+    UE_LOG(LogAdhocGameModeComponent, Verbose, TEXT("Player enter area: PlayerName=%s AreaIndex=%d"), *PlayerState->GetPlayerName(), AreaIndex);
 
     if (AdhocGameState->GetActiveAreaIndexes().Contains(AreaIndex))
     {
-        UE_LOG(LogAdhocGameModeComponent, Log, TEXT("Area already active on this server: PlayerName=%s AreaIndex=%d"), *PlayerState->GetPlayerName(), AreaIndex);
+        UE_LOG(LogAdhocGameModeComponent, Verbose, TEXT("Area already active on this server: PlayerName=%s AreaIndex=%d"), *PlayerState->GetPlayerName(), AreaIndex);
         return;
     }
 
@@ -606,7 +606,7 @@ void UAdhocGameModeComponent::KickPlayerIfNotPlayInEditor(APlayerController* Pla
 
 void UAdhocGameModeComponent::OnStompConnected(const FString& ProtocolVersion, const FString& SessionId, const FString& ServerString)
 {
-    UE_LOG(LogAdhocGameModeComponent, Log, TEXT("OnStompConnected: ProtocolVersion=%s SessionId=%s ServerString=%s"), *ProtocolVersion, *SessionId, *ServerString);
+    UE_LOG(LogAdhocGameModeComponent, Verbose, TEXT("OnStompConnected: ProtocolVersion=%s SessionId=%s ServerString=%s"), *ProtocolVersion, *SessionId, *ServerString);
 
     static FStompSubscriptionEvent StompSubscriptionEvent;
     static FStompRequestCompleted StompRequestCompleted;
@@ -623,7 +623,7 @@ void UAdhocGameModeComponent::OnStompConnected(const FString& ProtocolVersion, c
 
 void UAdhocGameModeComponent::OnStompClosed(const FString& Reason) const
 {
-    UE_LOG(LogAdhocGameModeComponent, Log, TEXT("OnStompClosed: Reason=%s"), *Reason);
+    UE_LOG(LogAdhocGameModeComponent, Verbose, TEXT("OnStompClosed: Reason=%s"), *Reason);
 
     if (GetNetMode() == NM_DedicatedServer)
     {
@@ -634,7 +634,7 @@ void UAdhocGameModeComponent::OnStompClosed(const FString& Reason) const
 
 void UAdhocGameModeComponent::OnStompConnectionError(const FString& Error) const
 {
-    UE_LOG(LogAdhocGameModeComponent, Log, TEXT("OnStompClientConnectionError: Error=%s"), *Error);
+    UE_LOG(LogAdhocGameModeComponent, Warning, TEXT("OnStompClientConnectionError: Error=%s"), *Error);
 
     if (GetNetMode() == NM_DedicatedServer)
     {
@@ -645,7 +645,7 @@ void UAdhocGameModeComponent::OnStompConnectionError(const FString& Error) const
 
 void UAdhocGameModeComponent::OnStompError(const FString& Error) const
 {
-    UE_LOG(LogAdhocGameModeComponent, Log, TEXT("OnStompClientError: Error=%s"), *Error);
+    UE_LOG(LogAdhocGameModeComponent, Warning, TEXT("OnStompClientError: Error=%s"), *Error);
 
     if (GetNetMode() == NM_DedicatedServer)
     {
@@ -656,7 +656,7 @@ void UAdhocGameModeComponent::OnStompError(const FString& Error) const
 
 void UAdhocGameModeComponent::OnStompRequestCompleted(bool bSuccess, const FString& Error) const
 {
-    UE_LOG(LogAdhocGameModeComponent, Log, TEXT("OnStompRequestCompleted: bSuccess=%d Error=%s"), bSuccess, *Error);
+    UE_LOG(LogAdhocGameModeComponent, Verbose, TEXT("OnStompRequestCompleted: bSuccess=%d Error=%s"), bSuccess, *Error);
 
     if (!bSuccess && GetNetMode() == NM_DedicatedServer)
     {
@@ -677,7 +677,7 @@ void UAdhocGameModeComponent::OnStompSubscriptionEvent(const IStompMessage& Mess
         return;
     }
     const FString EventType = JsonObject->GetStringField("eventType");
-    // UE_LOG(LogAdhocGameModeComponent, Log, TEXT("OnStompSubscriptionEvent: eventType=%s"), *eventType);
+    // UE_LOG(LogAdhocGameModeComponent, Verbose, TEXT("OnStompSubscriptionEvent: eventType=%s"), *eventType);
 
     if (EventType.Equals(TEXT("ObjectiveTaken")))
     {
@@ -791,13 +791,13 @@ void UAdhocGameModeComponent::RetrieveFactions()
     Request->SetVerb("GET");
     Request->SetHeader(BasicAuthHeaderName, BasicAuthHeaderValue);
 
-    UE_LOG(LogAdhocGameModeComponent, Log, TEXT("GET %s"), *URL);
+    UE_LOG(LogAdhocGameModeComponent, Verbose, TEXT("GET %s"), *URL);
     Request->ProcessRequest();
 }
 
 void UAdhocGameModeComponent::OnFactionsResponse(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful) const
 {
-    UE_LOG(LogAdhocGameModeComponent, Log, TEXT("Factions response: ResponseCode=%d Content=%s"), Response->GetResponseCode(), *Response->GetContentAsString());
+    UE_LOG(LogAdhocGameModeComponent, Verbose, TEXT("Factions response: ResponseCode=%d Content=%s"), Response->GetResponseCode(), *Response->GetContentAsString());
 
     if (!bWasSuccessful || Response->GetResponseCode() != 200)
     {
@@ -810,7 +810,7 @@ void UAdhocGameModeComponent::OnFactionsResponse(FHttpRequestPtr Request, FHttpR
     TArray<TSharedPtr<FJsonValue>> JsonValues;
     if (!FJsonSerializer::Deserialize(Reader, JsonValues))
     {
-        UE_LOG(LogAdhocGameModeComponent, Log, TEXT("Failed to deserialize factions response: Content=%s"), *Response->GetContentAsString());
+        UE_LOG(LogAdhocGameModeComponent, Warning, TEXT("Failed to deserialize factions response: Content=%s"), *Response->GetContentAsString());
         ShutdownIfNotPlayInEditor();
         return;
     }
@@ -840,17 +840,17 @@ void UAdhocGameModeComponent::RetrieveServers()
     Request->SetVerb("GET");
     Request->SetHeader(BasicAuthHeaderName, BasicAuthHeaderValue);
 
-    UE_LOG(LogAdhocGameModeComponent, Log, TEXT("GET %s"), *URL);
+    UE_LOG(LogAdhocGameModeComponent, Verbose, TEXT("GET %s"), *URL);
     Request->ProcessRequest();
 }
 
 void UAdhocGameModeComponent::OnServersResponse(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful) const
 {
-    UE_LOG(LogAdhocGameModeComponent, Log, TEXT("Servers response: ResponseCode=%d Content=%s"), Response->GetResponseCode(), *Response->GetContentAsString());
+    UE_LOG(LogAdhocGameModeComponent, Verbose, TEXT("Servers response: ResponseCode=%d Content=%s"), Response->GetResponseCode(), *Response->GetContentAsString());
 
     if (!bWasSuccessful || Response->GetResponseCode() != 200)
     {
-        UE_LOG(LogAdhocGameModeComponent, Log, TEXT("Servers response failure: ResponseCode=%d Content=%s"), Response->GetResponseCode(), *Response->GetContentAsString());
+        UE_LOG(LogAdhocGameModeComponent, Warning, TEXT("Servers response failure: ResponseCode=%d Content=%s"), Response->GetResponseCode(), *Response->GetContentAsString());
         ShutdownIfNotPlayInEditor();
         return;
     }
@@ -859,7 +859,7 @@ void UAdhocGameModeComponent::OnServersResponse(FHttpRequestPtr Request, FHttpRe
     TArray<TSharedPtr<FJsonValue>> JsonValues;
     if (!FJsonSerializer::Deserialize(Reader, JsonValues))
     {
-        UE_LOG(LogAdhocGameModeComponent, Log, TEXT("Failed to deserialize get servers response: Content=%s"), *Response->GetContentAsString());
+        UE_LOG(LogAdhocGameModeComponent, Warning, TEXT("Failed to deserialize get servers response: Content=%s"), *Response->GetContentAsString());
         ShutdownIfNotPlayInEditor();
         return;
     }
@@ -935,17 +935,17 @@ void UAdhocGameModeComponent::SubmitAreas()
     Request->SetHeader(BasicAuthHeaderName, BasicAuthHeaderValue);
     Request->SetContentAsString(JsonString);
 
-    UE_LOG(LogAdhocGameModeComponent, Log, TEXT("PUT %s: %s"), *URL, *JsonString);
+    UE_LOG(LogAdhocGameModeComponent, Verbose, TEXT("PUT %s: %s"), *URL, *JsonString);
     Request->ProcessRequest();
 }
 
 void UAdhocGameModeComponent::OnAreasResponse(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
 {
-    UE_LOG(LogAdhocGameModeComponent, Log, TEXT("Areas response: ResponseCode=%d Content=%s"), Response->GetResponseCode(), *Response->GetContentAsString());
+    UE_LOG(LogAdhocGameModeComponent, Verbose, TEXT("Areas response: ResponseCode=%d Content=%s"), Response->GetResponseCode(), *Response->GetContentAsString());
 
     if (!bWasSuccessful || Response->GetResponseCode() != 200)
     {
-        UE_LOG(LogAdhocGameModeComponent, Log, TEXT("Areas response failure: ResponseCode=%d Content=%s"), Response->GetResponseCode(), *Response->GetContentAsString());
+        UE_LOG(LogAdhocGameModeComponent, Warning, TEXT("Areas response failure: ResponseCode=%d Content=%s"), Response->GetResponseCode(), *Response->GetContentAsString());
         ShutdownIfNotPlayInEditor();
         return;
     }
@@ -954,7 +954,7 @@ void UAdhocGameModeComponent::OnAreasResponse(FHttpRequestPtr Request, FHttpResp
     TArray<TSharedPtr<FJsonValue>> JsonValues;
     if (!FJsonSerializer::Deserialize(Reader, JsonValues))
     {
-        UE_LOG(LogAdhocGameModeComponent, Log, TEXT("Failed to deserialize areas response: %s"), *Response->GetContentAsString());
+        UE_LOG(LogAdhocGameModeComponent, Warning, TEXT("Failed to deserialize areas response: %s"), *Response->GetContentAsString());
         ShutdownIfNotPlayInEditor();
         return;
     }
@@ -1081,17 +1081,17 @@ void UAdhocGameModeComponent::SubmitObjectives()
     Request->SetHeader(BasicAuthHeaderName, BasicAuthHeaderValue);
     Request->SetContentAsString(JsonString);
 
-    UE_LOG(LogAdhocGameModeComponent, Log, TEXT("PUT %s: %s"), *URL, *JsonString);
+    UE_LOG(LogAdhocGameModeComponent, Verbose, TEXT("PUT %s: %s"), *URL, *JsonString);
     Request->ProcessRequest();
 }
 
 void UAdhocGameModeComponent::OnObjectivesResponse(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
 {
-    UE_LOG(LogAdhocGameModeComponent, Log, TEXT("Objectives response: ResponseCode=%d Content=%s"), Response->GetResponseCode(), *Response->GetContentAsString());
+    UE_LOG(LogAdhocGameModeComponent, Verbose, TEXT("Objectives response: ResponseCode=%d Content=%s"), Response->GetResponseCode(), *Response->GetContentAsString());
 
     if (!bWasSuccessful || Response->GetResponseCode() != 200)
     {
-        UE_LOG(LogAdhocGameModeComponent, Log, TEXT("Objectives response failure: ResponseCode=%d Content=%s"), Response->GetResponseCode(), *Response->GetContentAsString());
+        UE_LOG(LogAdhocGameModeComponent, Warning, TEXT("Objectives response failure: ResponseCode=%d Content=%s"), Response->GetResponseCode(), *Response->GetContentAsString());
         ShutdownIfNotPlayInEditor();
         return;
     }
@@ -1100,7 +1100,7 @@ void UAdhocGameModeComponent::OnObjectivesResponse(FHttpRequestPtr Request, FHtt
     TArray<TSharedPtr<FJsonValue>> JsonValues;
     if (!FJsonSerializer::Deserialize(Reader, JsonValues))
     {
-        UE_LOG(LogAdhocGameModeComponent, Log, TEXT("Failed to deserialize objectives response: %s"), *Response->GetContentAsString());
+        UE_LOG(LogAdhocGameModeComponent, Warning, TEXT("Failed to deserialize objectives response: %s"), *Response->GetContentAsString());
         ShutdownIfNotPlayInEditor();
         return;
     }
@@ -1176,7 +1176,7 @@ void UAdhocGameModeComponent::ServerStarted() const
     Writer->WriteObjectEnd();
     Writer->Close();
 
-    UE_LOG(LogAdhocGameModeComponent, Log, TEXT("Sending: %s"), *JsonString);
+    UE_LOG(LogAdhocGameModeComponent, Verbose, TEXT("Sending: %s"), *JsonString);
     StompClient->Send("/app/ServerStarted", JsonString);
 }
 
@@ -1335,12 +1335,12 @@ void UAdhocGameModeComponent::OnUserJoinResponse(
         {
             X = -X;
 
-            UE_LOG(LogAdhocGameModeComponent, Log, TEXT("User location information: ServerID=%d X=%f Y=%f Z=%f Yaw=%f Pitch=%f"), ServerID, X, Y, Z, Yaw, Pitch);
+            UE_LOG(LogAdhocGameModeComponent, Verbose, TEXT("User location information: ServerID=%d X=%f Y=%f Z=%f Yaw=%f Pitch=%f"), ServerID, X, Y, Z, Yaw, Pitch);
 
             // TODO: kick em if wrong server? (can this even happen?)
             if (ServerID != AdhocGameState->GetServerID())
             {
-                UE_LOG(LogAdhocGameModeComponent, Log, TEXT("Location information server %d does not match this server %d!"), ServerID, AdhocGameState->GetServerID());
+                UE_LOG(LogAdhocGameModeComponent, Verbose, TEXT("Location information server %d does not match this server %d!"), ServerID, AdhocGameState->GetServerID());
             }
 
             AdhocController->SetImmediateSpawnTransform(FTransform(FRotator(Pitch, Yaw, 0), FVector(X, Y, Z)));
@@ -1404,7 +1404,7 @@ void UAdhocGameModeComponent::OnUserJoinResponse(
         const FVector ImmediateSpawnLocation = ImmediateSpawnTransform->GetLocation();
         const FRotator ImmediateSpawnRotation = ImmediateSpawnTransform->GetRotation().Rotator();
 
-        UE_LOG(LogAdhocGameModeComponent, Log, TEXT("Immediately spawning new player: X=%f Y=%f Z=%f Yaw=%f Pitch=%f Roll=%f"), ImmediateSpawnLocation.X,
+        UE_LOG(LogAdhocGameModeComponent, Verbose, TEXT("Immediately spawning new player: X=%f Y=%f Z=%f Yaw=%f Pitch=%f Roll=%f"), ImmediateSpawnLocation.X,
             ImmediateSpawnLocation.Y, ImmediateSpawnLocation.Z, ImmediateSpawnRotation.Yaw, ImmediateSpawnRotation.Pitch, ImmediateSpawnRotation.Roll);
 
         GameMode->RestartPlayer(Controller);
@@ -1449,18 +1449,18 @@ void UAdhocGameModeComponent::SubmitNavigate(UAdhocPlayerControllerComponent* Ad
     Request->SetHeader(BasicAuthHeaderName, BasicAuthHeaderValue);
     Request->SetContentAsString(JsonString);
 
-    UE_LOG(LogAdhocGameModeComponent, Log, TEXT("POST %s: %s"), *URL, *JsonString);
+    UE_LOG(LogAdhocGameModeComponent, Verbose, TEXT("POST %s: %s"), *URL, *JsonString);
     Request->ProcessRequest();
 }
 
 void UAdhocGameModeComponent::OnNavigateResponse(
     FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful, UAdhocPlayerControllerComponent* AdhocPlayerController) const
 {
-    UE_LOG(LogAdhocGameModeComponent, Log, TEXT("Navigate response: ResponseCode=%d Content=%s"), Response->GetResponseCode(), *Response->GetContentAsString());
+    UE_LOG(LogAdhocGameModeComponent, Verbose, TEXT("Navigate response: ResponseCode=%d Content=%s"), Response->GetResponseCode(), *Response->GetContentAsString());
 
     if (!bWasSuccessful || Response->GetResponseCode() != 200)
     {
-        UE_LOG(LogAdhocGameModeComponent, Log, TEXT("Navigate response failure: ResponseCode=%d Content=%s"), Response->GetResponseCode(), *Response->GetContentAsString());
+        UE_LOG(LogAdhocGameModeComponent, Warning, TEXT("Navigate response failure: ResponseCode=%d Content=%s"), Response->GetResponseCode(), *Response->GetContentAsString());
         return;
     }
 
@@ -1507,7 +1507,7 @@ void UAdhocGameModeComponent::OnNavigateResponse(
     {
         URL += FString::Printf(TEXT("?Token=%s"), *AdhocPlayerController->GetToken());
     }
-    UE_LOG(LogAdhocGameModeComponent, Log, TEXT("Player %s navigate to server %d via URL: %s"),
+    UE_LOG(LogAdhocGameModeComponent, Verbose, TEXT("Player %s navigate to server %d via URL: %s"),
         *AdhocPlayerController->GetOwner<APlayerController>()->GetPlayerState<APlayerState>()->GetPlayerName(), DestinationServerID, *URL);
 
     APlayerController* PlayerController = AdhocPlayerController->GetOwner<APlayerController>();
