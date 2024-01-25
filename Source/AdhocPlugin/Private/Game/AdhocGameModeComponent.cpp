@@ -42,7 +42,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Engine/NetConnection.h"
 
-DEFINE_LOG_CATEGORY_STATIC(LogAdhocGameModeComponent, Log, All)
+DEFINE_LOG_CATEGORY(LogAdhocGameModeComponent)
 
 UAdhocGameModeComponent::UAdhocGameModeComponent(const FObjectInitializer& ObjectInitializer)
     : Super(ObjectInitializer)

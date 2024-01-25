@@ -31,6 +31,8 @@
 
 #include "AdhocGameModeComponent.generated.h"
 
+DECLARE_LOG_CATEGORY_EXTERN(LogAdhocGameModeComponent, Log, All)
+
 UCLASS(Transient)
 class ADHOCPLUGIN_API UAdhocGameModeComponent : public UActorComponent
 {
@@ -92,7 +94,7 @@ private:
     void InitServerStates() const;
     void InitObjectiveStates() const;
 #if WITH_ADHOC_PLUGIN_EXTRA
-    void InitStructureStates();
+    void InitStructureStates() const;
 #endif
 
 public:
