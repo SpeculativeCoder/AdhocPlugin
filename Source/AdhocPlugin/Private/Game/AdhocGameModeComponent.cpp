@@ -765,6 +765,10 @@ void UAdhocGameModeComponent::OnStompSubscriptionEvent(const IStompMessage& Mess
     }
     else if (EventType.Equals(TEXT("Emissions")))
     {
+        const FString BaseTimestampString = JsonObject->GetStringField(TEXT("baseTimestamp"));
+        FDateTime BaseTimestamp;
+        FDateTime::ParseIso8601(*BaseTimestampString, BaseTimestamp); // TODO: error handling
+
         TArray<TSharedPtr<FJsonValue>> EmissionJsonValues = JsonObject->GetArrayField("emissions");
 
         TArray<FAdhocEmission> Emissions;
@@ -777,7 +781,7 @@ void UAdhocGameModeComponent::OnStompSubscriptionEvent(const IStompMessage& Mess
             Emissions.Emplace(Emission);
         }
 
-        OnEmissionsEvent(Emissions);
+        OnEmissionsEvent(BaseTimestamp, Emissions);
     }
 #endif
 }

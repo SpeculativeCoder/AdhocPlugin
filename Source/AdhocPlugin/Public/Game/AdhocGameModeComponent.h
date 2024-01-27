@@ -197,7 +197,7 @@ private:
 
     static void ExtractEmissionFromJsonObject(const TSharedPtr<FJsonObject>& JsonObject, FAdhocEmission& OutEmission);
 
-    void OnEmissionsEvent(const TArray<FAdhocEmission>& Emissions) const;
+    void OnEmissionsEvent(const FDateTime& BaseTimestamp, const TArray<FAdhocEmission>& Emissions) const;
     void OnStaggeredEmission(const FAdhocEmission Emission) const;
 #endif
 
