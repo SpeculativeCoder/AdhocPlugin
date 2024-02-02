@@ -261,7 +261,8 @@ int32 UAdhocGameStateComponent::GetNumActiveObjectivesByFactionIndex(const int32
 
     for (auto& Objective : Objectives)
     {
-        if ((Objective.AreaIndex == -1 || ActiveAreaIndexes.Contains(Objective.AreaIndex)) && Objective.FactionIndex == FactionIndex)
+        // Objective.AreaIndex == -1 ||
+        if (ActiveAreaIndexes.Contains(Objective.AreaIndex) && Objective.FactionIndex == FactionIndex)
         {
             Count++;
         }
