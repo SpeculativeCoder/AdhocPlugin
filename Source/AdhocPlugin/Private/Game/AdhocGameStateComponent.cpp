@@ -233,7 +233,7 @@ bool UAdhocGameStateComponent::IsObjectiveActiveAndTakeableByFaction(const int32
 
     return Objective
         // must be active for this server
-        && (Objective->AreaIndex == -1 || ActiveAreaIndexes.Contains(Objective->AreaIndex))
+        && ActiveAreaIndexes.Contains(Objective->AreaIndex)
         // must not already be taken by this faction
         && Objective->FactionIndex != FactionIndex
         // and either not owned by any faction yet (so totally free to take)
@@ -241,9 +241,9 @@ bool UAdhocGameStateComponent::IsObjectiveActiveAndTakeableByFaction(const int32
             // OR linked to an objective this faction already owns
             || IsObjectiveLinkedToFriendlyObjective(Objective, FactionIndex)
             // OR this faction has no active objectives at all so can take anything
-            || GetNumActiveObjectivesByFactionIndex(FactionIndex) <= 0
+            || GetNumActiveObjectivesByFactionIndex(FactionIndex) == 0
             // OR objective has no links at all so can always be taken
-            || Objective->LinkedObjectiveIndexes.Num() <= 0);
+            || Objective->LinkedObjectiveIndexes.Num() == 0);
 }
 
 // bool UAdhocGameStateComponent::IsFriendlyActiveObjectiveIndexTakeableByFactionIndex(const int32 ObjectiveIndex, const int32 FactionIndex)
