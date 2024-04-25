@@ -43,8 +43,8 @@ struct FAdhocServerState
     UPROPERTY(BlueprintReadOnly)
     TArray<int32> AreaIndexes;
 
-    UPROPERTY(BlueprintReadOnly)
-    FString Name;
+    // UPROPERTY(BlueprintReadOnly)
+    // FString Name;
 
     // UPROPERTY(BlueprintReadOnly)
     // FString HostingType;

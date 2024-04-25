@@ -280,7 +280,7 @@ void UAdhocGameModeComponent::InitServerStates() const
     Servers[0].RegionID = AdhocGameState->GetRegionID();
     // Servers[0].AreaIDs = ActiveAreaIDs;
     Servers[0].AreaIndexes = AdhocGameState->GetActiveAreaIndexes();
-    Servers[0].Name = TEXT("Server");
+    // Servers[0].Name = TEXT("Server");
     Servers[0].Status = TEXT("STARTED");
 #if WITH_SERVER_CODE && !defined(__EMSCRIPTEN__)
     Servers[0].PrivateIP = PrivateIP;
@@ -876,7 +876,7 @@ void UAdhocGameModeComponent::OnServersResponse(FHttpRequestPtr Request, FHttpRe
         const TSharedPtr<FJsonObject> JsonObject = JsonValues[i]->AsObject();
 
         Servers[i].ID = JsonObject->GetIntegerField("id");
-        Servers[i].Name = JsonObject->GetStringField("name");
+        // Servers[i].Name = JsonObject->GetStringField("name");
         // Servers[i].HostingType = NewServer->GetStringField("hostingType");
         Servers[i].Status = JsonObject->GetStringField("status");
         JsonObject->TryGetStringField("privateIP", Servers[i].PrivateIP);
@@ -1403,14 +1403,25 @@ void UAdhocGameModeComponent::OnUserJoinResponse(
     UE_LOG(LogAdhocGameModeComponent, Verbose, TEXT("User join success: UserID=%d UserName=%s UserFactionID=%d FactionIndex=%d UserToken=%s"), UserID, *UserName, UserFactionID, FactionIndex, *UserToken);
 
     TOptional<FTransform> ImmediateSpawnTransform = AdhocController->GetImmediateSpawnTransform();
-    if (ImmediateSpawnTransform.IsSet() && Controller->HasActorBegunPlay()) // TODO: why this begun play check?
+    if (ImmediateSpawnTransform.IsSet())
     {
         const FVector ImmediateSpawnLocation = ImmediateSpawnTransform->GetLocation();
         const FRotator ImmediateSpawnRotation = ImmediateSpawnTransform->GetRotation().Rotator();
 
-        UE_LOG(LogAdhocGameModeComponent, Verbose, TEXT("Immediately spawning new player: X=%f Y=%f Z=%f Yaw=%f Pitch=%f Roll=%f"), ImmediateSpawnLocation.X,
+        UE_LOG(LogAdhocGameModeComponent, Verbose, TEXT("Immediately spawning location: X=%f Y=%f Z=%f Yaw=%f Pitch=%f Roll=%f"), ImmediateSpawnLocation.X,
             ImmediateSpawnLocation.Y, ImmediateSpawnLocation.Z, ImmediateSpawnRotation.Yaw, ImmediateSpawnRotation.Pitch, ImmediateSpawnRotation.Roll);
+    }
 
+    OnUserJoinSuccess(AdhocController);
+}
+
+void UAdhocGameModeComponent::OnUserJoinSuccess(const UAdhocControllerComponent* AdhocController) const
+{
+    AController* Controller = AdhocController->GetController();
+
+    // TODO: why this begun play check?
+    if (Controller->HasActorBegunPlay())
+    {
         GameMode->RestartPlayer(Controller);
     }
 }

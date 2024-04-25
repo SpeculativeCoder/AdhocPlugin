@@ -179,6 +179,7 @@ private:
     void SubmitUserJoin(class UAdhocControllerComponent* AdhocController);
     /** When details of the user are received - update the controller to set faction etc. */
     void OnUserJoinResponse(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful, UAdhocControllerComponent* AdhocController, bool bKickOnFailure);
+    void OnUserJoinSuccess(const class UAdhocControllerComponent* AdhocController) const;
 
     void SubmitNavigate(class UAdhocPlayerControllerComponent* AdhocPlayerController, int32 AreaID) const;
     void OnNavigateResponse(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful, UAdhocPlayerControllerComponent* AdhocPlayerController) const;
