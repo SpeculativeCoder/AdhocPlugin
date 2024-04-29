@@ -65,11 +65,15 @@ class ADHOCPLUGIN_API UAdhocGameModeComponent : public UActorComponent
 #endif
 #endif
 
+    DECLARE_MULTICAST_DELEGATE_OneParam(FOnUserJoinSuccessDelegate, AController* Controller);
+    DECLARE_MULTICAST_DELEGATE_OneParam(FOnUserJoinFailureDelegate, AController* Controller);
     DECLARE_MULTICAST_DELEGATE_TwoParams(FOnObjectiveTakenEventDelegate, FAdhocObjectiveState& OutObjective, FAdhocFactionState& Faction);
     DECLARE_MULTICAST_DELEGATE_TwoParams(FOnUserDefeatedUserEventDelegate, AController* Controller, AController* DefeatedController);
     DECLARE_MULTICAST_DELEGATE_OneParam(FOnStaggeredEmissionDelegate, const FAdhocEmission& Emission);
 
 public:
+    FOnUserJoinSuccessDelegate OnUserJoinSuccessDelegate;
+    FOnUserJoinFailureDelegate OnUserJoinFailureDelegate;
     FOnObjectiveTakenEventDelegate OnObjectiveTakenEventDelegate;
     FOnUserDefeatedUserEventDelegate OnUserDefeatedUserEventDelegate;
     FOnStaggeredEmissionDelegate OnStaggeredEmissionDelegate;
@@ -179,7 +183,8 @@ private:
     void SubmitUserJoin(class UAdhocControllerComponent* AdhocController);
     /** When details of the user are received - update the controller to set faction etc. */
     void OnUserJoinResponse(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful, UAdhocControllerComponent* AdhocController, bool bKickOnFailure);
-    void OnUserJoinSuccess(const class UAdhocControllerComponent* AdhocController) const;
+    void OnUserJoinSuccess(const UAdhocControllerComponent* AdhocController) const;
+    void OnUserJoinFailure(const UAdhocControllerComponent* AdhocController) const;
 
     void SubmitNavigate(class UAdhocPlayerControllerComponent* AdhocPlayerController, int32 AreaID) const;
     void OnNavigateResponse(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful, UAdhocPlayerControllerComponent* AdhocPlayerController) const;

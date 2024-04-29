@@ -1305,6 +1305,10 @@ void UAdhocGameModeComponent::OnUserJoinResponse(
             UE_LOG(LogAdhocGameModeComponent, Warning, TEXT("Login failure - should kick player"));
             KickPlayerIfNotPlayInEditor(PlayerController, TEXT("Login failure"));
         }
+
+        // TODO
+        OnUserJoinFailure(AdhocController);
+
         return;
     }
 
@@ -1318,6 +1322,10 @@ void UAdhocGameModeComponent::OnUserJoinResponse(
             UE_LOG(LogAdhocGameModeComponent, Warning, TEXT("Login failure - should kick player"));
             KickPlayerIfNotPlayInEditor(PlayerController, TEXT("Login failure"));
         }
+
+        // TODO
+        OnUserJoinFailure(AdhocController);
+
         return;
     }
 
@@ -1419,11 +1427,14 @@ void UAdhocGameModeComponent::OnUserJoinSuccess(const UAdhocControllerComponent*
 {
     AController* Controller = AdhocController->GetController();
 
-    // TODO: why this begun play check?
-    if (Controller->HasActorBegunPlay())
-    {
-        GameMode->RestartPlayer(Controller);
-    }
+    OnUserJoinSuccessDelegate.Broadcast(Controller);
+}
+
+void UAdhocGameModeComponent::OnUserJoinFailure(const UAdhocControllerComponent* AdhocController) const
+{
+    AController* Controller = AdhocController->GetController();
+
+    OnUserJoinFailureDelegate.Broadcast(Controller);
 }
 
 void UAdhocGameModeComponent::SubmitNavigate(UAdhocPlayerControllerComponent* AdhocPlayerController, const int32 AreaID) const
