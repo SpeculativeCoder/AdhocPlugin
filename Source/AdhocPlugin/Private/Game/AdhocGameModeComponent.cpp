@@ -822,14 +822,14 @@ void UAdhocGameModeComponent::OnFactionsResponse(FHttpRequestPtr Request, FHttpR
     TArray<FAdhocFactionState> Factions;
     Factions.SetNum(JsonValues.Num());
 
-    for (int FactionID = 0; FactionID < JsonValues.Num(); FactionID++)
+    for (int i = 0; i < JsonValues.Num(); i++)
     {
-        const TSharedPtr<FJsonObject> JsonObject = JsonValues[FactionID]->AsObject();
-        Factions[FactionID].ID = JsonObject->GetIntegerField("id");
-        Factions[FactionID].Index = JsonObject->GetIntegerField("index");
-        Factions[FactionID].Name = JsonObject->GetStringField("name");
-        Factions[FactionID].Color = FColor::FromHex(JsonObject->GetStringField("color"));
-        Factions[FactionID].Score = JsonObject->GetIntegerField("score");
+        const TSharedPtr<FJsonObject> JsonObject = JsonValues[i]->AsObject();
+        Factions[i].ID = JsonObject->GetIntegerField("id");
+        Factions[i].Index = JsonObject->GetIntegerField("index");
+        Factions[i].Name = JsonObject->GetStringField("name");
+        Factions[i].Color = FColor::FromHex(JsonObject->GetStringField("color"));
+        Factions[i].Score = JsonObject->GetIntegerField("score");
     }
 
     AdhocGameState->SetFactions(Factions);

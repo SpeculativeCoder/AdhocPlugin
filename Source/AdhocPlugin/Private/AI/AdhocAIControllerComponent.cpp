@@ -19,6 +19,7 @@
 // SOFTWARE.
 
 #include "AI/AdhocAIControllerComponent.h"
+#include "TimerManager.h"
 
 #include "Game/AdhocGameModeComponent.h"
 
@@ -53,7 +54,11 @@ void UAdhocAIControllerComponent::BeginPlay()
 
     UE_LOG(LogAdhocAIControllerComponent, Verbose, TEXT("BeginPlay: AIController=%s"), *AIController->GetName());
 
-    GetAdhocGameModeChecked()->BotJoin(AIController);
+    const UWorld* World = GetWorld();
+    check(World);
+
+    // execute join on next tick to give game logic time to do any controller setup it needs
+    World->GetTimerManager().SetTimerForNextTick(FTimerDelegate::CreateUObject(GetAdhocGameModeChecked(), &UAdhocGameModeComponent::BotJoin, AIController));
 }
 
 void UAdhocAIControllerComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
