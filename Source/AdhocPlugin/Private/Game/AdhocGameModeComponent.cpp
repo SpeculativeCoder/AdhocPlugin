@@ -790,7 +790,7 @@ void UAdhocGameModeComponent::RetrieveFactions()
 {
     const auto& Request = Http->CreateRequest();
     Request->OnProcessRequestComplete().BindUObject(this, &UAdhocGameModeComponent::OnFactionsResponse);
-    const FString URL = FString::Printf(TEXT("http://%s:80/api/factions"), *ManagerHost);
+    const FString URL = FString::Printf(TEXT("http://%s:80/api/servers/%d/factions"), *ManagerHost, AdhocGameState->GetServerID());
     Request->SetURL(URL);
     Request->SetVerb("GET");
     Request->SetHeader(BasicAuthHeaderName, BasicAuthHeaderValue);
@@ -839,7 +839,7 @@ void UAdhocGameModeComponent::RetrieveServers()
 {
     const auto& Request = Http->CreateRequest();
     Request->OnProcessRequestComplete().BindUObject(this, &UAdhocGameModeComponent::OnServersResponse);
-    const FString URL = FString::Printf(TEXT("http://%s:80/api/servers"), *ManagerHost);
+    const FString URL = FString::Printf(TEXT("http://%s:80/api/servers/%d/servers"), *ManagerHost, AdhocGameState->GetServerID());
     Request->SetURL(URL);
     Request->SetVerb("GET");
     Request->SetHeader(BasicAuthHeaderName, BasicAuthHeaderValue);
