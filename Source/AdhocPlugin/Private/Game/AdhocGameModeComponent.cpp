@@ -281,7 +281,9 @@ void UAdhocGameModeComponent::InitServerStates() const
     // Servers[0].AreaIDs = ActiveAreaIDs;
     Servers[0].AreaIndexes = AdhocGameState->GetActiveAreaIndexes();
     // Servers[0].Name = TEXT("Server");
-    Servers[0].Status = TEXT("STARTED");
+    // Servers[0].Status = TEXT("STARTED");
+    Servers[0].bEnabled = true;
+    Servers[0].bActive = true;
 #if WITH_SERVER_CODE && !defined(__EMSCRIPTEN__)
     Servers[0].PrivateIP = PrivateIP;
     Servers[0].PublicIP = PrivateIP;
@@ -574,6 +576,8 @@ void UAdhocGameModeComponent::PlayerEnterArea(APlayerController* PlayerControlle
         return;
     }
 
+    // TODO: check server enabled and active
+
 #if WITH_SERVER_CODE && !defined(__EMSCRIPTEN__)
     UAdhocPlayerControllerComponent* AdhocPlayerController = CastChecked<UAdhocPlayerControllerComponent>(PlayerController->GetComponentByClass(UAdhocPlayerControllerComponent::StaticClass()));
 
@@ -698,7 +702,9 @@ void UAdhocGameModeComponent::OnStompSubscriptionEvent(const IStompMessage& Mess
     else if (EventType.Equals(TEXT("ServerUpdated")))
     {
         const int64 EventServerID = JsonObject->GetIntegerField("serverId");
-        const FString EventStatus = JsonObject->GetStringField("status");
+        // const FString EventStatus = JsonObject->GetStringField("status");
+        const bool EventEnabled = JsonObject->GetBoolField("enabled");
+        const bool EventActive = JsonObject->GetBoolField("active");
 
         FString EventPrivateIP;
         FString EventPublicIP;
@@ -722,8 +728,7 @@ void UAdhocGameModeComponent::OnStompSubscriptionEvent(const IStompMessage& Mess
             EventAreaIndexes.AddUnique(AreaIndexValue->AsNumber());
         }
 
-        OnServerUpdatedEvent(
-            EventServerID, EventRegionID, EventStatus, EventPrivateIP, EventPublicIP, EventServerPublicWebSocketPort, EventAreaIDs, EventAreaIndexes);
+        OnServerUpdatedEvent(EventServerID, EventRegionID, EventEnabled, EventActive, EventPrivateIP, EventPublicIP, EventServerPublicWebSocketPort, EventAreaIDs, EventAreaIndexes);
     }
     else if (EventType.Equals(TEXT("WorldUpdated")))
     {
@@ -878,7 +883,9 @@ void UAdhocGameModeComponent::OnServersResponse(FHttpRequestPtr Request, FHttpRe
         Servers[i].ID = JsonObject->GetIntegerField("id");
         // Servers[i].Name = JsonObject->GetStringField("name");
         // Servers[i].HostingType = NewServer->GetStringField("hostingType");
-        Servers[i].Status = JsonObject->GetStringField("status");
+        // Servers[i].Status = JsonObject->GetStringField("status");
+        Servers[i].bEnabled = JsonObject->GetBoolField("enabled");
+        Servers[i].bActive = JsonObject->GetBoolField("active");
         JsonObject->TryGetStringField("privateIP", Servers[i].PrivateIP);
         JsonObject->TryGetStringField("publicIP", Servers[i].PublicIP);
         JsonObject->TryGetNumberField("publicWebSocketPort", Servers[i].PublicWebSocketPort);
@@ -1184,7 +1191,7 @@ void UAdhocGameModeComponent::ServerStarted() const
     StompClient->Send("/app/ServerStarted", JsonString);
 }
 
-void UAdhocGameModeComponent::OnServerUpdatedEvent(int32 EventServerID, int32 EventRegionID, const FString& EventStatus, const FString& EventPrivateIP,
+void UAdhocGameModeComponent::OnServerUpdatedEvent(int32 EventServerID, int32 EventRegionID, const bool bEventEnabled, const bool bEventActive, const FString& EventPrivateIP,
     const FString& EventPublicIP, int32 EventPublicWebSocketPort, const TArray<int64>& EventAreaIDs, const TArray<int32>& EventAreaIndexes) const
 {
     FAdhocServerState* Server = AdhocGameState->FindOrInsertServerByID(EventServerID);
@@ -1196,7 +1203,9 @@ void UAdhocGameModeComponent::OnServerUpdatedEvent(int32 EventServerID, int32 Ev
 
     Server->ID = EventServerID;
     Server->RegionID = EventRegionID;
-    Server->Status = EventStatus;
+    // Server->Status = EventStatus;
+    Server->bEnabled = bEventEnabled;
+    Server->bActive = bEventActive;
     Server->PrivateIP = EventPrivateIP;
     Server->PublicIP = EventPublicIP;
     Server->PublicWebSocketPort = EventPublicWebSocketPort;

@@ -49,8 +49,13 @@ struct FAdhocServerState
     // UPROPERTY(BlueprintReadOnly)
     // FString HostingType;
 
+    // UPROPERTY(BlueprintReadOnly)
+    // FString Status;
+
     UPROPERTY(BlueprintReadOnly)
-    FString Status;
+    bool bEnabled;
+    UPROPERTY(BlueprintReadOnly)
+    bool bActive;
 
     UPROPERTY(BlueprintReadOnly)
     FString PrivateIP;
