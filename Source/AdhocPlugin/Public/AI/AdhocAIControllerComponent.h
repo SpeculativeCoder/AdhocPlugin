@@ -21,6 +21,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "AIController.h"
 #include "Player/AdhocControllerComponent.h"
 
 #include "AdhocAIControllerComponent.generated.h"
@@ -31,7 +32,7 @@ class ADHOCPLUGIN_API UAdhocAIControllerComponent : public UAdhocControllerCompo
     GENERATED_BODY()
 
 public:
-    FORCEINLINE class AAIController* GetAIController() const { return GetOwner<AAIController>(); }
+    FORCEINLINE AAIController* GetAIControllerChecked() const { return CastChecked<AAIController>(GetOwner()); }
 
     FORCEINLINE virtual bool IsHuman() const override { return false; }
 

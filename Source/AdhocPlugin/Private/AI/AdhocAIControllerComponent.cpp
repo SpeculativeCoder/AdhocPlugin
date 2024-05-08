@@ -37,8 +37,7 @@ void UAdhocAIControllerComponent::InitializeComponent()
 {
     Super::InitializeComponent();
 
-    const AAIController* AIController = GetAIController();
-    check(AIController);
+    const AAIController* AIController = GetAIControllerChecked();
 
     UE_LOG(LogAdhocAIControllerComponent, Verbose, TEXT("InitializeComponent: AIController=%s"), *AIController->GetName());
 
@@ -49,8 +48,7 @@ void UAdhocAIControllerComponent::BeginPlay()
 {
     Super::BeginPlay();
 
-    const AAIController* AIController = GetAIController();
-    check(AIController);
+    const AAIController* AIController = GetAIControllerChecked();
 
     UE_LOG(LogAdhocAIControllerComponent, Verbose, TEXT("BeginPlay: AIController=%s"), *AIController->GetName());
 
@@ -65,8 +63,7 @@ void UAdhocAIControllerComponent::EndPlay(const EEndPlayReason::Type EndPlayReas
 {
     Super::EndPlay(EndPlayReason);
 
-    const AAIController* AIController = GetAIController();
-    check(AIController);
+    const AAIController* AIController = GetAIControllerChecked();
 
     UE_LOG(LogAdhocAIControllerComponent, Verbose, TEXT("EndPlay: AIController=%s"), *AIController->GetName());
 

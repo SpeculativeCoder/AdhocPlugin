@@ -35,7 +35,7 @@ class ADHOCPLUGIN_API UAdhocPlayerControllerComponent : public UAdhocControllerC
     FString Token;
 
 public:
-    FORCEINLINE APlayerController* GetPlayerController() const { return GetOwner<APlayerController>(); }
+    FORCEINLINE APlayerController* GetPlayerControllerChecked() const { return CastChecked<APlayerController>(GetOwner()); }
 
     FORCEINLINE virtual bool IsHuman() const override { return true; }
 

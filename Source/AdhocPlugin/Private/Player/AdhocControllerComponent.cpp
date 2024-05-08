@@ -49,8 +49,7 @@ void UAdhocControllerComponent::InitializeComponent()
 {
     Super::InitializeComponent();
 
-    AController* Controller = GetController();
-    check(Controller);
+    AController* Controller = GetControllerChecked();
 
     UE_LOG(LogAdhocControllerComponent, Verbose, TEXT("InitializeComponent: Controller=%s"), *Controller->GetName());
 
@@ -104,8 +103,7 @@ void UAdhocControllerComponent::OnRep_FactionIndex(int32 OldFactionIndex) const
 
 void UAdhocControllerComponent::OnNewPawn(APawn* Pawn) const
 {
-    const AController* Controller = GetController();
-    check(Controller);
+    const AController* Controller = GetControllerChecked();
 
     UE_LOG(LogAdhocControllerComponent, VeryVerbose, TEXT("OnNewPawn: Controller=%s Pawn=%s NetNode=%d"), *Controller->GetName(), Pawn ? *Pawn->GetName() : TEXT("nullptr"), Controller->GetLocalRole());
 

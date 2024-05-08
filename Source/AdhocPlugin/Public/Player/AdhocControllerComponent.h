@@ -63,7 +63,7 @@ public:
     FORCEINLINE void ClearImmediateSpawnTransform() { ImmediateSpawnTransform = TOptional<FTransform>(); }
     FORCEINLINE void SetImmediateSpawnTransform(const TOptional<FTransform>& NewImmediateSpawnTransform) { ImmediateSpawnTransform = NewImmediateSpawnTransform; }
 
-    FORCEINLINE AController* GetController() const { return GetOwner<AController>(); }
+    FORCEINLINE AController* GetControllerChecked() const { return CastChecked<AController>(GetOwner()); }
 
     virtual bool IsHuman() const PURE_VIRTUAL(UAdhocControllerComponent::IsHuman, return false;);
 

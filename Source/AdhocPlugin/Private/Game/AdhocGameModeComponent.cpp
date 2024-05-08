@@ -1434,14 +1434,16 @@ void UAdhocGameModeComponent::OnUserJoinResponse(
 
 void UAdhocGameModeComponent::OnUserJoinSuccess(const UAdhocControllerComponent* AdhocController) const
 {
-    AController* Controller = AdhocController->GetController();
+    AController* Controller = AdhocController->GetControllerChecked();
+
+    // TODO: move more code in here
 
     OnUserJoinSuccessDelegate.Broadcast(Controller);
 }
 
 void UAdhocGameModeComponent::OnUserJoinFailure(const UAdhocControllerComponent* AdhocController) const
 {
-    AController* Controller = AdhocController->GetController();
+    AController* Controller = AdhocController->GetControllerChecked();
 
     OnUserJoinFailureDelegate.Broadcast(Controller);
 }
