@@ -12,3 +12,5 @@ max_line_length = off
 resharper_cpp_align_multiline_parameter = false
 resharper_cpp_align_multiline_argument = false
 resharper_align_ternary = none
+resharper_cpp_indent_switch_labels = true
+resharper_cpp_case_block_braces = next_line
