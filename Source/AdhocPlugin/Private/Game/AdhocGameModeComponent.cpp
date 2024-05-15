@@ -1597,6 +1597,8 @@ void UAdhocGameModeComponent::OnTimer_ServerPawns() const
         Writer->WriteValue(TEXT("x"), -(*It)->GetActorLocation().X);
         Writer->WriteValue(TEXT("y"), (*It)->GetActorLocation().Y);
         Writer->WriteValue(TEXT("z"), (*It)->GetActorLocation().Z);
+        Writer->WriteValue(TEXT("pitch"), (*It)->GetActorRotation().Pitch);
+        Writer->WriteValue(TEXT("yaw"), (*It)->GetActorRotation().Yaw);
 
         const AController* Controller = (*It)->GetController();
         const UAdhocControllerComponent* AdhocController = Controller
@@ -1616,11 +1618,12 @@ void UAdhocGameModeComponent::OnTimer_ServerPawns() const
 
         if (AdhocPawn->GetFactionIndex() != -1)
         {
-            Writer->WriteValue(TEXT("factionIndex"), AdhocPawn->GetFactionIndex());
+            const FAdhocFactionState& Faction = AdhocGameState->GetFaction(AdhocPawn->GetFactionIndex());
+            Writer->WriteValue(TEXT("factionId"), Faction.ID);
         }
         else
         {
-            Writer->WriteNull(TEXT("factionIndex"));
+            Writer->WriteNull(TEXT("factionId"));
         }
 
         Writer->WriteObjectEnd();
