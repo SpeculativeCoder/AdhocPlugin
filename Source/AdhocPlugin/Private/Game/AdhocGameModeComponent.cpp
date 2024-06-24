@@ -181,31 +181,31 @@ void UAdhocGameModeComponent::InitFactionStates() const
 {
     // set up some default factions (will be overridden once we contact the manager server)
     TArray<FAdhocFactionState> Factions;
-    Factions.SetNum(4);
+    Factions.SetNum(3);
 
     Factions[0].ID = 1;
     Factions[0].Index = 0;
     Factions[0].Name = TEXT("Alpha");
-    Factions[0].Color = FColor::FromHex(TEXT("#0088FF"));
+    Factions[0].Color = FColor::FromHex(TEXT("#FFFF00"));
     Factions[0].Score = 0;
 
     Factions[1].ID = 2;
     Factions[1].Index = 1;
     Factions[1].Name = TEXT("Beta");
-    Factions[1].Color = FColor::FromHex(TEXT("#FF2200"));
+    Factions[1].Color = FColor::FromHex(TEXT("#00AAFF"));
     Factions[1].Score = 0;
 
     Factions[2].ID = 3;
     Factions[2].Index = 2;
     Factions[2].Name = TEXT("Gamma");
-    Factions[2].Color = FColor::FromHex(TEXT("#FFFF00"));
+    Factions[2].Color = FColor::FromHex(TEXT("#AA00FF"));
     Factions[2].Score = 0;
 
-    Factions[3].ID = 4;
-    Factions[3].Index = 3;
-    Factions[3].Name = TEXT("Delta");
-    Factions[3].Color = FColor::FromHex(TEXT("#8800FF"));
-    Factions[3].Score = 0;
+    // Factions[3].ID = 4;
+    // Factions[3].Index = 3;
+    // Factions[3].Name = TEXT("Delta");
+    // Factions[3].Color = FColor::FromHex(TEXT("#FF2200"));
+    // Factions[3].Score = 0;
 
     AdhocGameState->SetFactions(Factions);
 }
