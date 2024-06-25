@@ -19,6 +19,7 @@
 // SOFTWARE.
 
 using UnrealBuildTool;
+using Tools.DotNETCommon;
 
 public class AdhocPlugin : ModuleRules
 {
@@ -26,12 +27,20 @@ public class AdhocPlugin : ModuleRules
     {
         PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
 
-        PublicDefinitions.Add("WITH_ADHOC_PLUGIN_EXTRA=0");
+        // check if AdhocPluginExtra is available
+        DirectoryReference Plugins = new DirectoryReference(PluginDirectory);
+        DirectoryReference AdhocPluginExtra = DirectoryReference.Combine(Plugins, "Source", "AdhocPlugin", "AdhocPluginExtra");
+        Log.TraceInformation("AdhocPluginExtra={0}", AdhocPluginExtra);
+
+        bool AdhocPluginExtraExists = DirectoryReference.Exists(AdhocPluginExtra);
+        Log.TraceInformation("AdhocPluginExtraExists={0}", AdhocPluginExtraExists);
+
+        PublicDefinitions.Add("WITH_ADHOC_PLUGIN_EXTRA=" + (AdhocPluginExtraExists ? "1" : "0"));
 
         PublicDependencyModuleNames.AddRange(
             new string[]
             {
-                "Core",
+                "Core"
             }
         );
 
@@ -46,7 +55,7 @@ public class AdhocPlugin : ModuleRules
                 "Stomp",
                 "WebSockets",
                 "Http",
-                "Json",
+                "Json"
             }
         );
     }
