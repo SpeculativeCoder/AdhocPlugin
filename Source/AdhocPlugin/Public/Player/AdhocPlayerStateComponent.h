@@ -31,20 +31,20 @@ class ADHOCPLUGIN_API UAdhocPlayerStateComponent : public UActorComponent
 {
     GENERATED_BODY()
 
-    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = true), Replicated)
-    int32 FactionIndex = -1;
-
     UPROPERTY(VisibleInstanceOnly, Replicated)
     int32 UserID = -1;
 
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = true), Replicated)
+    int32 FactionIndex = -1;
+
 public:
-    FORCEINLINE class APlayerState* GetPlayerState() const { return GetOwner<APlayerState>(); }
-
-    FORCEINLINE int32 GetFactionIndex() const { return FactionIndex; }
     FORCEINLINE int32 GetUserID() const { return UserID; }
+    FORCEINLINE int32 GetFactionIndex() const { return FactionIndex; }
 
-    FORCEINLINE void SetFactionIndex(const int32 NewFactionIndex) { FactionIndex = NewFactionIndex; }
     FORCEINLINE void SetUserID(const int32 NewUserID) { UserID = NewUserID; }
+    FORCEINLINE void SetFactionIndex(const int32 NewFactionIndex) { FactionIndex = NewFactionIndex; }
+
+    FORCEINLINE APlayerState* GetPlayerState() const { return GetOwner<APlayerState>(); }
 
 private:
     explicit UAdhocPlayerStateComponent(const FObjectInitializer& ObjectInitializer);

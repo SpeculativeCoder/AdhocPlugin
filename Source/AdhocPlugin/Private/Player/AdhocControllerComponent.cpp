@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2022-2024 SpeculativeCoder (https://github.com/SpeculativeCoder)
+// Copyright (c) 2022-2024 SpeculativeCoder (https://github.com/SpeculativeCoder)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -20,6 +20,7 @@
 
 #include "Player/AdhocControllerComponent.h"
 
+#include "Engine/World.h"
 #include "Game/AdhocGameModeComponent.h"
 #include "GameFramework/GameModeBase.h"
 #include "Net/UnrealNetwork.h"
@@ -49,14 +50,15 @@ void UAdhocControllerComponent::InitializeComponent()
 {
     Super::InitializeComponent();
 
-    AController* Controller = GetControllerChecked();
+    AController* Controller = GetController();
+    check(Controller);
 
     UE_LOG(LogAdhocControllerComponent, Verbose, TEXT("InitializeComponent: Controller=%s"), *Controller->GetName());
 
     Controller->GetOnNewPawnNotifier().AddUObject(this, &UAdhocControllerComponent::OnNewPawn);
 }
 
-UAdhocGameModeComponent* UAdhocControllerComponent::GetAdhocGameModeChecked() const
+UAdhocGameModeComponent* UAdhocControllerComponent::GetAdhocGameModeComponent() const
 {
     const UWorld* World = GetWorld();
     check(World);
@@ -64,7 +66,7 @@ UAdhocGameModeComponent* UAdhocControllerComponent::GetAdhocGameModeChecked() co
     const AGameModeBase* GameMode = World->GetAuthGameMode();
     check(GameMode);
 
-    return CastChecked<UAdhocGameModeComponent>(GameMode->GetComponentByClass(UAdhocGameModeComponent::StaticClass()));
+    return Cast<UAdhocGameModeComponent>(GameMode->GetComponentByClass(UAdhocGameModeComponent::StaticClass()));
 }
 
 void UAdhocControllerComponent::SetFriendlyName(const FString& NewFriendlyName)
@@ -103,7 +105,8 @@ void UAdhocControllerComponent::OnRep_FactionIndex(int32 OldFactionIndex) const
 
 void UAdhocControllerComponent::OnNewPawn(APawn* Pawn) const
 {
-    const AController* Controller = GetControllerChecked();
+    const AController* Controller = GetController();
+    check(Controller);
 
     UE_LOG(LogAdhocControllerComponent, VeryVerbose, TEXT("OnNewPawn: Controller=%s Pawn=%s NetNode=%d"), *Controller->GetName(), Pawn ? *Pawn->GetName() : TEXT("nullptr"), Controller->GetLocalRole());
 

@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2022-2024 SpeculativeCoder (https://github.com/SpeculativeCoder)
+// Copyright (c) 2022-2024 SpeculativeCoder (https://github.com/SpeculativeCoder)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -20,6 +20,7 @@
 
 #include "AI/AdhocAIControllerComponent.h"
 #include "TimerManager.h"
+#include "Engine/World.h"
 
 #include "Game/AdhocGameModeComponent.h"
 
@@ -37,7 +38,8 @@ void UAdhocAIControllerComponent::InitializeComponent()
 {
     Super::InitializeComponent();
 
-    const AAIController* AIController = GetAIControllerChecked();
+    const AAIController* AIController = GetAIController();
+    check(AIController);
 
     UE_LOG(LogAdhocAIControllerComponent, Verbose, TEXT("InitializeComponent: AIController=%s"), *AIController->GetName());
 
@@ -48,24 +50,31 @@ void UAdhocAIControllerComponent::BeginPlay()
 {
     Super::BeginPlay();
 
-    const AAIController* AIController = GetAIControllerChecked();
+    const AAIController* AIController = GetAIController();
+    check(AIController);
 
     UE_LOG(LogAdhocAIControllerComponent, Verbose, TEXT("BeginPlay: AIController=%s"), *AIController->GetName());
 
     const UWorld* World = GetWorld();
     check(World);
+    UAdhocGameModeComponent* AdhocGameModeComponent = GetAdhocGameModeComponent();
+    check(AdhocGameModeComponent);
 
     // execute join on next tick to give game logic time to do any controller setup it needs
-    World->GetTimerManager().SetTimerForNextTick(FTimerDelegate::CreateUObject(GetAdhocGameModeChecked(), &UAdhocGameModeComponent::BotJoin, AIController));
+    World->GetTimerManager().SetTimerForNextTick(FTimerDelegate::CreateUObject(AdhocGameModeComponent, &UAdhocGameModeComponent::BotJoin, AIController));
 }
 
 void UAdhocAIControllerComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
     Super::EndPlay(EndPlayReason);
 
-    const AAIController* AIController = GetAIControllerChecked();
+    const AAIController* AIController = GetAIController();
+    check(AIController);
 
     UE_LOG(LogAdhocAIControllerComponent, Verbose, TEXT("EndPlay: AIController=%s"), *AIController->GetName());
 
-    GetAdhocGameModeChecked()->BotLeave(AIController);
+    UAdhocGameModeComponent* AdhocGameModeComponent = GetAdhocGameModeComponent();
+    check(AdhocGameModeComponent);
+
+    AdhocGameModeComponent->BotLeave(AIController);
 }

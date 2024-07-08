@@ -31,6 +31,13 @@ class ADHOCPLUGIN_API UAdhocControllerComponent : public UActorComponent
 {
     GENERATED_BODY()
 
+    DECLARE_MULTICAST_DELEGATE(FOnFriendlyNameChangedDelegate);
+    DECLARE_MULTICAST_DELEGATE(FOnFactionIndexChangedDelegate);
+
+public:
+    FOnFriendlyNameChangedDelegate OnFriendlyNameChangedDelegate;
+    FOnFactionIndexChangedDelegate OnFactionIndexChangedDelegate;
+
 protected:
     int64 UserID = -1;
 
@@ -47,25 +54,19 @@ protected:
      * and we wish to immediately spawn them at the location they were previously at. */
     TOptional<FTransform> ImmediateSpawnTransform;
 
-    DECLARE_MULTICAST_DELEGATE(FOnFriendlyNameChangedDelegate);
-    DECLARE_MULTICAST_DELEGATE(FOnFactionIndexChangedDelegate);
-
 public:
-    FOnFriendlyNameChangedDelegate OnFriendlyNameChangedDelegate;
-    FOnFactionIndexChangedDelegate OnFactionIndexChangedDelegate;
-
     FORCEINLINE int64 GetUserID() const { return UserID; }
     FORCEINLINE const FString& GetFriendlyName() const { return FriendlyName; }
     FORCEINLINE int32 GetFactionIndex() const { return FactionIndex; }
     FORCEINLINE TOptional<FTransform> GetImmediateSpawnTransform() const { return ImmediateSpawnTransform; }
 
     FORCEINLINE void SetUserID(const int64 NewUserID) { UserID = NewUserID; }
-    FORCEINLINE void ClearImmediateSpawnTransform() { ImmediateSpawnTransform = TOptional<FTransform>(); }
     FORCEINLINE void SetImmediateSpawnTransform(const TOptional<FTransform>& NewImmediateSpawnTransform) { ImmediateSpawnTransform = NewImmediateSpawnTransform; }
-
-    FORCEINLINE AController* GetControllerChecked() const { return CastChecked<AController>(GetOwner()); }
+    FORCEINLINE void ClearImmediateSpawnTransform() { ImmediateSpawnTransform = TOptional<FTransform>(); }
 
     virtual bool IsHuman() const PURE_VIRTUAL(UAdhocControllerComponent::IsHuman, return false;);
+
+    FORCEINLINE AController* GetController() const { return Cast<AController>(GetOwner()); }
 
 protected:
     explicit UAdhocControllerComponent(const FObjectInitializer& ObjectInitializer);
@@ -73,7 +74,7 @@ protected:
     virtual void InitializeComponent() override;
 
 public:
-    class UAdhocGameModeComponent* GetAdhocGameModeChecked() const;
+    class UAdhocGameModeComponent* GetAdhocGameModeComponent() const;
 
     void SetFriendlyName(const FString& NewFriendlyName);
     void SetFactionIndex(const int64 NewFactionIndex);
@@ -84,6 +85,7 @@ protected:
     UFUNCTION()
     void OnRep_FactionIndex(int32 OldFactionIndex) const;
 
-    /** When possessing a pawn, we will initialize the friendly name and faction index on the pawn (this will allow the pawn to show its faction via color etc. and maybe put the name of the pawn in a nameplate etc.) */
+    /** When possessing a pawn, we will initialize the friendly name and faction index on the pawn
+     * (this will allow the pawn to show its faction via color etc. and maybe put the name of the pawn in a nameplate etc.) */
     void OnNewPawn(APawn* Pawn) const;
 };

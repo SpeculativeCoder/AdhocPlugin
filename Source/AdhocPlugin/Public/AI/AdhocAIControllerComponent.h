@@ -32,9 +32,9 @@ class ADHOCPLUGIN_API UAdhocAIControllerComponent : public UAdhocControllerCompo
     GENERATED_BODY()
 
 public:
-    FORCEINLINE AAIController* GetAIControllerChecked() const { return CastChecked<AAIController>(GetOwner()); }
-
     FORCEINLINE virtual bool IsHuman() const override { return false; }
+
+    FORCEINLINE AAIController* GetAIController() const { return GetOwner<AAIController>(); }
 
 private:
     explicit UAdhocAIControllerComponent(const FObjectInitializer& ObjectInitializer);
