@@ -1480,7 +1480,7 @@ void UAdhocGameModeComponent::SubmitNavigate(UAdhocPlayerControllerComponent* Ad
     const auto& Request = Http->CreateRequest();
     Request->OnProcessRequestComplete().BindUObject(this, &UAdhocGameModeComponent::OnNavigateResponse, AdhocPlayerController);
     const FString URL =
-        FString::Printf(TEXT("http://%s:80/api/servers/%d/userNavigate"), *ManagerHost, AdhocGameState->GetServerID(), AdhocPlayerState->GetUserID());
+        FString::Printf(TEXT("http://%s:80/api/servers/%d/userAutoNavigate"), *ManagerHost, AdhocGameState->GetServerID(), AdhocPlayerState->GetUserID());
     Request->SetURL(URL);
     Request->SetVerb("POST");
     Request->SetHeader(TEXT("Content-Type"), TEXT("application/json"));
