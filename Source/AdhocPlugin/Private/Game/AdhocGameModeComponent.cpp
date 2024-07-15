@@ -31,6 +31,7 @@
 #include "Player/AdhocPlayerStateComponent.h"
 #include "Server/AdhocServerState.h"
 #include "EngineUtils.h"
+#include "TimerManager.h"
 #include "AI/AdhocAIControllerComponent.h"
 #include "GameFramework/GameSession.h"
 #include "GameFramework/GameStateBase.h"
@@ -41,6 +42,11 @@
 #include "Runtime/Online/Stomp/Public/StompModule.h"
 #include "Kismet/GameplayStatics.h"
 #include "Engine/NetConnection.h"
+#include "Misc/Base64.h"
+#include "Policies/CondensedJsonPrintPolicy.h"
+#include "Serialization/JsonReader.h"
+#include "Serialization/JsonSerializer.h"
+#include "Serialization/JsonWriter.h"
 
 DEFINE_LOG_CATEGORY(LogAdhocGameModeComponent)
 
@@ -1344,7 +1350,7 @@ void UAdhocGameModeComponent::OnUserJoinResponse(
     const FString UserToken = JsonObject->GetStringField("token");
 
     int64 ServerID;
-    if (JsonObject->TryGetNumberField("serverID", ServerID))
+    if (JsonObject->TryGetNumberField("serverId", ServerID))
     {
         double X = 0;
         double Y = 0;
