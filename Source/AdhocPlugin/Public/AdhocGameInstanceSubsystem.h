@@ -20,7 +20,6 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
 #include "Subsystems/GameInstanceSubsystem.h"
 
 #include "AdhocGameInstanceSubsystem.generated.h"

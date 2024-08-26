@@ -18,7 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "..\Public\AdhocEngineSubsystem.h"
+#include "AdhocEngineSubsystem.h"
 
 #include "AIController.h"
 #include "EngineUtils.h"
@@ -31,6 +31,7 @@
 #include "GameFramework/PlayerController.h"
 #include "GameFramework/PlayerState.h"
 #include "GameFramework/SpectatorPawn.h"
+#include "Objective/AdhocObjectiveComponent.h"
 #include "Pawn/AdhocPawnComponent.h"
 #include "Player/AdhocControllerComponent.h"
 #include "Player/AdhocPlayerControllerComponent.h"
@@ -100,11 +101,12 @@ void UAdhocEngineSubsystem::OnActorPreSpawnInitialization(AActor* Actor) const
 {
     // UE_LOG(LogAdhocGameEngineSubsystem, VeryVerbose, TEXT("OnActorPreSpawnInitialization: Actor=%s"), *Actor->GetName());
 
-    if (Actor->IsA(APawn::StaticClass()) && !Actor->IsA(ASpectatorPawn::StaticClass()))
+    if (Actor->IsA(APawn::StaticClass())
+        && !Actor->IsA(ASpectatorPawn::StaticClass()))
     {
         UE_LOG(LogAdhocGameEngineSubsystem, VeryVerbose, TEXT("OnActorPreSpawnInitialization: Pawn=%s"), *Actor->GetName());
 
-        if (Actor->HasAuthority())
+        if (Actor->HasAuthority() && !Actor->GetComponentByClass(UAdhocPawnComponent::StaticClass()))
         {
             UAdhocPawnComponent* AdhocPawnComponent = NewObject<UAdhocPawnComponent>(Actor, UAdhocPawnComponent::StaticClass(), UAdhocPawnComponent::StaticClass()->GetFName());
 
@@ -115,7 +117,7 @@ void UAdhocEngineSubsystem::OnActorPreSpawnInitialization(AActor* Actor) const
     {
         UE_LOG(LogAdhocGameEngineSubsystem, Verbose, TEXT("OnActorPreSpawnInitialization: PlayerController=%s"), *Actor->GetName());
 
-        if (Actor->HasAuthority())
+        if (Actor->HasAuthority() && !Actor->GetComponentByClass(UAdhocPlayerControllerComponent::StaticClass()))
         {
             UAdhocPlayerControllerComponent* AdhocPlayerControllerComponent = NewObject<UAdhocPlayerControllerComponent>(Actor, UAdhocPlayerControllerComponent::StaticClass(), UAdhocPlayerControllerComponent::StaticClass()->GetFName());
 
@@ -126,29 +128,18 @@ void UAdhocEngineSubsystem::OnActorPreSpawnInitialization(AActor* Actor) const
     {
         UE_LOG(LogAdhocGameEngineSubsystem, Verbose, TEXT("OnActorPreSpawnInitialization: BotController=%s"), *Actor->GetName());
 
-        if (Actor->HasAuthority())
+        if (Actor->HasAuthority() && !Actor->GetComponentByClass(UAdhocAIControllerComponent::StaticClass()))
         {
             UAdhocAIControllerComponent* AdhocBotControllerComponent = NewObject<UAdhocAIControllerComponent>(Actor, UAdhocAIControllerComponent::StaticClass(), UAdhocAIControllerComponent::StaticClass()->GetFName());
 
             // AdhocBotControllerComponent->RegisterComponent();
         }
     }
-    // else if (Actor->IsA(AController::StaticClass()))
-    // {
-    //     UE_LOG(LogAdhocGameEngineSubsystem, Verbose, TEXT("OnActorPreSpawnInitialization: Controller=%s"), *Actor->GetName());
-    //
-    //     if (Actor->HasAuthority())
-    //     {
-    //         UAdhocControllerComponent* AdhocControllerComponent = NewObject<UAdhocControllerComponent>(Actor, UAdhocControllerComponent::StaticClass(), UAdhocControllerComponent::StaticClass()->GetFName());
-    //
-    //         //AdhocControllerComponent->RegisterComponent();
-    //     }
-    // }
     else if (Actor->IsA(APlayerState::StaticClass()))
     {
         UE_LOG(LogAdhocGameEngineSubsystem, Verbose, TEXT("OnActorPreSpawnInitialization: PlayerState=%s"), *Actor->GetName());
 
-        if (Actor->HasAuthority())
+        if (Actor->HasAuthority() && !Actor->GetComponentByClass(UAdhocPlayerStateComponent::StaticClass()))
         {
             UAdhocPlayerStateComponent* AdhocPlayerStateComponent = NewObject<UAdhocPlayerStateComponent>(Actor, UAdhocPlayerStateComponent::StaticClass(), UAdhocPlayerStateComponent::StaticClass()->GetFName());
 
@@ -159,18 +150,29 @@ void UAdhocEngineSubsystem::OnActorPreSpawnInitialization(AActor* Actor) const
     {
         UE_LOG(LogAdhocGameEngineSubsystem, Verbose, TEXT("OnActorPreSpawnInitialization: GameState=%s"), *Actor->GetName());
 
-        if (Actor->HasAuthority())
+        if (Actor->HasAuthority() && !Actor->GetComponentByClass(UAdhocGameStateComponent::StaticClass()))
         {
             UAdhocGameStateComponent* AdhocGameStateComponent = NewObject<UAdhocGameStateComponent>(Actor, UAdhocGameStateComponent::StaticClass(), UAdhocGameStateComponent::StaticClass()->GetFName());
 
             // AdhocGameStateComponent->RegisterComponent();
         }
     }
+    else if (Actor->ActorHasTag(TEXT("Adhoc_Objective")))
+    {
+        UE_LOG(LogAdhocGameEngineSubsystem, Verbose, TEXT("OnActorPreSpawnInitialization: Objective=%s"), *Actor->GetName());
+
+        if (Actor->HasAuthority() && !Actor->GetComponentByClass(UAdhocObjectiveComponent::StaticClass()))
+        {
+            UAdhocObjectiveComponent* AdhocObjectiveComponent = NewObject<UAdhocObjectiveComponent>(Actor, UAdhocObjectiveComponent::StaticClass(), UAdhocObjectiveComponent::StaticClass()->GetFName());
+
+            // AdhocObjectiveComponent->RegisterComponent();
+        }
+    }
     else if (Actor->IsA(AGameModeBase::StaticClass()))
     {
         UE_LOG(LogAdhocGameEngineSubsystem, Verbose, TEXT("OnActorPreSpawnInitialization: GameMode=%s"), *Actor->GetName());
 
-        if (Actor->HasAuthority())
+        if (Actor->HasAuthority() && !Actor->GetComponentByClass(UAdhocGameModeComponent::StaticClass()))
         {
             UAdhocGameModeComponent* AdhocGameModeComponent = NewObject<UAdhocGameModeComponent>(Actor, UAdhocGameModeComponent::StaticClass(), UAdhocGameModeComponent::StaticClass()->GetFName());
 

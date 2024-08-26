@@ -20,10 +20,125 @@
 
 #include "Objective/AdhocObjectiveComponent.h"
 
+#include "EngineUtils.h"
+#include "Area/AdhocAreaComponent.h"
+#include "Area/AdhocAreaVolume.h"
+#include "GameFramework/Actor.h"
+#include "Net/UnrealNetwork.h"
+
+/** Tag to indicate to Adhoc that an actor is an objective. */
+UE_DEFINE_GAMEPLAY_TAG(Adhoc_Objective, "Adhoc_Objective");
+
+DEFINE_LOG_CATEGORY_STATIC(LogAdhocObjectiveComponent, Log, All)
+
 UAdhocObjectiveComponent::UAdhocObjectiveComponent(const FObjectInitializer& ObjectInitializer)
     : Super(ObjectInitializer)
 {
+    bWantsInitializeComponent = true;
     PrimaryComponentTick.bCanEverTick = false;
 
-    //SetIsReplicatedByDefault(true);
+    SetIsReplicatedByDefault(true);
+    SetNetAddressable();
 }
+
+void UAdhocObjectiveComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+    Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+    DOREPLIFETIME(UAdhocObjectiveComponent, ObjectiveIndex);
+    DOREPLIFETIME(UAdhocObjectiveComponent, FactionIndex);
+}
+
+void UAdhocObjectiveComponent::InitializeComponent()
+{
+    Super::InitializeComponent();
+
+    const AActor* Objective = GetOwner();
+    check(Objective);
+
+    UE_LOG(LogAdhocObjectiveComponent, Verbose, TEXT("InitializeComponent: Objective=%s"), *Objective->GetName());
+
+    for (TActorIterator<AAdhocAreaVolume> SomeAreaVolumeIter(GetWorld()); SomeAreaVolumeIter; ++SomeAreaVolumeIter)
+    {
+        AAdhocAreaVolume* SomeAreaVolume = *SomeAreaVolumeIter;
+
+        if (SomeAreaVolume->EncompassesPoint(GetObjective()->GetActorLocation()))
+        {
+            UE_LOG(LogAdhocObjectiveComponent, Verbose, TEXT("Objective %s is within area %s"), *FriendlyName, *SomeAreaVolume->GetAdhocArea()->GetFriendlyName());
+            AreaVolume = SomeAreaVolume;
+            break;
+        }
+    }
+
+    if (!AreaVolume)
+    {
+        UE_LOG(LogAdhocObjectiveComponent, Warning, TEXT("Objective %s is not within an area!"), *FriendlyName);
+    }
+}
+
+void UAdhocObjectiveComponent::SetFactionIndex(const int32 NewFactionIndex)
+{
+    const bool bChanged = FactionIndex != NewFactionIndex;
+
+    FactionIndex = NewFactionIndex;
+
+    if (bChanged)
+    {
+        OnFactionIndexChangedDelegate.Broadcast();
+    }
+}
+
+void UAdhocObjectiveComponent::OnRep_FactionIndex(int32 OldFactionIndex) const
+{
+    OnFactionIndexChangedDelegate.Broadcast();
+}
+
+#if WITH_EDITOR
+void UAdhocObjectiveComponent::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
+{
+    Super::PostEditChangeProperty(PropertyChangedEvent);
+
+    // UE_LOG(LogTemp, Log, TEXT("Objective %s property %s change type %d"),
+    //	*GetFriendlyName(), *PropertyChangedEvent.GetPropertyName().ToString(), PropertyChangedEvent.ChangeType);
+
+    if (PropertyChangedEvent.GetPropertyName() == TEXT("LinkedObjectives"))
+    {
+        // ensure any added outgoing link also has a back-link
+        if (PropertyChangedEvent.ChangeType == EPropertyChangeType::ValueSet)
+        {
+            for (const AActor* LinkedObjective : LinkedObjectives)
+            {
+                UAdhocObjectiveComponent* LinkedAdhocObjective = Cast<UAdhocObjectiveComponent>(LinkedObjective->GetComponentByClass(UAdhocObjectiveComponent::StaticClass()));
+                check(LinkedAdhocObjective);
+                UE_LOG(LogAdhocObjectiveComponent, VeryVerbose, TEXT("Objective %s is linked to %s"), *FriendlyName, *LinkedAdhocObjective->GetFriendlyName());
+
+                if (!LinkedAdhocObjective->LinkedObjectives.Contains(GetObjective()))
+                {
+                    UE_LOG(LogAdhocObjectiveComponent, Log, TEXT("Also adding back-link from objective %s to %s"), *LinkedAdhocObjective->GetFriendlyName(), *FriendlyName);
+                    LinkedAdhocObjective->LinkedObjectives.Add(GetObjective());
+                }
+            }
+        }
+        // ensure any removed outgoing link no longer has a back-link
+        else if (PropertyChangedEvent.ChangeType == EPropertyChangeType::ArrayRemove)
+        {
+            for (TActorIterator<AActor> OtherActorIter(GetWorld()); OtherActorIter; ++OtherActorIter)
+            {
+                const AActor* OtherActor = *OtherActorIter;
+
+                UAdhocObjectiveComponent* OtherAdhocObjective = Cast<UAdhocObjectiveComponent>(OtherActor->GetComponentByClass(UAdhocObjectiveComponent::StaticClass()));
+                if (!OtherAdhocObjective)
+                {
+                    continue;
+                }
+
+                if (OtherAdhocObjective->LinkedObjectives.Contains(GetObjective()) && !LinkedObjectives.Contains(OtherActor))
+                {
+                    UE_LOG(LogAdhocObjectiveComponent, Log, TEXT("Also removing back-link from objective %s to %s"), *OtherAdhocObjective->GetFriendlyName(), *FriendlyName);
+                    OtherAdhocObjective->LinkedObjectives.Remove(GetObjective());
+                }
+            }
+        }
+    }
+}
+#endif

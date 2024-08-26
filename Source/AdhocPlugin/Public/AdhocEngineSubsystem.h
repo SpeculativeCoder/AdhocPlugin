@@ -20,7 +20,6 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
 #include "Subsystems/EngineSubsystem.h"
 #include "Engine/World.h"
 
@@ -37,7 +36,6 @@ class ADHOCPLUGIN_API UAdhocEngineSubsystem : public UEngineSubsystem
     void OnWorldInitializedActors(const UWorld::FActorsInitializedParams& ActorsInitializedParams) const;
     void OnPreWorldInitialization(UWorld* World, const UWorld::InitializationValues InitializationValues) const;
     void OnPostWorldInitialization(UWorld* World, const UWorld::InitializationValues InitializationValues) const;
-
     void OnWorldBeginPlay(UWorld* World) const;
 
     void OnActorPreSpawnInitialization(AActor* Actor) const;

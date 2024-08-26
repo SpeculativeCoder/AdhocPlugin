@@ -20,7 +20,6 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
 #include "AIController.h"
 #include "Player/AdhocControllerComponent.h"
 

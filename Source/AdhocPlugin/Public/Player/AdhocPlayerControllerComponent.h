@@ -20,9 +20,7 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
 #include "Player/AdhocControllerComponent.h"
-#include "Components/ActorComponent.h"
 #include "GameFramework/PlayerController.h"
 
 #include "AdhocPlayerControllerComponent.generated.h"

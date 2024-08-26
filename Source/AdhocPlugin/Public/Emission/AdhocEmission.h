@@ -20,6 +20,8 @@
 
 #pragma once
 
+#include "CoreMinimal.h"
+
 static const FString EmissionCategory_Explosion(TEXT("Explosion"));
 
 struct FAdhocEmission

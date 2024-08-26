@@ -55,7 +55,8 @@ public class AdhocPlugin : ModuleRules
                 "Stomp",
                 "WebSockets",
                 "Http",
-                "Json"
+                "Json",
+                "GameplayTags"
             }
         );
     }

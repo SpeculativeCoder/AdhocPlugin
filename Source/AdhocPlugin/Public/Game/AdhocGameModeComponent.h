@@ -20,13 +20,8 @@
 
 #pragma once
 
-#include "AIController.h"
-#include "Faction/AdhocFactionState.h"
-#include "Objective/AdhocObjectiveState.h"
-#include "CoreMinimal.h"
 #include "Emission/AdhocEmission.h"
 #include "Components/ActorComponent.h"
-#include "GameFramework/Controller.h"
 #include "Interfaces/IHttpRequest.h"
 
 #include "AdhocGameModeComponent.generated.h"
@@ -65,10 +60,10 @@ class ADHOCPLUGIN_API UAdhocGameModeComponent : public UActorComponent
 #endif
 #endif
 
-    DECLARE_MULTICAST_DELEGATE_OneParam(FOnUserJoinSuccessDelegate, AController* Controller);
-    DECLARE_MULTICAST_DELEGATE_OneParam(FOnUserJoinFailureDelegate, AController* Controller);
-    DECLARE_MULTICAST_DELEGATE_TwoParams(FOnObjectiveTakenEventDelegate, FAdhocObjectiveState& OutObjective, FAdhocFactionState& Faction);
-    DECLARE_MULTICAST_DELEGATE_TwoParams(FOnUserDefeatedUserEventDelegate, AController* Controller, AController* DefeatedController);
+    DECLARE_MULTICAST_DELEGATE_OneParam(FOnUserJoinSuccessDelegate, class AController* Controller);
+    DECLARE_MULTICAST_DELEGATE_OneParam(FOnUserJoinFailureDelegate, class AController* Controller);
+    DECLARE_MULTICAST_DELEGATE_TwoParams(FOnObjectiveTakenEventDelegate, struct FAdhocObjectiveState& OutObjective, struct FAdhocFactionState& Faction);
+    DECLARE_MULTICAST_DELEGATE_TwoParams(FOnUserDefeatedUserEventDelegate, class AController* Controller, class AController* DefeatedController);
     DECLARE_MULTICAST_DELEGATE_OneParam(FOnStaggeredEmissionDelegate, const FAdhocEmission& Emission);
 
 public:
@@ -107,14 +102,14 @@ public:
     void Logout(const AController* Controller);
 
     /** When a bot has been created, joins a bot user to the server (will either use an existing bot user or register a new one as appropriate). */
-    void BotJoin(const AAIController* BotController);
-    void BotLeave(const AAIController* BotController);
+    void BotJoin(const class AAIController* BotController);
+    void BotLeave(const class AAIController* BotController);
 
     void ObjectiveTaken(struct FAdhocObjectiveState& OutObjective, struct FAdhocFactionState& Faction) const;
 
 private:
     /** Called when an ObjectiveTaken event occurs. Updates the objective state and associated actor(s) in game and broadcast a message. */
-    void OnObjectiveTakenEvent(FAdhocObjectiveState& OutObjective, FAdhocFactionState& Faction) const;
+    void OnObjectiveTakenEvent(struct FAdhocObjectiveState& OutObjective, struct FAdhocFactionState& Faction) const;
 
 public:
     void CreateStructure(const class APawn* PlayerPawn, const FGuid& UUID, const FString& Type, const FVector& Location, const FRotator& Rotation, const FVector& Scale) const;
@@ -167,7 +162,7 @@ private:
     void SubmitStructures();
     void OnStructuresResponse(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful) const;
 
-    static void ExtractStructureFromJsonObject(const TSharedPtr<FJsonObject>& JsonObject, FAdhocStructureState& OutStructure);
+    static void ExtractStructureFromJsonObject(const TSharedPtr<class FJsonObject>& JsonObject, FAdhocStructureState& OutStructure);
 #endif
 
     void ServerStarted() const;
@@ -201,7 +196,7 @@ private:
     /** Send emissions (e.g. explosions) event if any recent emissions. */
     void OnTimer_RecentEmissions();
 
-    static void ExtractEmissionFromJsonObject(const TSharedPtr<FJsonObject>& JsonObject, FAdhocEmission& OutEmission);
+    static void ExtractEmissionFromJsonObject(const TSharedPtr<class FJsonObject>& JsonObject, FAdhocEmission& OutEmission);
 
     void OnEmissionsEvent(const FDateTime& BaseTimestamp, const TArray<FAdhocEmission>& Emissions) const;
     void OnStaggeredEmission(const FAdhocEmission Emission) const;

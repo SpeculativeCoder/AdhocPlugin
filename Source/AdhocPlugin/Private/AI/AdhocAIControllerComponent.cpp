@@ -19,9 +19,9 @@
 // SOFTWARE.
 
 #include "AI/AdhocAIControllerComponent.h"
+
 #include "TimerManager.h"
 #include "Engine/World.h"
-
 #include "Game/AdhocGameModeComponent.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogAdhocAIControllerComponent, Log, All)

@@ -25,8 +25,7 @@
 #include "Objective/AdhocObjectiveState.h"
 #include "Server/AdhocServerState.h"
 #include "Structure/AdhocStructureState.h"
-#include "CoreMinimal.h"
-#include "UObject/Object.h"
+#include "Components/ActorComponent.h"
 
 #include "AdhocGameStateComponent.generated.h"
 
@@ -61,7 +60,7 @@ class ADHOCPLUGIN_API UAdhocGameStateComponent : public UActorComponent
     TArray<FAdhocServerState> Servers;
 
     UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = true))
-    TMap<FGuid, struct FAdhocStructureState> Structures;
+    TMap<FGuid, FAdhocStructureState> Structures;
 
 public:
     FORCEINLINE int32 GetServerID() const { return ServerID; }

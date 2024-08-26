@@ -491,6 +491,7 @@ void UAdhocGameModeComponent::OnObjectiveTakenEvent(FAdhocObjectiveState& OutObj
 
         if (ObjectiveActor->GetObjectiveIndex() == OutObjective.Index)
         {
+            // TODO COMPONENT
             ObjectiveActor->ObjectiveTaken(Faction.Index);
             break;
         }
@@ -1166,6 +1167,8 @@ void UAdhocGameModeComponent::OnObjectivesResponse(FHttpRequestPtr Request, FHtt
                 if (ObjectiveActor->GetObjectiveIndex() == Objectives[i].Index)
                 {
                     // ObjectiveActor->SetObjectiveID(Objectives[i].ID);
+
+                    // TODO COMPONENT
                     ObjectiveActor->ObjectiveTaken(Objectives[i].FactionIndex);
                 }
             }
