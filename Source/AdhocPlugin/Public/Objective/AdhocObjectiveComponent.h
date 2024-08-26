@@ -21,6 +21,8 @@
 #pragma once
 
 #include "NativeGameplayTags.h"
+#include "Area/AdhocAreaComponent.h"
+#include "Area/AdhocAreaVolume.h"
 #include "Components/ActorComponent.h"
 
 #include "AdhocObjectiveComponent.generated.h"
@@ -74,6 +76,8 @@ public:
     FORCEINLINE void SetObjectiveIndex(const int32 NewObjectiveIndex) { ObjectiveIndex = NewObjectiveIndex; }
 
     FORCEINLINE AActor* GetObjective() const { return GetOwner(); }
+
+    int32 GetAreaIndexSafe() const { return AreaVolume ? AreaVolume->GetAdhocArea()->GetAreaIndex() : -1; }
 
 private:
     explicit UAdhocObjectiveComponent(const FObjectInitializer& ObjectInitializer);

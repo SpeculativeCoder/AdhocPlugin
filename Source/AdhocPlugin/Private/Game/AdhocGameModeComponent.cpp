@@ -25,7 +25,6 @@
 #include "Area/AdhocAreaVolume.h"
 #include "Faction/AdhocFactionState.h"
 #include "Game/AdhocGameStateComponent.h"
-#include "Objective/AdhocObjectiveInterface.h"
 #include "Pawn/AdhocPawnComponent.h"
 #include "Player/AdhocPlayerControllerComponent.h"
 #include "Player/AdhocPlayerStateComponent.h"
@@ -43,6 +42,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Engine/NetConnection.h"
 #include "Misc/Base64.h"
+#include "Objective/AdhocObjectiveComponent.h"
 #include "Policies/CondensedJsonPrintPolicy.h"
 #include "Serialization/JsonReader.h"
 #include "Serialization/JsonSerializer.h"
@@ -305,26 +305,27 @@ void UAdhocGameModeComponent::InitObjectiveStates() const
     int32 ObjectiveIndex = 0;
     TArray<FAdhocObjectiveState> Objectives;
 
-    for (TActorIterator<AActor> ObjectiveActorIter(GetWorld()); ObjectiveActorIter; ++ObjectiveActorIter)
+    for (TActorIterator<AActor> ActorIter(GetWorld()); ActorIter; ++ActorIter)
     {
-        IAdhocObjectiveInterface* ObjectiveActor = Cast<IAdhocObjectiveInterface>(*ObjectiveActorIter);
-        if (!ObjectiveActor)
+        const AActor* Actor = *ActorIter;
+        UAdhocObjectiveComponent* AdhocObjective = Cast<UAdhocObjectiveComponent>(Actor->GetComponentByClass(UAdhocObjectiveComponent::StaticClass()));
+        if (!AdhocObjective)
         {
             continue;
         }
 
         // ObjectiveActor->SetObjectiveID(NextObjectiveIndex + 1);
-        ObjectiveActor->SetObjectiveIndex(ObjectiveIndex);
+        AdhocObjective->SetObjectiveIndex(ObjectiveIndex);
 
         FAdhocObjectiveState Objective;
         // Objective.ID = ObjectiveActor->GetObjectiveID();
         Objective.RegionID = AdhocGameState->GetRegionID();
-        Objective.Index = ObjectiveActor->GetObjectiveIndex();
-        Objective.Name = ObjectiveActor->GetFriendlyName();
-        Objective.Location = (*ObjectiveActorIter)->GetActorLocation();
-        Objective.InitialFactionIndex = ObjectiveActor->GetInitialFactionIndex();
-        Objective.FactionIndex = ObjectiveActor->GetFactionIndex() == -1 ? ObjectiveActor->GetInitialFactionIndex() : ObjectiveActor->GetFactionIndex();
-        Objective.AreaIndex = ObjectiveActor->GetAreaIndexSafe();
+        Objective.Index = AdhocObjective->GetObjectiveIndex();
+        Objective.Name = AdhocObjective->GetFriendlyName();
+        Objective.Location = Actor->GetActorLocation();
+        Objective.InitialFactionIndex = AdhocObjective->GetInitialFactionIndex();
+        Objective.FactionIndex = AdhocObjective->GetFactionIndex();
+        Objective.AreaIndex = AdhocObjective->GetAreaIndexSafe();
         Objectives.Add(Objective);
 
         ObjectiveIndex++;
@@ -332,23 +333,27 @@ void UAdhocGameModeComponent::InitObjectiveStates() const
 
     AdhocGameState->SetObjectives(Objectives);
 
-    for (TActorIterator<AActor> ObjectiveActorIter(GetWorld()); ObjectiveActorIter; ++ObjectiveActorIter)
+    for (TActorIterator<AActor> ActorIter(GetWorld()); ActorIter; ++ActorIter)
     {
-        const IAdhocObjectiveInterface* ObjectiveActor = Cast<IAdhocObjectiveInterface>(*ObjectiveActorIter);
-        if (!ObjectiveActor)
+        const AActor* Actor = *ActorIter;
+        UAdhocObjectiveComponent* AdhocObjective = Cast<UAdhocObjectiveComponent>(Actor->GetComponentByClass(UAdhocObjectiveComponent::StaticClass()));
+        if (!AdhocObjective)
         {
             continue;
         }
 
-        FAdhocObjectiveState* Objective = AdhocGameState->FindObjectiveByRegionIDAndIndex(AdhocGameState->GetRegionID(), ObjectiveActor->GetObjectiveIndex());
+        FAdhocObjectiveState* Objective = AdhocGameState->FindObjectiveByRegionIDAndIndex(AdhocGameState->GetRegionID(), AdhocObjective->GetObjectiveIndex());
         check(Objective);
 
         // TArray<int64> LinkedObjectiveIDs;
         TArray<int32> LinkedObjectiveIndexes;
-        for (auto& LinkedObjectiveActor : ObjectiveActor->GetLinkedObjectiveInterfaces())
+        for (auto& LinkedObjectiveActor : AdhocObjective->GetLinkedObjectives())
         {
+            const UAdhocObjectiveComponent* LinkedAdhocObjective = Cast<UAdhocObjectiveComponent>(LinkedObjectiveActor->GetComponentByClass(UAdhocObjectiveComponent::StaticClass()));
+            check(LinkedAdhocObjective);
+
             // LinkedObjectiveIDs.AddUnique(LinkedObjectiveActor->GetObjectiveID());
-            LinkedObjectiveIndexes.AddUnique(LinkedObjectiveActor->GetObjectiveIndex());
+            LinkedObjectiveIndexes.AddUnique(LinkedAdhocObjective->GetObjectiveIndex());
         }
         // Objective->LinkedObjectiveIDs = LinkedObjectiveIDs;
         Objective->LinkedObjectiveIndexes = LinkedObjectiveIndexes;
@@ -481,18 +486,18 @@ void UAdhocGameModeComponent::OnObjectiveTakenEvent(FAdhocObjectiveState& OutObj
     // 	Objective->ID, Objective->Index, Objective->FactionID, Objective->FactionIndex);
 
     // flip the actor in the world to the appropriate faction
-    for (TActorIterator<AActor> ObjectiveActorIter(GetWorld()); ObjectiveActorIter; ++ObjectiveActorIter)
+    for (TActorIterator<AActor> ActorIter(GetWorld()); ActorIter; ++ActorIter)
     {
-        IAdhocObjectiveInterface* ObjectiveActor = Cast<IAdhocObjectiveInterface>(*ObjectiveActorIter);
-        if (!ObjectiveActor)
+        const AActor* Actor = *ActorIter;
+        UAdhocObjectiveComponent* AdhocObjective = Cast<UAdhocObjectiveComponent>(Actor->GetComponentByClass(UAdhocObjectiveComponent::StaticClass()));
+        if (!AdhocObjective)
         {
             continue;
         }
 
-        if (ObjectiveActor->GetObjectiveIndex() == OutObjective.Index)
+        if (AdhocObjective->GetObjectiveIndex() == OutObjective.Index)
         {
-            // TODO COMPONENT
-            ObjectiveActor->ObjectiveTaken(Faction.Index);
+            AdhocObjective->SetFactionIndex(Faction.Index);
             break;
         }
     }
@@ -1016,27 +1021,29 @@ void UAdhocGameModeComponent::SubmitObjectives()
     const auto& Writer = TJsonWriterFactory<TCHAR, TCondensedJsonPrintPolicy<TCHAR>>::Create(&JsonString);
 
     Writer->WriteArrayStart();
-    for (TActorIterator<AActor> ObjectiveActorIter(GetWorld()); ObjectiveActorIter; ++ObjectiveActorIter)
+    for (TActorIterator<AActor> ActorIter(GetWorld()); ActorIter; ++ActorIter)
     {
-        const IAdhocObjectiveInterface* ObjectiveActor = Cast<IAdhocObjectiveInterface>(*ObjectiveActorIter);
-        if (!ObjectiveActor)
+        const AActor* Actor = *ActorIter;
+        UAdhocObjectiveComponent* AdhocObjective = Cast<UAdhocObjectiveComponent>(Actor->GetComponentByClass(UAdhocObjectiveComponent::StaticClass()));
+        if (!AdhocObjective)
         {
             continue;
         }
 
         // ignore objectives outside an area
-        if (ObjectiveActor->GetAreaIndexSafe() == -1)
+        if (AdhocObjective->GetAreaIndexSafe() == -1)
         {
+            UE_LOG(LogAdhocGameModeComponent, Warning, TEXT("Objective %d has no area!"), AdhocObjective->GetObjectiveIndex());
             continue;
         }
 
-        const FVector Location = (*ObjectiveActorIter)->GetActorLocation();
+        const FVector Location = Actor->GetActorLocation();
         const FVector Size = FVector(1, 1, 1); // ObjectiveActor->GetActorScale() * 200; // TODO
 
         Writer->WriteObjectStart();
         Writer->WriteValue(TEXT("regionId"), AdhocGameState->GetRegionID());
-        Writer->WriteValue(TEXT("index"), ObjectiveActor->GetObjectiveIndex());
-        Writer->WriteValue(TEXT("name"), ObjectiveActor->GetFriendlyName());
+        Writer->WriteValue(TEXT("index"), AdhocObjective->GetObjectiveIndex());
+        Writer->WriteValue(TEXT("name"), AdhocObjective->GetFriendlyName());
         Writer->WriteValue(TEXT("x"), static_cast<double>(-Location.X));
         Writer->WriteValue(TEXT("y"), static_cast<double>(Location.Y));
         Writer->WriteValue(TEXT("z"), static_cast<double>(Location.Z));
@@ -1044,22 +1051,22 @@ void UAdhocGameModeComponent::SubmitObjectives()
         Writer->WriteValue(TEXT("sizeY"), static_cast<double>(Size.Y));
         Writer->WriteValue(TEXT("sizeZ"), static_cast<double>(Size.Z));
 
-        if (ObjectiveActor->GetInitialFactionIndex() == -1)
+        if (AdhocObjective->GetInitialFactionIndex() == -1)
         {
             Writer->WriteNull(TEXT("initialFactionIndex"));
         }
         else
         {
-            Writer->WriteValue(TEXT("initialFactionIndex"), static_cast<double>(ObjectiveActor->GetInitialFactionIndex()));
+            Writer->WriteValue(TEXT("initialFactionIndex"), static_cast<double>(AdhocObjective->GetInitialFactionIndex()));
         }
 
-        // if (ObjectiveActor->GetFactionIndex() != -1)
+        // if (AdhocObjective->GetFactionIndex() != -1)
         // {
         //     Writer->WriteNull(TEXT("factionIndex"));
         // }
         // else
         // {
-        //     Writer->WriteValue(TEXT("factionIndex"), static_cast<double>(ObjectiveActor->GetFactionIndex()));
+        //     Writer->WriteValue(TEXT("factionIndex"), static_cast<double>(AdhocObjective->GetFactionIndex()));
         // }
 
         // Writer->WriteArrayStart(TEXT("linkedObjectiveIds"));
@@ -1069,20 +1076,24 @@ void UAdhocGameModeComponent::SubmitObjectives()
         // }
         // Writer->WriteArrayEnd();
         Writer->WriteArrayStart(TEXT("linkedObjectiveIndexes"));
-        for (auto& LinkedObjectiveActor : ObjectiveActor->GetLinkedObjectiveInterfaces())
+        for (auto& LinkedObjectiveActor : AdhocObjective->GetLinkedObjectives())
         {
+            const UAdhocObjectiveComponent* LinkedAdhocObjective = Cast<UAdhocObjectiveComponent>(LinkedObjectiveActor->GetComponentByClass(UAdhocObjectiveComponent::StaticClass()));
+            check(LinkedAdhocObjective);
+
             // ignore objectives outside an area
-            if (LinkedObjectiveActor->GetAreaIndexSafe() == -1)
+            if (LinkedAdhocObjective->GetAreaIndexSafe() == -1)
             {
+                UE_LOG(LogAdhocGameModeComponent, Warning, TEXT("Objective %d linked objective %d has no area!"), AdhocObjective->GetObjectiveIndex(), LinkedAdhocObjective->GetObjectiveIndex());
                 continue;
             }
 
-            Writer->WriteValue(LinkedObjectiveActor->GetObjectiveIndex());
+            Writer->WriteValue(LinkedAdhocObjective->GetObjectiveIndex());
         }
         Writer->WriteArrayEnd();
 
         // Writer->WriteValue(FString("areaId"), ObjectiveActor->GetAreaVolume()->GetAreaID());
-        Writer->WriteValue(TEXT("areaIndex"), ObjectiveActor->GetAreaIndexSafe());
+        Writer->WriteValue(TEXT("areaIndex"), AdhocObjective->GetAreaIndexSafe());
 
         Writer->WriteObjectEnd();
     }
@@ -1156,20 +1167,18 @@ void UAdhocGameModeComponent::OnObjectivesResponse(FHttpRequestPtr Request, FHtt
         if (Objectives[i].RegionID == AdhocGameState->GetRegionID())
         {
             // push the manager's current faction / ID information onto the actors
-            for (TActorIterator<AActor> ObjectiveActorIter(GetWorld()); ObjectiveActorIter; ++ObjectiveActorIter)
+            for (TActorIterator<AActor> ActorIter(GetWorld()); ActorIter; ++ActorIter)
             {
-                IAdhocObjectiveInterface* ObjectiveActor = Cast<IAdhocObjectiveInterface>(*ObjectiveActorIter);
-                if (!ObjectiveActor)
+                const AActor* Actor = *ActorIter;
+                UAdhocObjectiveComponent* AdhocObjective = Cast<UAdhocObjectiveComponent>(Actor->GetComponentByClass(UAdhocObjectiveComponent::StaticClass()));
+                if (!AdhocObjective)
                 {
                     continue;
                 }
 
-                if (ObjectiveActor->GetObjectiveIndex() == Objectives[i].Index)
+                if (AdhocObjective->GetObjectiveIndex() == Objectives[i].Index)
                 {
-                    // ObjectiveActor->SetObjectiveID(Objectives[i].ID);
-
-                    // TODO COMPONENT
-                    ObjectiveActor->ObjectiveTaken(Objectives[i].FactionIndex);
+                    AdhocObjective->SetFactionIndex(Objectives[i].FactionIndex);
                 }
             }
         }
