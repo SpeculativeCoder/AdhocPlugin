@@ -29,9 +29,9 @@ DEFINE_LOG_CATEGORY_STATIC(LogAdhocAIControllerComponent, Log, All)
 UAdhocAIControllerComponent::UAdhocAIControllerComponent(const FObjectInitializer& ObjectInitializer)
     : Super(ObjectInitializer)
 {
-    FriendlyName = TEXT("Bot");
-
     bWantsInitializeComponent = true;
+
+    FriendlyName = TEXT("Bot");
 }
 
 void UAdhocAIControllerComponent::InitializeComponent()
@@ -57,6 +57,7 @@ void UAdhocAIControllerComponent::BeginPlay()
 
     const UWorld* World = GetWorld();
     check(World);
+
     UAdhocGameModeComponent* AdhocGameModeComponent = GetAdhocGameModeComponent();
     check(AdhocGameModeComponent);
 

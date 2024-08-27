@@ -54,6 +54,7 @@ UAdhocGameModeComponent::UAdhocGameModeComponent(const FObjectInitializer& Objec
     : Super(ObjectInitializer)
 {
     bWantsInitializeComponent = true;
+
     PrimaryComponentTick.bCanEverTick = false;
 }
 
@@ -67,6 +68,26 @@ void UAdhocGameModeComponent::InitializeComponent()
     FParse::Value(FCommandLine::Get(), TEXT("RegionID="), RegionID);
 
     UE_LOG(LogAdhocGameModeComponent, Log, TEXT("InitializeComponent: ServerID=%d RegionID=%d"), ServerID, RegionID);
+
+    GameMode = GetOwner<AGameModeBase>();
+    check(GameMode);
+
+    GameState = GameMode->GetGameState<AGameStateBase>();
+    check(GameState);
+
+    AdhocGameState = Cast<UAdhocGameStateComponent>(GameState->GetComponentByClass(UAdhocGameStateComponent::StaticClass()));
+    check(AdhocGameState);
+
+    AdhocGameState->SetServerID(ServerID);
+    AdhocGameState->SetRegionID(RegionID);
+
+    InitFactionStates();
+    InitAreaStates();
+    InitServerStates();
+    InitObjectiveStates();
+#if WITH_ADHOC_PLUGIN_EXTRA
+    InitStructureStates();
+#endif
 
 #if WITH_SERVER_CODE && !defined(__EMSCRIPTEN__)
     FParse::Value(FCommandLine::Get(), TEXT("PrivateIP="), PrivateIP);
@@ -110,26 +131,6 @@ void UAdhocGameModeComponent::InitializeComponent()
     Http = &FHttpModule::Get();
     WebSockets = &FWebSocketsModule::Get();
     Stomp = &FStompModule::Get();
-#endif
-
-    GameMode = GetOwner<AGameModeBase>();
-    check(GameMode);
-
-    GameState = GameMode->GetGameState<AGameStateBase>();
-    check(GameState);
-
-    AdhocGameState = Cast<UAdhocGameStateComponent>(GameState->GetComponentByClass(UAdhocGameStateComponent::StaticClass()));
-    check(AdhocGameState);
-
-    AdhocGameState->SetServerID(ServerID);
-    AdhocGameState->SetRegionID(RegionID);
-
-    InitFactionStates();
-    InitAreaStates();
-    InitServerStates();
-    InitObjectiveStates();
-#if WITH_ADHOC_PLUGIN_EXTRA
-    InitStructureStates();
 #endif
 }
 
@@ -223,6 +224,7 @@ void UAdhocGameModeComponent::InitAreaStates() const
     TArray<FAdhocAreaState> Areas;
     // TArray<int64> ActiveAreaIDs;
     TArray<int32> ActiveAreaIndexes;
+
     for (TActorIterator<AAdhocAreaVolume> AreaVolumeIter(GetWorld()); AreaVolumeIter; ++AreaVolumeIter)
     {
         AAdhocAreaVolume* AreaVolume = *AreaVolumeIter;

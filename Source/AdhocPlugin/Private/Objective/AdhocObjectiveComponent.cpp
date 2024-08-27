@@ -53,10 +53,16 @@ void UAdhocObjectiveComponent::InitializeComponent()
 {
     Super::InitializeComponent();
 
-    const AActor* Objective = GetOwner();
+    AActor* Objective = GetObjective();
     check(Objective);
 
     UE_LOG(LogAdhocObjectiveComponent, Verbose, TEXT("InitializeComponent: Objective=%s"), *Objective->GetName());
+
+    if (!Objective->ActorHasTag(TEXT("Adhoc_Objective")))
+    {
+        UE_LOG(LogAdhocObjectiveComponent, Log, TEXT("Adding Adhoc_Objective tag to objective %s"), *GetFriendlyName());
+        Objective->Tags.Add("Adhoc_Objective");
+    }
 
     for (TActorIterator<AAdhocAreaVolume> SomeAreaVolumeIter(GetWorld()); SomeAreaVolumeIter; ++SomeAreaVolumeIter)
     {

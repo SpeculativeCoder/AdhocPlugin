@@ -73,8 +73,10 @@ void AAdhocAreaVolume::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, 
 
     const UWorld* World = GetWorld();
     check(World);
+
     const AGameModeBase* GameMode = World->GetAuthGameMode();
     check(GameMode);
+
     const UAdhocGameModeComponent* AdhocGameMode = Cast<UAdhocGameModeComponent>(GameMode->GetComponentByClass(UAdhocGameModeComponent::StaticClass()));
     check(AdhocGameMode);
 

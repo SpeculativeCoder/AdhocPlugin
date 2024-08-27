@@ -33,6 +33,27 @@ class ADHOCPLUGIN_API UAdhocGameModeComponent : public UActorComponent
 {
     GENERATED_BODY()
 
+    DECLARE_MULTICAST_DELEGATE_OneParam(FOnUserJoinSuccessDelegate, class AController* Controller);
+    DECLARE_MULTICAST_DELEGATE_OneParam(FOnUserJoinFailureDelegate, class AController* Controller);
+    DECLARE_MULTICAST_DELEGATE_TwoParams(FOnObjectiveTakenEventDelegate, struct FAdhocObjectiveState& OutObjective, struct FAdhocFactionState& Faction);
+    DECLARE_MULTICAST_DELEGATE_TwoParams(FOnUserDefeatedUserEventDelegate, class AController* Controller, class AController* DefeatedController);
+    DECLARE_MULTICAST_DELEGATE_OneParam(FOnStaggeredEmissionDelegate, const FAdhocEmission& Emission);
+
+public:
+    FOnUserJoinSuccessDelegate OnUserJoinSuccessDelegate;
+    FOnUserJoinFailureDelegate OnUserJoinFailureDelegate;
+    FOnObjectiveTakenEventDelegate OnObjectiveTakenEventDelegate;
+    FOnUserDefeatedUserEventDelegate OnUserDefeatedUserEventDelegate;
+    FOnStaggeredEmissionDelegate OnStaggeredEmissionDelegate;
+
+private:
+    UPROPERTY()
+    class AGameModeBase* GameMode;
+    UPROPERTY()
+    class AGameStateBase* GameState;
+    UPROPERTY()
+    class UAdhocGameStateComponent* AdhocGameState;
+
 #if WITH_SERVER_CODE && !defined(__EMSCRIPTEN__)
     FString PrivateIP = TEXT("127.0.0.1"); // non-public IP of the server within its hosting service / cluster etc.
     FString ManagerHost = TEXT("127.0.0.1"); // host which is managing this Unreal server (we will talk to and maintain web socket connection to this)
@@ -59,27 +80,6 @@ class ADHOCPLUGIN_API UAdhocGameModeComponent : public UActorComponent
     TArray<FAdhocEmission> RecentEmissions;
 #endif
 #endif
-
-    DECLARE_MULTICAST_DELEGATE_OneParam(FOnUserJoinSuccessDelegate, class AController* Controller);
-    DECLARE_MULTICAST_DELEGATE_OneParam(FOnUserJoinFailureDelegate, class AController* Controller);
-    DECLARE_MULTICAST_DELEGATE_TwoParams(FOnObjectiveTakenEventDelegate, struct FAdhocObjectiveState& OutObjective, struct FAdhocFactionState& Faction);
-    DECLARE_MULTICAST_DELEGATE_TwoParams(FOnUserDefeatedUserEventDelegate, class AController* Controller, class AController* DefeatedController);
-    DECLARE_MULTICAST_DELEGATE_OneParam(FOnStaggeredEmissionDelegate, const FAdhocEmission& Emission);
-
-public:
-    FOnUserJoinSuccessDelegate OnUserJoinSuccessDelegate;
-    FOnUserJoinFailureDelegate OnUserJoinFailureDelegate;
-    FOnObjectiveTakenEventDelegate OnObjectiveTakenEventDelegate;
-    FOnUserDefeatedUserEventDelegate OnUserDefeatedUserEventDelegate;
-    FOnStaggeredEmissionDelegate OnStaggeredEmissionDelegate;
-
-private:
-    UPROPERTY()
-    class AGameModeBase* GameMode;
-    UPROPERTY()
-    class AGameStateBase* GameState;
-    UPROPERTY()
-    class UAdhocGameStateComponent* AdhocGameState;
 
     explicit UAdhocGameModeComponent(const FObjectInitializer& ObjectInitializer);
 
@@ -201,6 +201,5 @@ private:
     void OnEmissionsEvent(const FDateTime& BaseTimestamp, const TArray<FAdhocEmission>& Emissions) const;
     void OnStaggeredEmission(const FAdhocEmission Emission) const;
 #endif
-
 #endif
 };

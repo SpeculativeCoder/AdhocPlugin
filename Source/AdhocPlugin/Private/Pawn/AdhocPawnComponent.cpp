@@ -19,6 +19,8 @@
 // SOFTWARE.
 
 #include "Pawn/AdhocPawnComponent.h"
+
+#include "GameFramework/Pawn.h"
 #include "Player/AdhocPlayerControllerComponent.h"
 #include "Net/UnrealNetwork.h"
 
