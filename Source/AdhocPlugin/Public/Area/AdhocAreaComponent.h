@@ -20,26 +20,45 @@
 
 #pragma once
 
+#include "NativeGameplayTags.h"
 #include "Components/ActorComponent.h"
 
 #include "AdhocAreaComponent.generated.h"
+
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(Adhoc_Area);
 
 UCLASS()
 class ADHOCPLUGIN_API UAdhocAreaComponent : public UActorComponent
 {
     GENERATED_BODY()
 
-    UPROPERTY(EditInstanceOnly)
+    UPROPERTY(Category="Adhoc Area", EditInstanceOnly)
     FString FriendlyName = TEXT("Area");
 
     int32 AreaIndex = -1;
 
+    //class UAdhocGameStateComponent* AdhocGameState;
+
+    //FTimerHandle TimerHandle_CheckOverlappingPawns;
+
 public:
     FORCEINLINE const FString& GetFriendlyName() const { return FriendlyName; }
     FORCEINLINE int32 GetAreaIndex() const { return AreaIndex; }
+    //FORCEINLINE class UAdhocGameStateComponent* GetAdhocGameState() const { return AdhocGameState; }
 
     FORCEINLINE void SetAreaIndex(const int32 NewAreaIndex) { AreaIndex = NewAreaIndex; }
 
+    FORCEINLINE AActor* GetArea() const { return GetOwner(); }
+
 private:
     explicit UAdhocAreaComponent(const FObjectInitializer& ObjectInitializer);
+
+    virtual void InitializeComponent() override;
+    virtual void BeginPlay() override;
+
+    /** Overlap event will check if player needs to navigate to another server. */
+    UFUNCTION()
+    void OnAreaActorBeginOverlap(AActor* OverlappedActor, AActor* OtherActor);
+
+    //void OnTimer_CheckOverlappingPawns() const;
 };

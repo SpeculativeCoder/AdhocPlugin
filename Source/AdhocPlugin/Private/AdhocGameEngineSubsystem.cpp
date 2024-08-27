@@ -157,6 +157,17 @@ void UAdhocEngineSubsystem::OnActorPreSpawnInitialization(AActor* Actor) const
             // AdhocGameStateComponent->RegisterComponent();
         }
     }
+    else if (Actor->ActorHasTag(TEXT("Adhoc_Area")))
+    {
+        UE_LOG(LogAdhocGameEngineSubsystem, Verbose, TEXT("OnActorPreSpawnInitialization: Area=%s"), *Actor->GetName());
+
+        if (Actor->HasAuthority() && !Actor->GetComponentByClass(UAdhocAreaComponent::StaticClass()))
+        {
+            UAdhocAreaComponent* AdhocAreaComponent = NewObject<UAdhocAreaComponent>(Actor, UAdhocAreaComponent::StaticClass(), UAdhocAreaComponent::StaticClass()->GetFName());
+
+            // AdhocAreaComponent->RegisterComponent();
+        }
+    }
     else if (Actor->ActorHasTag(TEXT("Adhoc_Objective")))
     {
         UE_LOG(LogAdhocGameEngineSubsystem, Verbose, TEXT("OnActorPreSpawnInitialization: Objective=%s"), *Actor->GetName());

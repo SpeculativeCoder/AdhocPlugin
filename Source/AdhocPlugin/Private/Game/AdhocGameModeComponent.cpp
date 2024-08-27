@@ -101,14 +101,14 @@ void UAdhocGameModeComponent::InitializeComponent()
         const UWorld* World = GetWorld();
         check(World);
 
-        if (!World->IsPlayInEditor())
+        if (!InEditor())
         {
             UE_LOG(LogAdhocGameModeComponent, Error, TEXT("SERVER_BASIC_AUTH_PASSWORD environment variable not set - should shut down server"));
-            ShutdownIfNotPlayInEditor();
+            ShutdownIfNotInEditor();
         }
         else
         {
-            UE_LOG(LogAdhocGameModeComponent, Warning, TEXT("SERVER_BASIC_AUTH_PASSWORD environment variable not set - using default"));
+            UE_LOG(LogAdhocGameModeComponent, Warning, TEXT("SERVER_BASIC_AUTH_PASSWORD environment variable not set - we are in editor so using default"));
             BasicAuthPassword = DefaultPlayInEditorBasicAuthPassword;
         }
     }
@@ -442,7 +442,14 @@ void UAdhocGameModeComponent::BotJoin(const AAIController* BotController)
     UE_LOG(LogAdhocGameModeComponent, VeryVerbose, TEXT("BotJoin: Submitting bot user join: factionIndex=%d"), AdhocBotController->GetFactionIndex());
 
 #if WITH_SERVER_CODE && !defined(__EMSCRIPTEN__)
-    SubmitUserJoin(AdhocBotController);
+    if (InEditor() && !StompClient->IsConnected())
+    {
+        OnUserJoinSuccess(AdhocBotController);
+    }
+    else
+    {
+        SubmitUserJoin(AdhocBotController);
+    }
 #endif
 }
 
@@ -601,22 +608,27 @@ void UAdhocGameModeComponent::PlayerEnterArea(APlayerController* PlayerControlle
 
 #if WITH_SERVER_CODE && !defined(__EMSCRIPTEN__)
 
-void UAdhocGameModeComponent::ShutdownIfNotPlayInEditor() const
+bool UAdhocGameModeComponent::InEditor() const
 {
-    // UKismetSystemLibrary::QuitGame(GetWorld(), nullptr, EQuitPreference::Quit, false);
     const UWorld* World = GetWorld();
     check(World);
-    if (!World->IsPlayInEditor() && !World->IsEditorWorld())
+
+    return World->IsPlayInEditor() || World->IsEditorWorld();
+}
+
+void UAdhocGameModeComponent::ShutdownIfNotInEditor() const
+{
+    // UKismetSystemLibrary::QuitGame(GetWorld(), nullptr, EQuitPreference::Quit, false);
+
+    if (!InEditor())
     {
         FPlatformMisc::RequestExitWithStatus(false, 1);
     }
 }
 
-void UAdhocGameModeComponent::KickPlayerIfNotPlayInEditor(APlayerController* PlayerController, const FString& KickReason) const
+void UAdhocGameModeComponent::KickPlayerIfNotInEditor(APlayerController* PlayerController, const FString& KickReason) const
 {
-    const UWorld* World = GetWorld();
-    check(World);
-    if (!World->IsPlayInEditor() && !World->IsEditorWorld())
+    if (!InEditor())
     {
         GameMode->GameSession->KickPlayer(PlayerController, FText::FromString(KickReason));
     }
@@ -646,7 +658,7 @@ void UAdhocGameModeComponent::OnStompClosed(const FString& Reason) const
     if (GetNetMode() == NM_DedicatedServer)
     {
         UE_LOG(LogAdhocGameModeComponent, Warning, TEXT("Stomp connection closed - should shut down server"));
-        ShutdownIfNotPlayInEditor();
+        ShutdownIfNotInEditor();
     }
 }
 
@@ -657,7 +669,7 @@ void UAdhocGameModeComponent::OnStompConnectionError(const FString& Error) const
     if (GetNetMode() == NM_DedicatedServer)
     {
         UE_LOG(LogAdhocGameModeComponent, Warning, TEXT("Stomp connection error - should shut down server"));
-        ShutdownIfNotPlayInEditor();
+        ShutdownIfNotInEditor();
     }
 }
 
@@ -668,7 +680,7 @@ void UAdhocGameModeComponent::OnStompError(const FString& Error) const
     if (GetNetMode() == NM_DedicatedServer)
     {
         UE_LOG(LogAdhocGameModeComponent, Warning, TEXT("Stomp error - should shut down server"));
-        ShutdownIfNotPlayInEditor();
+        ShutdownIfNotInEditor();
     }
 }
 
@@ -679,7 +691,7 @@ void UAdhocGameModeComponent::OnStompRequestCompleted(bool bSuccess, const FStri
     if (!bSuccess && GetNetMode() == NM_DedicatedServer)
     {
         UE_LOG(LogAdhocGameModeComponent, Warning, TEXT("Stomp request completed unsuccessfully - should shut down server"));
-        ShutdownIfNotPlayInEditor();
+        ShutdownIfNotInEditor();
     }
 }
 
@@ -825,7 +837,7 @@ void UAdhocGameModeComponent::OnFactionsResponse(FHttpRequestPtr Request, FHttpR
     if (!bWasSuccessful || Response->GetResponseCode() != 200)
     {
         UE_LOG(LogAdhocGameModeComponent, Warning, TEXT("Factions response failure: ResponseCode=%d Content=%s"), Response->GetResponseCode(), *Response->GetContentAsString());
-        ShutdownIfNotPlayInEditor();
+        ShutdownIfNotInEditor();
         return;
     }
 
@@ -834,7 +846,7 @@ void UAdhocGameModeComponent::OnFactionsResponse(FHttpRequestPtr Request, FHttpR
     if (!FJsonSerializer::Deserialize(Reader, JsonValues))
     {
         UE_LOG(LogAdhocGameModeComponent, Warning, TEXT("Failed to deserialize factions response: Content=%s"), *Response->GetContentAsString());
-        ShutdownIfNotPlayInEditor();
+        ShutdownIfNotInEditor();
         return;
     }
 
@@ -874,7 +886,7 @@ void UAdhocGameModeComponent::OnServersResponse(FHttpRequestPtr Request, FHttpRe
     if (!bWasSuccessful || Response->GetResponseCode() != 200)
     {
         UE_LOG(LogAdhocGameModeComponent, Warning, TEXT("Servers response failure: ResponseCode=%d Content=%s"), Response->GetResponseCode(), *Response->GetContentAsString());
-        ShutdownIfNotPlayInEditor();
+        ShutdownIfNotInEditor();
         return;
     }
 
@@ -883,7 +895,7 @@ void UAdhocGameModeComponent::OnServersResponse(FHttpRequestPtr Request, FHttpRe
     if (!FJsonSerializer::Deserialize(Reader, JsonValues))
     {
         UE_LOG(LogAdhocGameModeComponent, Warning, TEXT("Failed to deserialize get servers response: Content=%s"), *Response->GetContentAsString());
-        ShutdownIfNotPlayInEditor();
+        ShutdownIfNotInEditor();
         return;
     }
 
@@ -971,7 +983,7 @@ void UAdhocGameModeComponent::OnAreasResponse(FHttpRequestPtr Request, FHttpResp
     if (!bWasSuccessful || Response->GetResponseCode() != 200)
     {
         UE_LOG(LogAdhocGameModeComponent, Warning, TEXT("Areas response failure: ResponseCode=%d Content=%s"), Response->GetResponseCode(), *Response->GetContentAsString());
-        ShutdownIfNotPlayInEditor();
+        ShutdownIfNotInEditor();
         return;
     }
 
@@ -980,7 +992,7 @@ void UAdhocGameModeComponent::OnAreasResponse(FHttpRequestPtr Request, FHttpResp
     if (!FJsonSerializer::Deserialize(Reader, JsonValues))
     {
         UE_LOG(LogAdhocGameModeComponent, Warning, TEXT("Failed to deserialize areas response: %s"), *Response->GetContentAsString());
-        ShutdownIfNotPlayInEditor();
+        ShutdownIfNotInEditor();
         return;
     }
 
@@ -1123,7 +1135,7 @@ void UAdhocGameModeComponent::OnObjectivesResponse(FHttpRequestPtr Request, FHtt
     if (!bWasSuccessful || Response->GetResponseCode() != 200)
     {
         UE_LOG(LogAdhocGameModeComponent, Warning, TEXT("Objectives response failure: ResponseCode=%d Content=%s"), Response->GetResponseCode(), *Response->GetContentAsString());
-        ShutdownIfNotPlayInEditor();
+        ShutdownIfNotInEditor();
         return;
     }
 
@@ -1132,7 +1144,7 @@ void UAdhocGameModeComponent::OnObjectivesResponse(FHttpRequestPtr Request, FHtt
     if (!FJsonSerializer::Deserialize(Reader, JsonValues))
     {
         UE_LOG(LogAdhocGameModeComponent, Warning, TEXT("Failed to deserialize objectives response: %s"), *Response->GetContentAsString());
-        ShutdownIfNotPlayInEditor();
+        ShutdownIfNotInEditor();
         return;
     }
 
@@ -1332,7 +1344,7 @@ void UAdhocGameModeComponent::OnUserJoinResponse(
         if (PlayerController && bKickOnFailure)
         {
             UE_LOG(LogAdhocGameModeComponent, Warning, TEXT("Login failure - should kick player"));
-            KickPlayerIfNotPlayInEditor(PlayerController, TEXT("Login failure"));
+            KickPlayerIfNotInEditor(PlayerController, TEXT("Login failure"));
         }
 
         // TODO
@@ -1349,7 +1361,7 @@ void UAdhocGameModeComponent::OnUserJoinResponse(
         if (PlayerController && bKickOnFailure)
         {
             UE_LOG(LogAdhocGameModeComponent, Warning, TEXT("Login failure - should kick player"));
-            KickPlayerIfNotPlayInEditor(PlayerController, TEXT("Login failure"));
+            KickPlayerIfNotInEditor(PlayerController, TEXT("Login failure"));
         }
 
         // TODO

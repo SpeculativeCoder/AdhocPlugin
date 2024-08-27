@@ -37,11 +37,4 @@ public:
 
 private:
     explicit AAdhocAreaVolume(const FObjectInitializer& ObjectInitializer);
-
-    virtual void BeginPlay() override;
-
-    /** Overlap event will check if player needs to navigate to another server. */
-    UFUNCTION()
-    void OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
-        bool bFromSweep, const FHitResult& Hit);
 };

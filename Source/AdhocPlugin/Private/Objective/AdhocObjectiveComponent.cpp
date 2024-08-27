@@ -35,6 +35,7 @@ UAdhocObjectiveComponent::UAdhocObjectiveComponent(const FObjectInitializer& Obj
     : Super(ObjectInitializer)
 {
     bWantsInitializeComponent = true;
+
     PrimaryComponentTick.bCanEverTick = false;
 
     SetIsReplicatedByDefault(true);

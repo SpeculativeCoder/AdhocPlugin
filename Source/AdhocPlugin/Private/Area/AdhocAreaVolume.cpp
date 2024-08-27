@@ -41,44 +41,6 @@ AAdhocAreaVolume::AAdhocAreaVolume(const FObjectInitializer& ObjectInitializer)
     GetBrushComponent()->SetCollisionProfileName(TEXT("Area"));
 
     AdhocArea = CreateDefaultSubobject<UAdhocAreaComponent>(TEXT("AdhocArea"));
-}
 
-void AAdhocAreaVolume::BeginPlay()
-{
-    Super::BeginPlay();
-
-    if (HasAuthority())
-    {
-        GetBrushComponent()->OnComponentBeginOverlap.AddDynamic(this, &AAdhocAreaVolume::OnBeginOverlap);
-    }
-}
-
-// ReSharper disable once CppMemberFunctionMayBeConst
-void AAdhocAreaVolume::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
-    bool bFromSweep, const FHitResult& Hit)
-{
-    check(HasAuthority());
-
-    const APawn* Pawn = Cast<APawn>(OtherActor);
-    if (!Pawn)
-    {
-        return;
-    }
-
-    APlayerController* PlayerController = Cast<APlayerController>(Pawn->Controller);
-    if (!PlayerController)
-    {
-        return;
-    }
-
-    const UWorld* World = GetWorld();
-    check(World);
-
-    const AGameModeBase* GameMode = World->GetAuthGameMode();
-    check(GameMode);
-
-    const UAdhocGameModeComponent* AdhocGameMode = Cast<UAdhocGameModeComponent>(GameMode->GetComponentByClass(UAdhocGameModeComponent::StaticClass()));
-    check(AdhocGameMode);
-
-    AdhocGameMode->PlayerEnterArea(PlayerController, GetAdhocArea()->GetAreaIndex());
+    Tags.Add(TEXT("Adhoc_Area"));
 }
