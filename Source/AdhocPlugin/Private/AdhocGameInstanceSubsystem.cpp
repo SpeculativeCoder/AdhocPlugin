@@ -20,6 +20,8 @@
 
 #include "AdhocGameInstanceSubsystem.h"
 
+#include "Engine/GameInstance.h"
+
 DEFINE_LOG_CATEGORY_STATIC(LogAdhocGameInstanceSubsystem, Log, All)
 
 void UAdhocGameInstanceSubsystem::Initialize(FSubsystemCollectionBase& Collection)

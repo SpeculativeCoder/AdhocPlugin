@@ -65,19 +65,25 @@ void UAdhocObjectiveComponent::InitializeComponent()
         Objective->Tags.Add("Adhoc_Objective");
     }
 
-    for (TActorIterator<AAdhocAreaVolume> SomeAreaVolumeIter(GetWorld()); SomeAreaVolumeIter; ++SomeAreaVolumeIter)
+    for (TActorIterator<AActor> ActorIter(GetWorld()); ActorIter; ++ActorIter)
     {
-        AAdhocAreaVolume* SomeAreaVolume = *SomeAreaVolumeIter;
+        AActor* Actor = *ActorIter;
 
-        if (SomeAreaVolume->EncompassesPoint(GetObjective()->GetActorLocation()))
+        UAdhocAreaComponent* PossibleAdhocArea = Cast<UAdhocAreaComponent>(Actor->GetComponentByClass(UAdhocAreaComponent::StaticClass()));
+        if (!PossibleAdhocArea)
         {
-            UE_LOG(LogAdhocObjectiveComponent, Verbose, TEXT("Objective %s is within area %s"), *FriendlyName, *SomeAreaVolume->GetAdhocArea()->GetFriendlyName());
-            AreaVolume = SomeAreaVolume;
+            continue;
+        }
+
+        if (Actor->GetComponentsBoundingBox().Intersect(GetObjective()->GetComponentsBoundingBox()))
+        {
+            UE_LOG(LogAdhocObjectiveComponent, Verbose, TEXT("Objective %s is within area %s"), *FriendlyName, *PossibleAdhocArea->GetFriendlyName());
+            this->AdhocArea = PossibleAdhocArea;
             break;
         }
     }
 
-    if (!AreaVolume)
+    if (!AdhocArea)
     {
         UE_LOG(LogAdhocObjectiveComponent, Warning, TEXT("Objective %s is not within an area!"), *FriendlyName);
     }

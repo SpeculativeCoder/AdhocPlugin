@@ -33,7 +33,6 @@
 #include "GameFramework/SpectatorPawn.h"
 #include "Objective/AdhocObjectiveComponent.h"
 #include "Pawn/AdhocPawnComponent.h"
-#include "Player/AdhocControllerComponent.h"
 #include "Player/AdhocPlayerControllerComponent.h"
 #include "Player/AdhocPlayerStateComponent.h"
 

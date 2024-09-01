@@ -61,10 +61,10 @@ private:
     UPROPERTY(Category="Adhoc Objective", EditInstanceOnly)
     TSet<const AActor*> LinkedObjectives;
 
-    /** During PostInitializeComponents, this will be set to the area volume in which the objective resides.
-     * Should the area volume(s) ever be adjusted at runtime, this will be need to be set again if necessary. */
+    /** During PostInitializeComponents, this will be set to the area in which the objective resides.
+     * Should the area(s) ever be adjusted at runtime, this will be need to be set again if necessary. */
     UPROPERTY()
-    class AAdhocAreaVolume* AreaVolume;
+    class UAdhocAreaComponent* AdhocArea;
 
 public:
     FORCEINLINE int32 GetObjectiveIndex() const { return ObjectiveIndex; }
@@ -77,7 +77,7 @@ public:
 
     FORCEINLINE AActor* GetObjective() const { return GetOwner(); }
 
-    int32 GetAreaIndexSafe() const { return AreaVolume ? AreaVolume->GetAdhocArea()->GetAreaIndex() : -1; }
+    int32 GetAreaIndexSafe() const { return AdhocArea ? AdhocArea->GetAreaIndex() : -1; }
 
 private:
     explicit UAdhocObjectiveComponent(const FObjectInitializer& ObjectInitializer);

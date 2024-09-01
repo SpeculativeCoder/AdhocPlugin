@@ -22,7 +22,6 @@
 
 #include "AIController.h"
 #include "Area/AdhocAreaComponent.h"
-#include "Area/AdhocAreaVolume.h"
 #include "Faction/AdhocFactionState.h"
 #include "Game/AdhocGameStateComponent.h"
 #include "Pawn/AdhocPawnComponent.h"
@@ -225,19 +224,26 @@ void UAdhocGameModeComponent::InitAreaStates() const
     // TArray<int64> ActiveAreaIDs;
     TArray<int32> ActiveAreaIndexes;
 
-    for (TActorIterator<AAdhocAreaVolume> AreaVolumeIter(GetWorld()); AreaVolumeIter; ++AreaVolumeIter)
+    for (TActorIterator<AActor> ActorIter(GetWorld()); ActorIter; ++ActorIter)
     {
-        AAdhocAreaVolume* AreaVolume = *AreaVolumeIter;
+        AActor* Actor = *ActorIter;
+
+        UAdhocAreaComponent* AdhocArea = Cast<UAdhocAreaComponent>(Actor->GetComponentByClass(UAdhocAreaComponent::StaticClass()));
+        if (!AdhocArea)
+        {
+            continue;
+        }
+
         // AreaVolume->SetAreaID(NextAreaIndex + 1);
-        AreaVolume->GetAdhocArea()->SetAreaIndex(AreaIndex);
+        AdhocArea->SetAreaIndex(AreaIndex);
 
         FAdhocAreaState Area;
         // Area.ID = AreaVolume->GetAreaID();
         Area.RegionID = AdhocGameState->GetRegionID();
-        Area.Index = AreaVolume->GetAdhocArea()->GetAreaIndex();
-        Area.Name = AreaVolume->GetAdhocArea()->GetFriendlyName();
-        Area.Location = AreaVolume->GetActorLocation();
-        Area.Size = AreaVolume->GetActorScale() * 200;
+        Area.Index = AdhocArea->GetAreaIndex();
+        Area.Name = AdhocArea->GetFriendlyName();
+        Area.Location = Actor->GetActorLocation();
+        Area.Size = Actor->GetComponentsBoundingBox().GetSize();
         Area.ServerID = AdhocGameState->GetServerID();
         Areas.Add(Area);
 
@@ -247,16 +253,17 @@ void UAdhocGameModeComponent::InitAreaStates() const
         // TODO: HACK: just take first area for now
         if (ActiveAreaIndexes.Num() < 1)
         {
-            ActiveAreaIndexes.AddUnique(AreaVolume->GetAdhocArea()->GetAreaIndex());
+            ActiveAreaIndexes.AddUnique(AdhocArea->GetAreaIndex());
         }
 
         AreaIndex++;
     }
 
-    // can uncomment two lines below to test auto area generation
+    // can uncomment two lines below to test automatic area generation (see below)
     // Areas.Reset();
     // ActiveAreaIndexes.Reset();
 
+    // automatic area generation
     if (Areas.Num() <= 0)
     {
         FAdhocAreaState Area;

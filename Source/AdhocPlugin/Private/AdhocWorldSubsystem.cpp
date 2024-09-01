@@ -20,6 +20,8 @@
 
 #include "AdhocWorldSubsystem.h"
 
+#include "Engine/World.h"
+
 DEFINE_LOG_CATEGORY_STATIC(LogAdhocWorldSubsystem, Log, All)
 
 void UAdhocWorldSubsystem::Initialize(FSubsystemCollectionBase& Collection)
