@@ -20,16 +20,4 @@
 
 #pragma once
 
-#include "Subsystems/WorldSubsystem.h"
-
-#include "AdhocWorldSubsystem.generated.h"
-
-UCLASS(Transient)
-class ADHOCPLUGIN_API UAdhocWorldSubsystem : public UWorldSubsystem
-{
-    GENERATED_BODY()
-
-    virtual void Initialize(FSubsystemCollectionBase& Collection) override;
-
-    virtual bool DoesSupportWorldType(EWorldType::Type WorldType) const override;
-};
+#include "CoreMinimal.h"

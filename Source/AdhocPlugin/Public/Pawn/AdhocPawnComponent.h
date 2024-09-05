@@ -21,6 +21,7 @@
 #pragma once
 
 #include "Components/ActorComponent.h"
+#include "GameFramework/Pawn.h"
 
 #include "AdhocPawnComponent.generated.h"
 
@@ -64,8 +65,6 @@ private:
     int32 FactionIndex = -1;
 
 public:
-    FORCEINLINE APawn* GetPawn() const { return GetOwner<APawn>(); }
-
     FORCEINLINE const FGuid& GetUUID() const { return UUID; }
     FORCEINLINE const FString& GetFriendlyName() const { return FriendlyName; }
     FORCEINLINE const FString& GetDescription() const { return Description; }
@@ -75,6 +74,8 @@ public:
 
     FORCEINLINE void SetUserID(const int64 NewUserID) { UserID = NewUserID; }
     FORCEINLINE void SetHuman(const bool bNewHuman) { bHuman = bNewHuman; }
+
+    FORCEINLINE APawn* GetPawn() const { return GetOwner<APawn>(); }
 
 private:
     explicit UAdhocPawnComponent(const FObjectInitializer& ObjectInitializer);

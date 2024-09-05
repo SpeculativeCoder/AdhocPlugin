@@ -20,8 +20,8 @@
 
 #pragma once
 
-#include "NativeGameplayTags.h"
 #include "Components/ActorComponent.h"
+#include "NativeGameplayTags.h"
 
 #include "AdhocAreaComponent.generated.h"
 

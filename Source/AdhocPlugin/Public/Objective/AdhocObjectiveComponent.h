@@ -20,10 +20,9 @@
 
 #pragma once
 
+#include "Components/ActorComponent.h"
 #include "NativeGameplayTags.h"
 #include "Area/AdhocAreaComponent.h"
-#include "Area/AdhocAreaVolume.h"
-#include "Components/ActorComponent.h"
 
 #include "AdhocObjectiveComponent.generated.h"
 

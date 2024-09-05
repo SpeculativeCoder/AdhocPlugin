@@ -25,15 +25,20 @@ public class AdhocPlugin : ModuleRules
 {
     public AdhocPlugin(ReadOnlyTargetRules Target) : base(Target)
     {
-        PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
+        PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs; //PCHUsageMode.NoPCHs;
+
+        //PrivatePCHHeaderFile = "Private/AdhocPluginPrivatePCH.h";
+        //MinFilesUsingPrecompiledHeaderOverride = 1;
+        //bUsePrecompiled = false;
+        bUseUnity = false;
 
         // check if AdhocPluginExtra is available
         DirectoryReference Plugins = new DirectoryReference(PluginDirectory);
         DirectoryReference AdhocPluginExtra = DirectoryReference.Combine(Plugins, "Source", "AdhocPlugin", "AdhocPluginExtra");
-        Log.TraceInformation("AdhocPluginExtra={0}", AdhocPluginExtra);
+        //Log.TraceInformation("AdhocPluginExtra={0}", AdhocPluginExtra);
 
         bool AdhocPluginExtraExists = DirectoryReference.Exists(AdhocPluginExtra);
-        Log.TraceInformation("AdhocPluginExtraExists={0}", AdhocPluginExtraExists);
+        //Log.TraceInformation("AdhocPluginExtraExists={0}", AdhocPluginExtraExists);
 
         PublicDefinitions.Add("WITH_ADHOC_PLUGIN_EXTRA=" + (AdhocPluginExtraExists ? "1" : "0"));
 

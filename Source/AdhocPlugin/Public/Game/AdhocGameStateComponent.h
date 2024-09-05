@@ -20,12 +20,12 @@
 
 #pragma once
 
+#include "Components/ActorComponent.h"
 #include "Area/AdhocAreaState.h"
 #include "Faction/AdhocFactionState.h"
 #include "Objective/AdhocObjectiveState.h"
 #include "Server/AdhocServerState.h"
 #include "Structure/AdhocStructureState.h"
-#include "Components/ActorComponent.h"
 
 #include "AdhocGameStateComponent.generated.h"
 
