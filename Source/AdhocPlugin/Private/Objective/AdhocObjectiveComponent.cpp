@@ -22,7 +22,6 @@
 
 #include "EngineUtils.h"
 #include "Area/AdhocAreaComponent.h"
-#include "Area/AdhocAreaVolume.h"
 #include "GameFramework/Actor.h"
 #include "Net/UnrealNetwork.h"
 
