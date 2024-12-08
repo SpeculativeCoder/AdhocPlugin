@@ -957,8 +957,8 @@ void UAdhocGameModeComponent::SubmitAreas()
         Writer->WriteValue(TEXT("regionId"), AreaState.RegionID);
         Writer->WriteValue(TEXT("index"), AreaState.Index);
         Writer->WriteValue(TEXT("name"), AreaState.Name);
-        Writer->WriteValue(TEXT("x"), static_cast<double>(-AreaState.Location.X));
-        Writer->WriteValue(TEXT("y"), static_cast<double>(AreaState.Location.Y));
+        Writer->WriteValue(TEXT("x"), static_cast<double>(AreaState.Location.X));
+        Writer->WriteValue(TEXT("y"), static_cast<double>(-AreaState.Location.Y));
         Writer->WriteValue(TEXT("z"), static_cast<double>(AreaState.Location.Z));
         Writer->WriteValue(TEXT("sizeX"), static_cast<double>(AreaState.Size.X));
         Writer->WriteValue(TEXT("sizeY"), static_cast<double>(AreaState.Size.Y));
@@ -1065,8 +1065,8 @@ void UAdhocGameModeComponent::SubmitObjectives()
         Writer->WriteValue(TEXT("regionId"), AdhocGameState->GetRegionID());
         Writer->WriteValue(TEXT("index"), AdhocObjective->GetObjectiveIndex());
         Writer->WriteValue(TEXT("name"), AdhocObjective->GetFriendlyName());
-        Writer->WriteValue(TEXT("x"), static_cast<double>(-Location.X));
-        Writer->WriteValue(TEXT("y"), static_cast<double>(Location.Y));
+        Writer->WriteValue(TEXT("x"), static_cast<double>(Location.X));
+        Writer->WriteValue(TEXT("y"), static_cast<double>(-Location.Y));
         Writer->WriteValue(TEXT("z"), static_cast<double>(Location.Z));
         Writer->WriteValue(TEXT("sizeX"), static_cast<double>(Size.X));
         Writer->WriteValue(TEXT("sizeY"), static_cast<double>(Size.Y));
@@ -1390,12 +1390,16 @@ void UAdhocGameModeComponent::OnUserJoinResponse(
         double Z = 0;
         double Yaw = 0;
         double Pitch = 0;
-        if (JsonObject->TryGetNumberField("x", X) && JsonObject->TryGetNumberField("y", Y) && JsonObject->TryGetNumberField("z", Z)
-            && JsonObject->TryGetNumberField("yaw", Yaw) && JsonObject->TryGetNumberField("pitch", Pitch))
+        if (JsonObject->TryGetNumberField("x", X)
+            && JsonObject->TryGetNumberField("y", Y)
+            && JsonObject->TryGetNumberField("z", Z)
+            && JsonObject->TryGetNumberField("yaw", Yaw)
+            && JsonObject->TryGetNumberField("pitch", Pitch))
         {
-            X = -X;
+            const FVector Location(X, -Y, Z);
+            const FRotator Rotation(Pitch, Yaw, 0);
 
-            UE_LOG(LogAdhocGameModeComponent, Verbose, TEXT("User location information: ServerID=%d X=%f Y=%f Z=%f Yaw=%f Pitch=%f"), ServerID, X, Y, Z, Yaw, Pitch);
+            UE_LOG(LogAdhocGameModeComponent, Verbose, TEXT("User location/rotation information: ServerID=%d X=%f Y=%f Z=%f Yaw=%f Pitch=%f"), ServerID, Location.X, Location.Y, Location.Z, Rotation.Yaw, Rotation.Pitch);
 
             // TODO: kick em if wrong server? (can this even happen?)
             if (ServerID != AdhocGameState->GetServerID())
@@ -1403,7 +1407,7 @@ void UAdhocGameModeComponent::OnUserJoinResponse(
                 UE_LOG(LogAdhocGameModeComponent, Verbose, TEXT("Location information server %d does not match this server %d!"), ServerID, AdhocGameState->GetServerID());
             }
 
-            AdhocController->SetImmediateSpawnTransform(FTransform(FRotator(Pitch, Yaw, 0), FVector(X, Y, Z)));
+            AdhocController->SetImmediateSpawnTransform(FTransform(Rotation, Location));
         }
     }
 
@@ -1508,8 +1512,8 @@ void UAdhocGameModeComponent::SubmitNavigate(UAdhocPlayerControllerComponent* Ad
     Writer->WriteValue("userId", AdhocPlayerState->GetUserID());
     Writer->WriteValue("sourceServerId", AdhocGameState->GetServerID());
     Writer->WriteValue("destinationAreaId", AreaID);
-    Writer->WriteValue("x", -PlayerLocation.X);
-    Writer->WriteValue("y", PlayerLocation.Y);
+    Writer->WriteValue("x", PlayerLocation.X);
+    Writer->WriteValue("y", -PlayerLocation.Y);
     Writer->WriteValue("z", PlayerLocation.Z);
     Writer->WriteValue("yaw", PlayerRotation.Yaw);
     Writer->WriteValue("pitch", PlayerRotation.Pitch);
@@ -1635,8 +1639,8 @@ void UAdhocGameModeComponent::OnTimer_ServerPawns() const
         Writer->WriteValue(TEXT("serverId"), AdhocGameState->GetServerID());
         Writer->WriteValue(TEXT("index"), PawnIndex);
 
-        Writer->WriteValue(TEXT("x"), -(*It)->GetActorLocation().X);
-        Writer->WriteValue(TEXT("y"), (*It)->GetActorLocation().Y);
+        Writer->WriteValue(TEXT("x"), (*It)->GetActorLocation().X);
+        Writer->WriteValue(TEXT("y"), -(*It)->GetActorLocation().Y);
         Writer->WriteValue(TEXT("z"), (*It)->GetActorLocation().Z);
         Writer->WriteValue(TEXT("pitch"), (*It)->GetActorRotation().Pitch);
         Writer->WriteValue(TEXT("yaw"), (*It)->GetActorRotation().Yaw);
