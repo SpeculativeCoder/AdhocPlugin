@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2022-2024 SpeculativeCoder (https://github.com/SpeculativeCoder)
+﻿// Copyright (c) 2022-2025 SpeculativeCoder (https://github.com/SpeculativeCoder)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
