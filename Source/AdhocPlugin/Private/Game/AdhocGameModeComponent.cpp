@@ -1510,7 +1510,6 @@ void UAdhocGameModeComponent::SubmitNavigate(UAdhocPlayerControllerComponent* Ad
     const auto& Writer = TJsonWriterFactory<TCHAR, TCondensedJsonPrintPolicy<TCHAR>>::Create(&JsonString);
     Writer->WriteObjectStart();
     Writer->WriteValue("userId", AdhocPlayerState->GetUserID());
-    Writer->WriteValue("sourceServerId", AdhocGameState->GetServerID());
     Writer->WriteValue("destinationAreaId", AreaID);
     Writer->WriteValue("x", PlayerLocation.X);
     Writer->WriteValue("y", -PlayerLocation.Y);
@@ -1523,7 +1522,7 @@ void UAdhocGameModeComponent::SubmitNavigate(UAdhocPlayerControllerComponent* Ad
     const auto& Request = Http->CreateRequest();
     Request->OnProcessRequestComplete().BindUObject(this, &UAdhocGameModeComponent::OnNavigateResponse, AdhocPlayerController);
     const FString URL =
-        FString::Printf(TEXT("http://%s:80/api/servers/%d/userAutoNavigate"), *ManagerHost, AdhocGameState->GetServerID(), AdhocPlayerState->GetUserID());
+        FString::Printf(TEXT("http://%s:80/api/servers/%d/userNavigate"), *ManagerHost, AdhocGameState->GetServerID());
     Request->SetURL(URL);
     Request->SetVerb("POST");
     Request->SetHeader(TEXT("Content-Type"), TEXT("application/json"));
@@ -1554,12 +1553,10 @@ void UAdhocGameModeComponent::OnNavigateResponse(
         return;
     }
 
-    const int64 DestinationServerID = JsonObject->GetIntegerField("destinationServerId");
-    // const FString ServerDomain = JsonObject->GetStringField("serverDomain");
     const FString IP = JsonObject->GetStringField("ip");
     const int32 Port = JsonObject->GetIntegerField("port");
     const FString WebSocketURL = JsonObject->GetStringField("webSocketUrl");
-    if (DestinationServerID <= 0 || IP.IsEmpty() || Port <= 0 || WebSocketURL.IsEmpty())
+    if (IP.IsEmpty() || Port <= 0 || WebSocketURL.IsEmpty())
     {
         UE_LOG(LogAdhocGameModeComponent, Warning, TEXT("Failed to process navigate response: %s"), *Response->GetContentAsString());
         return;
@@ -1568,9 +1565,6 @@ void UAdhocGameModeComponent::OnNavigateResponse(
     FString URL = FString::Printf(TEXT("%s:%d"), *IP, Port);
 
     URL += FString::Printf(TEXT("?WebSocketURL=%s"), *WebSocketURL);
-
-    // NavigateURL += FString::Printf(TEXT("?ServerID=%lld"), ServerID);
-    // NavigateURL += FString::Printf(TEXT("?ServerDomain=%s"), *ServerDomain);
 
     if (AdhocPlayerController->GetUserID() != -1)
     {
@@ -1589,8 +1583,8 @@ void UAdhocGameModeComponent::OnNavigateResponse(
     {
         URL += FString::Printf(TEXT("?Token=%s"), *AdhocPlayerController->GetToken());
     }
-    UE_LOG(LogAdhocGameModeComponent, Verbose, TEXT("Player %s navigate to server %d via URL: %s"),
-        *AdhocPlayerController->GetOwner<APlayerController>()->GetPlayerState<APlayerState>()->GetPlayerName(), DestinationServerID, *URL);
+    UE_LOG(LogAdhocGameModeComponent, Verbose, TEXT("Player %s navigate via URL: %s"),
+        *AdhocPlayerController->GetOwner<APlayerController>()->GetPlayerState<APlayerState>()->GetPlayerName(), *URL);
 
     APlayerController* PlayerController = AdhocPlayerController->GetOwner<APlayerController>();
     check(PlayerController);
