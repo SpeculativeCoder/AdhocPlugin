@@ -36,14 +36,14 @@ class ADHOCPLUGIN_API UAdhocGameModeComponent : public UActorComponent
     DECLARE_MULTICAST_DELEGATE_OneParam(FOnUserJoinSuccessDelegate, class AController* Controller);
     DECLARE_MULTICAST_DELEGATE_OneParam(FOnUserJoinFailureDelegate, class AController* Controller);
     DECLARE_MULTICAST_DELEGATE_TwoParams(FOnObjectiveTakenEventDelegate, struct FAdhocObjectiveState& OutObjective, struct FAdhocFactionState& Faction);
-    DECLARE_MULTICAST_DELEGATE_TwoParams(FOnUserDefeatedUserEventDelegate, class AController* Controller, class AController* DefeatedController);
+    DECLARE_MULTICAST_DELEGATE_TwoParams(FOnUserDefeatedEventDelegate, class AController* Controller, class AController* DefeatedController);
     DECLARE_MULTICAST_DELEGATE_OneParam(FOnStaggeredEmissionDelegate, const FAdhocEmission& Emission);
 
 public:
     FOnUserJoinSuccessDelegate OnUserJoinSuccessDelegate;
     FOnUserJoinFailureDelegate OnUserJoinFailureDelegate;
     FOnObjectiveTakenEventDelegate OnObjectiveTakenEventDelegate;
-    FOnUserDefeatedUserEventDelegate OnUserDefeatedUserEventDelegate;
+    FOnUserDefeatedEventDelegate OnUserDefeatedEventDelegate;
     FOnStaggeredEmissionDelegate OnStaggeredEmissionDelegate;
 
 private:
@@ -123,11 +123,11 @@ private:
 
 public:
     /** Trigger an event appropriate for when a human/bot defeated another human/bot. */
-    void UserDefeatedUser(class AController* Controller, class AController* DefeatedController) const;
+    void UserDefeated(class AController* Controller, class AController* DefeatedController) const;
 
 private:
-    /** Called when a UserDefeatedUser event occurs. Broadcasts a message to all users in the server. */
-    void OnUserDefeatedUserEvent(class AController* Controller, class AController* DefeatedController) const;
+    /** Called when a UserDefeated event occurs. Broadcasts a message to all users in the server. */
+    void OnUserDefeatedEvent(class AController* Controller, class AController* DefeatedController) const;
 
 public:
     /** Called when player enters an area volume and may cause the player to connect to different server managing that area. */

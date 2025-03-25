@@ -532,7 +532,7 @@ void UAdhocGameModeComponent::CreateStructure(
 }
 #endif
 
-void UAdhocGameModeComponent::UserDefeatedUser(AController* Controller, AController* DefeatedController) const
+void UAdhocGameModeComponent::UserDefeated(AController* Controller, AController* DefeatedController) const
 {
 #if WITH_SERVER_CODE && !defined(__EMSCRIPTEN__)
     if (StompClient && StompClient->IsConnected())
@@ -546,28 +546,28 @@ void UAdhocGameModeComponent::UserDefeatedUser(AController* Controller, AControl
         const TSharedRef<TJsonWriter<TCHAR, TCondensedJsonPrintPolicy<TCHAR>>> Writer =
             TJsonWriterFactory<TCHAR, TCondensedJsonPrintPolicy<TCHAR>>::Create(&JsonString);
         Writer->WriteObjectStart();
-        Writer->WriteValue(TEXT("eventType"), TEXT("UserDefeatedUser"));
+        Writer->WriteValue(TEXT("eventType"), TEXT("ServerUserDefeated"));
         Writer->WriteValue(TEXT("userId"), AdhocController->GetUserID());
         Writer->WriteValue(TEXT("defeatedUserId"), DefeatedAdhocController->GetUserID());
         Writer->WriteObjectEnd();
         Writer->Close();
 
         UE_LOG(LogAdhocGameModeComponent, Verbose, TEXT("Sending: %s"), *JsonString);
-        StompClient->Send("/app/UserDefeatedUser", JsonString);
+        StompClient->Send("/app/ServerUserDefeated", JsonString);
 
         // TODO: trigger via event?
-        OnUserDefeatedUserEvent(Controller, DefeatedController);
+        OnUserDefeatedEvent(Controller, DefeatedController);
     }
     else
 #endif
     {
-        OnUserDefeatedUserEvent(Controller, DefeatedController);
+        OnUserDefeatedEvent(Controller, DefeatedController);
     }
 }
 
-void UAdhocGameModeComponent::OnUserDefeatedUserEvent(AController* Controller, AController* DefeatedController) const
+void UAdhocGameModeComponent::OnUserDefeatedEvent(AController* Controller, AController* DefeatedController) const
 {
-    OnUserDefeatedUserEventDelegate.Broadcast(Controller, DefeatedController);
+    OnUserDefeatedEventDelegate.Broadcast(Controller, DefeatedController);
 }
 
 void UAdhocGameModeComponent::PlayerEnterArea(APlayerController* PlayerController, const int32 AreaIndex) const
