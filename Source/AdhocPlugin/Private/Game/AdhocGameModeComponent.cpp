@@ -660,7 +660,7 @@ void UAdhocGameModeComponent::OnStompConnected(const FString& ProtocolVersion, c
 
 void UAdhocGameModeComponent::OnStompClosed(const FString& Reason) const
 {
-    UE_LOG(LogAdhocGameModeComponent, Verbose, TEXT("OnStompClosed: Reason=%s"), *Reason);
+    UE_LOG(LogAdhocGameModeComponent, Warning, TEXT("OnStompClosed: Reason=%s"), *Reason);
 
     if (GetNetMode() == NM_DedicatedServer)
     {
