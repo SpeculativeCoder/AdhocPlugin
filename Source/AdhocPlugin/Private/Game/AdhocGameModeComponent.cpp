@@ -187,31 +187,55 @@ void UAdhocGameModeComponent::InitFactionStates() const
 {
     // set up some default factions (will be overridden once we contact the manager server)
     TArray<FAdhocFactionState> Factions;
-    Factions.SetNum(3);
+    Factions.SetNum(8);
 
     Factions[0].ID = 1;
     Factions[0].Index = 0;
     Factions[0].Name = TEXT("Alpha");
-    Factions[0].Color = FColor::FromHex(TEXT("#FFFF00"));
+    Factions[0].Color = FColor::FromHex(TEXT("#62ABFF"));
     Factions[0].Score = 0;
 
     Factions[1].ID = 2;
     Factions[1].Index = 1;
     Factions[1].Name = TEXT("Beta");
-    Factions[1].Color = FColor::FromHex(TEXT("#00AAFF"));
+    Factions[1].Color = FColor::FromHex(TEXT("#FF9D00"));
     Factions[1].Score = 0;
 
     Factions[2].ID = 3;
     Factions[2].Index = 2;
     Factions[2].Name = TEXT("Gamma");
-    Factions[2].Color = FColor::FromHex(TEXT("#AA00FF"));
+    Factions[2].Color = FColor::FromHex(TEXT("#FFFF00"));
     Factions[2].Score = 0;
 
-    // Factions[3].ID = 4;
-    // Factions[3].Index = 3;
-    // Factions[3].Name = TEXT("Delta");
-    // Factions[3].Color = FColor::FromHex(TEXT("#FF2200"));
-    // Factions[3].Score = 0;
+    Factions[3].ID = 4;
+    Factions[3].Index = 3;
+    Factions[3].Name = TEXT("Delta");
+    Factions[3].Color = FColor::FromHex(TEXT("#FF009D"));
+    Factions[3].Score = 0;
+
+    Factions[4].ID = 5;
+    Factions[4].Index = 4;
+    Factions[4].Name = TEXT("Epsilon");
+    Factions[4].Color = FColor::FromHex(TEXT("#00F7FF"));
+    Factions[4].Score = 0;
+
+    Factions[5].ID = 6;
+    Factions[5].Index = 5;
+    Factions[5].Name = TEXT("Zeta");
+    Factions[5].Color = FColor::FromHex(TEXT("#C1F8BD"));
+    Factions[5].Score = 0;
+
+    Factions[6].ID = 7;
+    Factions[6].Index = 6;
+    Factions[6].Name = TEXT("Eta");
+    Factions[6].Color = FColor::FromHex(TEXT("#FFC2F3"));
+    Factions[6].Score = 0;
+
+    Factions[7].ID = 8;
+    Factions[7].Index = 7;
+    Factions[7].Name = TEXT("Theta");
+    Factions[7].Color = FColor::FromHex(TEXT("#A300FF"));
+    Factions[7].Score = 0;
 
     AdhocGameState->SetFactions(Factions);
 }
