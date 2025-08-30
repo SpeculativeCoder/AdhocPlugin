@@ -152,7 +152,7 @@ void UAdhocGameModeComponent::BeginPlay()
         // will we then do an initial push/refresh all world state via REST calls etc.
         UE_LOG(LogAdhocGameModeComponent, Verbose, TEXT("Initializing Stomp connection..."));
 
-        const FString& StompURL = FString::Printf(TEXT("ws://%s:80/ws/stomp/server"), *ManagerHost);
+        const FString& StompURL = FString::Printf(TEXT("ws://%s:80/adhoc_ws/stomp/server"), *ManagerHost);
         StompClient = Stomp->CreateClient(StompURL, *BasicAuthHeaderValue);
 
         StompClient->OnConnected().AddUObject(this, &UAdhocGameModeComponent::OnStompConnected);
@@ -852,7 +852,7 @@ void UAdhocGameModeComponent::RetrieveFactions()
 {
     const auto& Request = Http->CreateRequest();
     Request->OnProcessRequestComplete().BindUObject(this, &UAdhocGameModeComponent::OnFactionsResponse);
-    const FString URL = FString::Printf(TEXT("http://%s:80/api/servers/%d/factions"), *ManagerHost, AdhocGameState->GetServerID());
+    const FString URL = FString::Printf(TEXT("http://%s:80/adhoc_api/servers/%d/factions"), *ManagerHost, AdhocGameState->GetServerID());
     Request->SetURL(URL);
     Request->SetVerb("GET");
     Request->SetHeader(BasicAuthHeaderName, BasicAuthHeaderValue);
@@ -901,7 +901,7 @@ void UAdhocGameModeComponent::RetrieveServers()
 {
     const auto& Request = Http->CreateRequest();
     Request->OnProcessRequestComplete().BindUObject(this, &UAdhocGameModeComponent::OnServersResponse);
-    const FString URL = FString::Printf(TEXT("http://%s:80/api/servers/%d/servers"), *ManagerHost, AdhocGameState->GetServerID());
+    const FString URL = FString::Printf(TEXT("http://%s:80/adhoc_api/servers/%d/servers"), *ManagerHost, AdhocGameState->GetServerID());
     Request->SetURL(URL);
     Request->SetVerb("GET");
     Request->SetHeader(BasicAuthHeaderName, BasicAuthHeaderValue);
@@ -996,7 +996,7 @@ void UAdhocGameModeComponent::SubmitAreas()
 
     const auto& Request = Http->CreateRequest();
     Request->OnProcessRequestComplete().BindUObject(this, &UAdhocGameModeComponent::OnAreasResponse);
-    const FString URL = FString::Printf(TEXT("http://%s:80/api/servers/%d/areas"), *ManagerHost, AdhocGameState->GetServerID());
+    const FString URL = FString::Printf(TEXT("http://%s:80/adhoc_api/servers/%d/areas"), *ManagerHost, AdhocGameState->GetServerID());
     Request->SetURL(URL);
     Request->SetVerb("POST");
     Request->SetHeader("Content-Type", "application/json");
@@ -1148,7 +1148,7 @@ void UAdhocGameModeComponent::SubmitObjectives()
 
     const auto& Request = Http->CreateRequest();
     Request->OnProcessRequestComplete().BindUObject(this, &UAdhocGameModeComponent::OnObjectivesResponse);
-    const FString URL = FString::Printf(TEXT("http://%s:80/api/servers/%d/objectives"), *ManagerHost, AdhocGameState->GetServerID());
+    const FString URL = FString::Printf(TEXT("http://%s:80/adhoc_api/servers/%d/objectives"), *ManagerHost, AdhocGameState->GetServerID());
     Request->SetURL(URL);
     Request->SetVerb("POST");
     Request->SetHeader("Content-Type", "application/json");
@@ -1349,7 +1349,7 @@ void UAdhocGameModeComponent::SubmitUserJoin(UAdhocControllerComponent* AdhocCon
 
     const auto& Request = Http->CreateRequest();
     Request->OnProcessRequestComplete().BindUObject(this, &UAdhocGameModeComponent::OnUserJoinResponse, AdhocController, true);
-    const FString URL = FString::Printf(TEXT("http://%s:80/api/servers/%d/userJoin"), *ManagerHost, AdhocGameState->GetServerID());
+    const FString URL = FString::Printf(TEXT("http://%s:80/adhoc_api/servers/%d/userJoin"), *ManagerHost, AdhocGameState->GetServerID());
     Request->SetURL(URL);
     Request->SetVerb("POST");
     Request->SetHeader(TEXT("Content-Type"), TEXT("application/json"));
@@ -1546,7 +1546,7 @@ void UAdhocGameModeComponent::SubmitNavigate(UAdhocPlayerControllerComponent* Ad
     const auto& Request = Http->CreateRequest();
     Request->OnProcessRequestComplete().BindUObject(this, &UAdhocGameModeComponent::OnNavigateResponse, AdhocPlayerController);
     const FString URL =
-        FString::Printf(TEXT("http://%s:80/api/servers/%d/userNavigate"), *ManagerHost, AdhocGameState->GetServerID());
+        FString::Printf(TEXT("http://%s:80/adhoc_api/servers/%d/userNavigate"), *ManagerHost, AdhocGameState->GetServerID());
     Request->SetURL(URL);
     Request->SetVerb("POST");
     Request->SetHeader(TEXT("Content-Type"), TEXT("application/json"));
