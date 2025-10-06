@@ -1,4 +1,6 @@
 ﻿Binaries/
 Content/
 Intermediate/
+
+# NOTE: AdhocPluginExtra is in a separate git repo
 Source/AdhocPlugin/AdhocPluginExtra/
