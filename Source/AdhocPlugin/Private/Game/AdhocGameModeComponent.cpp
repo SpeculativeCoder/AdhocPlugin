@@ -216,7 +216,7 @@ void UAdhocGameModeComponent::InitFactionStates() const
     Factions[4].ID = 5;
     Factions[4].Index = 4;
     Factions[4].Name = TEXT("Epsilon");
-    Factions[4].Color = FColor::FromHex(TEXT("#66FFFD"));
+    Factions[4].Color = FColor::FromHex(TEXT("#96E8FF"));
     Factions[4].Score = 0;
 
     Factions[5].ID = 6;
@@ -234,7 +234,7 @@ void UAdhocGameModeComponent::InitFactionStates() const
     Factions[7].ID = 8;
     Factions[7].Index = 7;
     Factions[7].Name = TEXT("Theta");
-    Factions[7].Color = FColor::FromHex(TEXT("#0F0FFF"));
+    Factions[7].Color = FColor::FromHex(TEXT("#8480BB"));
     Factions[7].Score = 0;
 
     AdhocGameState->SetFactions(Factions);
