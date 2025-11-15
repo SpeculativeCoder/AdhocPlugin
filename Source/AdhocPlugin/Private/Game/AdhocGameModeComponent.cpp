@@ -1404,7 +1404,7 @@ void UAdhocGameModeComponent::OnUserJoinResponse(
     const int64 UserID = JsonObject->GetIntegerField("id");
     const int64 UserFactionID = JsonObject->GetIntegerField("factionId");
     const FString UserName = JsonObject->GetStringField("name");
-    const FString UserToken = JsonObject->GetStringField("token");
+    //const FString UserToken = JsonObject->GetStringField("token");
 
     int64 ServerID;
     if (JsonObject->TryGetNumberField("serverId", ServerID))
@@ -1448,11 +1448,11 @@ void UAdhocGameModeComponent::OnUserJoinResponse(
     AdhocController->SetFriendlyName(UserName);
     AdhocController->SetFactionIndex(FactionIndex);
 
-    UAdhocPlayerControllerComponent* AdhocPlayerController = Cast<UAdhocPlayerControllerComponent>(AdhocController);
-    if (AdhocPlayerController)
-    {
-        AdhocPlayerController->SetToken(UserToken);
-    }
+    //UAdhocPlayerControllerComponent* AdhocPlayerController = Cast<UAdhocPlayerControllerComponent>(AdhocController);
+    //if (AdhocPlayerController)
+    //{
+    //    AdhocPlayerController->SetToken(UserToken);
+    //}
 
     UAdhocAIControllerComponent* AdhocBotControllerComponent = Cast<UAdhocAIControllerComponent>(AdhocController);
     if (AdhocBotControllerComponent)
@@ -1484,7 +1484,7 @@ void UAdhocGameModeComponent::OnUserJoinResponse(
         }
     }
 
-    UE_LOG(LogAdhocGameModeComponent, Verbose, TEXT("User join success: UserID=%d UserName=%s UserFactionID=%d FactionIndex=%d UserToken=%s"), UserID, *UserName, UserFactionID, FactionIndex, *UserToken);
+    UE_LOG(LogAdhocGameModeComponent, Verbose, TEXT("User join success: UserID=%d UserName=%s UserFactionID=%d FactionIndex=%d"), UserID, *UserName, UserFactionID, FactionIndex);
 
     TOptional<FTransform> ImmediateSpawnTransform = AdhocController->GetImmediateSpawnTransform();
     if (ImmediateSpawnTransform.IsSet())
@@ -1580,11 +1580,14 @@ void UAdhocGameModeComponent::OnNavigateResponse(
     const FString IP = JsonObject->GetStringField("ip");
     const int32 Port = JsonObject->GetIntegerField("port");
     const FString WebSocketURL = JsonObject->GetStringField("webSocketUrl");
-    if (IP.IsEmpty() || Port <= 0 || WebSocketURL.IsEmpty())
+    const FString UserToken = JsonObject->GetStringField("token");
+    if (IP.IsEmpty() || Port <= 0 || WebSocketURL.IsEmpty() || UserToken.IsEmpty())
     {
         UE_LOG(LogAdhocGameModeComponent, Warning, TEXT("Failed to process navigate response: %s"), *Response->GetContentAsString());
         return;
     }
+
+    AdhocPlayerController->SetToken(UserToken);
 
     FString URL = FString::Printf(TEXT("%s:%d"), *IP, Port);
 
