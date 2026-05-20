@@ -142,12 +142,6 @@ void UAdhocGameModeComponent::BeginPlay()
 #if WITH_SERVER_CODE && !defined(__EMSCRIPTEN__)
     if (GetNetMode() != NM_Client)
     {
-        GetWorld()->GetTimerManager().SetTimer(TimerHandle_ServerPawns, this, &UAdhocGameModeComponent::OnTimer_ServerPawns, 5, true, 5);
-
-#if WITH_ADHOC_PLUGIN_EXTRA
-        GetWorld()->GetTimerManager().SetTimer(TimerHandle_RecentEmissions, this, &UAdhocGameModeComponent::OnTimer_RecentEmissions, 2, true, 2);
-#endif
-
         // initiate stomp connection - only once we are sure this connection is established
         // will we then do an initial push/refresh all world state via REST calls etc.
         UE_LOG(LogAdhocGameModeComponent, Verbose, TEXT("Initializing Stomp connection..."));
@@ -175,7 +169,7 @@ void UAdhocGameModeComponent::BeginPlay()
 void UAdhocGameModeComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 #if WITH_SERVER_CODE && !defined(__EMSCRIPTEN__)
-    if (StompClient->IsConnected())
+    if (StompClient && StompClient->IsConnected())
     {
         UE_LOG(LogAdhocGameModeComponent, Verbose, TEXT("Stopping Stomp connection..."));
         StompClient->Disconnect();
@@ -452,9 +446,18 @@ void UAdhocGameModeComponent::PostLogin(const APlayerController* PlayerControlle
     AdhocPlayerState->SetFactionIndex(AdhocPlayerController->GetFactionIndex());
 
 #if WITH_SERVER_CODE && !defined(__EMSCRIPTEN__)
-    UE_LOG(LogAdhocGameModeComponent, Verbose, TEXT("PostLogin: Submitting human user join: UserID=%d Token=%s"), AdhocPlayerController->GetUserID(), *AdhocPlayerController->GetToken());
+    // when running in editor we do not need a manager connection to allow users to join
+    if (InEditor() && !bServerStarted)
+    {
+        OnUserJoinSuccess(AdhocPlayerController);
+    }
+    else
+    {
+        // TODO: move into submit
+        UE_LOG(LogAdhocGameModeComponent, Verbose, TEXT("PostLogin: Submitting human user join: UserID=%d Token=%s"), AdhocPlayerController->GetUserID(), *AdhocPlayerController->GetToken());
 
-    SubmitUserJoin(AdhocPlayerController);
+        SubmitUserJoin(AdhocPlayerController);
+    }
 #endif
 }
 
@@ -470,15 +473,17 @@ void UAdhocGameModeComponent::BotJoin(const AAIController* BotController)
     UAdhocAIControllerComponent* AdhocBotController = Cast<UAdhocAIControllerComponent>(BotController->GetComponentByClass(UAdhocAIControllerComponent::StaticClass()));
     check(AdhocBotController);
 
-    UE_LOG(LogAdhocGameModeComponent, VeryVerbose, TEXT("BotJoin: Submitting bot user join: factionIndex=%d"), AdhocBotController->GetFactionIndex());
-
 #if WITH_SERVER_CODE && !defined(__EMSCRIPTEN__)
-    if (InEditor() && !StompClient->IsConnected())
+    // when running in editor we do not need a manager connection to allow users to join
+    if (InEditor() && !bServerStarted)
     {
         OnUserJoinSuccess(AdhocBotController);
     }
     else
     {
+        // TODO: move into submit
+        UE_LOG(LogAdhocGameModeComponent, VeryVerbose, TEXT("BotJoin: Submitting bot user join: factionIndex=%d"), AdhocBotController->GetFactionIndex());
+
         SubmitUserJoin(AdhocBotController);
     }
 #endif
@@ -492,7 +497,7 @@ void UAdhocGameModeComponent::BotLeave(const AAIController* BotController)
 void UAdhocGameModeComponent::ObjectiveTaken(FAdhocObjectiveState& OutObjective, FAdhocFactionState& Faction) const
 {
 #if WITH_SERVER_CODE && !defined(__EMSCRIPTEN__)
-    if (StompClient && StompClient->IsConnected())
+    if (StompClient && StompClient->IsConnected() && bServerStarted)
     {
         FString JsonString;
         const TSharedRef<TJsonWriter<TCHAR, TCondensedJsonPrintPolicy<TCHAR>>> Writer =
@@ -559,7 +564,7 @@ void UAdhocGameModeComponent::CreateStructure(
 void UAdhocGameModeComponent::UserDefeat(AController* Controller, AController* DefeatedController) const
 {
 #if WITH_SERVER_CODE && !defined(__EMSCRIPTEN__)
-    if (StompClient && StompClient->IsConnected())
+    if (StompClient && StompClient->IsConnected() && bServerStarted)
     {
         const UAdhocControllerComponent* AdhocController = CastChecked<UAdhocControllerComponent>(
             Controller->GetComponentByClass(UAdhocControllerComponent::StaticClass()));
@@ -1238,7 +1243,7 @@ void UAdhocGameModeComponent::OnObjectivesResponse(FHttpRequestPtr Request, FHtt
 #endif
 }
 
-void UAdhocGameModeComponent::ServerStarted() const
+void UAdhocGameModeComponent::ServerStarted()
 {
     FString JsonString;
     const auto& Writer = TJsonWriterFactory<TCHAR, TCondensedJsonPrintPolicy<TCHAR>>::Create(&JsonString);
@@ -1252,6 +1257,14 @@ void UAdhocGameModeComponent::ServerStarted() const
 
     UE_LOG(LogAdhocGameModeComponent, Verbose, TEXT("Sending: %s"), *JsonString);
     StompClient->Send("/app/ServerStarted", JsonString);
+
+    bServerStarted = true;
+
+    GetWorld()->GetTimerManager().SetTimer(TimerHandle_ServerPawns, this, &UAdhocGameModeComponent::OnTimer_ServerPawns, 5, true, 5);
+
+#if WITH_ADHOC_PLUGIN_EXTRA
+    GetWorld()->GetTimerManager().SetTimer(TimerHandle_RecentEmissions, this, &UAdhocGameModeComponent::OnTimer_RecentEmissions, 2, true, 2);
+#endif
 }
 
 void UAdhocGameModeComponent::OnServerUpdatedEvent(int32 EventServerID, int32 EventRegionID, const bool bEventEnabled, const bool bEventActive, const FString& EventPrivateIP,
@@ -1627,10 +1640,7 @@ void UAdhocGameModeComponent::OnNavigateResponse(
 
 void UAdhocGameModeComponent::OnTimer_ServerPawns() const
 {
-    if (StompClient && !StompClient->IsConnected())
-    {
-        return;
-    }
+    if (!StompClient || !StompClient->IsConnected() || !bServerStarted) { return; }
 
     FString JsonString;
     const auto& Writer = TJsonWriterFactory<TCHAR, TCondensedJsonPrintPolicy<TCHAR>>::Create(&JsonString);

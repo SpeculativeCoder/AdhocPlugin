@@ -72,6 +72,8 @@ private:
 
     TSharedPtr<class IStompClient> StompClient;
 
+    bool bServerStarted; // set to true once stomp is connected and startup information exchange with manager has completed
+
     FTimerHandle TimerHandle_ServerPawns;
     FTimerHandle TimerHandle_RecentEmissions;
 
@@ -161,12 +163,12 @@ private:
 
 #if WITH_ADHOC_PLUGIN_EXTRA
     void SubmitStructures();
-    void OnStructuresResponse(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful) const;
+    void OnStructuresResponse(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
 
     static void ExtractStructureFromJsonObject(const TSharedPtr<class FJsonObject>& JsonObject, FAdhocStructureState& OutStructure);
 #endif
 
-    void ServerStarted() const;
+    void ServerStarted();
     /** Called when a ServerUpdated event occurs. May set the areas this server has been assigned to manage. */
     void OnServerUpdatedEvent(int32 EventServerID, int32 EventRegionID, const bool bEventEnabled, const bool bEventActive, const FString& EventPrivateIP, const FString& EventPublicIP,
         int32 EventPublicWebSocketPort, const TArray<int64>& EventAreaIDs, const TArray<int32>& EventAreaIndexes) const;
