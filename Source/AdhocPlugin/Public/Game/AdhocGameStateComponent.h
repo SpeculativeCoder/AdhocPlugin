@@ -24,7 +24,6 @@
 #include "Area/AdhocAreaState.h"
 #include "Faction/AdhocFactionState.h"
 #include "Objective/AdhocObjectiveState.h"
-#include "Server/AdhocServerState.h"
 #include "Structure/AdhocStructureState.h"
 
 #include "AdhocGameStateComponent.generated.h"
@@ -57,9 +56,6 @@ class ADHOCPLUGIN_API UAdhocGameStateComponent : public UActorComponent
     TArray<FAdhocObjectiveState> Objectives;
 
     UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = true))
-    TArray<FAdhocServerState> Servers;
-
-    UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = true))
     TMap<FGuid, FAdhocStructureState> Structures;
 
 public:
@@ -87,7 +83,6 @@ public:
     void SetFactions(const TArray<FAdhocFactionState>& NewFactions);
     void SetAreas(const TArray<FAdhocAreaState>& NewAreas);
     void SetObjectives(const TArray<FAdhocObjectiveState>& NewObjectives);
-    void SetServers(const TArray<FAdhocServerState>& NewServers);
 
     FAdhocFactionState* FindFactionByID(int64 FactionID);
     FAdhocAreaState* FindAreaByID(int64 AreaID);
@@ -97,10 +92,6 @@ public:
     FAdhocObjectiveState* FindObjectiveByID(int64 ObjectiveID);
     FAdhocObjectiveState* FindObjectiveByIndex(int32 ObjectiveIndex);
     FAdhocObjectiveState* FindObjectiveByRegionIDAndIndex(int64 InRegionID, int32 Index);
-
-    FAdhocServerState* FindServerByID(int64 InServerID);
-    FAdhocServerState* FindServerByAreaID(const int64 AreaID);
-    FAdhocServerState* FindOrInsertServerByID(int64 InServerID);
 
     /** Get a color which represents the given faction, or gray if not a valid faction. */
     UFUNCTION(BlueprintCallable, BlueprintPure)

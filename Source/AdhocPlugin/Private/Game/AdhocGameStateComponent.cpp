@@ -60,12 +60,6 @@ void UAdhocGameStateComponent::SetAreas(const TArray<FAdhocAreaState>& NewAreas)
     Areas += NewAreas;
 }
 
-void UAdhocGameStateComponent::SetServers(const TArray<FAdhocServerState>& NewServers)
-{
-    Servers.Empty();
-    Servers += NewServers;
-}
-
 FAdhocFactionState* UAdhocGameStateComponent::FindFactionByID(const int64 FactionID)
 {
     for (int i = 0; i < Factions.Num(); i++)
@@ -148,43 +142,6 @@ FAdhocObjectiveState* UAdhocGameStateComponent::FindObjectiveByRegionIDAndIndex(
         }
     }
     return nullptr;
-}
-
-FAdhocServerState* UAdhocGameStateComponent::FindServerByID(const int64 InServerID)
-{
-    for (int i = 0; i < Servers.Num(); i++)
-    {
-        if (Servers[i].ID == ServerID)
-        {
-            return &Servers[i];
-        }
-    }
-    return nullptr;
-}
-
-FAdhocServerState* UAdhocGameStateComponent::FindServerByAreaID(const int64 AreaID)
-{
-    for (int i = 0; i < Servers.Num(); i++)
-    {
-        if (Servers[i].AreaIDs.Contains(AreaID))
-        {
-            return &Servers[i];
-        }
-    }
-    return nullptr;
-}
-
-FAdhocServerState* UAdhocGameStateComponent::FindOrInsertServerByID(const int64 InServerID)
-{
-    FAdhocServerState* Server = FindServerByID(InServerID);
-    if (Server)
-    {
-        return Server;
-    }
-
-    FAdhocServerState NewServer;
-    NewServer.ID = InServerID;
-    return &Servers.Add_GetRef(NewServer);
 }
 
 FColor UAdhocGameStateComponent::GetFactionColorSafe(int32 FactionIndex) const

@@ -92,7 +92,6 @@ private:
 
     void InitFactionStates() const;
     void InitAreaStates() const;
-    void InitServerStates() const;
     void InitObjectiveStates() const;
 #if WITH_ADHOC_PLUGIN_EXTRA
     void InitStructureStates() const;
@@ -150,10 +149,7 @@ private:
     void OnStompSubscriptionEvent(const class IStompMessage& Message);
 
     void RetrieveFactions();
-    void OnFactionsResponse(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful) const;
-
-    void RetrieveServers();
-    void OnServersResponse(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful) const;
+    void OnFactionsResponse(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
 
     void SubmitAreas();
     void OnAreasResponse(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);

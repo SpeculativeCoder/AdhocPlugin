@@ -27,7 +27,6 @@
 #include "Pawn/AdhocPawnComponent.h"
 #include "Player/AdhocPlayerControllerComponent.h"
 #include "Player/AdhocPlayerStateComponent.h"
-#include "Server/AdhocServerState.h"
 #include "EngineUtils.h"
 #include "TimerManager.h"
 #include "AI/AdhocAIControllerComponent.h"
@@ -82,7 +81,6 @@ void UAdhocGameModeComponent::InitializeComponent()
 
     InitFactionStates();
     InitAreaStates();
-    InitServerStates();
     InitObjectiveStates();
 #if WITH_ADHOC_PLUGIN_EXTRA
     InitStructureStates();
@@ -301,29 +299,6 @@ void UAdhocGameModeComponent::InitAreaStates() const
     AdhocGameState->SetAreas(Areas);
     // AdhocGameState->SetActiveAreaIDs(ActiveAreaIDs);
     AdhocGameState->SetActiveAreaIndexes(ActiveAreaIndexes);
-}
-
-void UAdhocGameModeComponent::InitServerStates() const
-{
-    // assume this is the only server until we get the server(s) info
-    TArray<FAdhocServerState> Servers;
-    Servers.SetNum(1);
-
-    Servers[0].ID = AdhocGameState->GetServerID();
-    Servers[0].RegionID = AdhocGameState->GetRegionID();
-    // Servers[0].AreaIDs = ActiveAreaIDs;
-    Servers[0].AreaIndexes = AdhocGameState->GetActiveAreaIndexes();
-    // Servers[0].Name = TEXT("Server");
-    // Servers[0].Status = TEXT("STARTED");
-    Servers[0].bEnabled = true;
-    Servers[0].bActive = true;
-#if WITH_SERVER_CODE && !defined(__EMSCRIPTEN__)
-    Servers[0].PrivateIP = PrivateIP;
-    Servers[0].PublicIP = PrivateIP;
-    Servers[0].PublicWebSocketPort = 8889; // TODO: get from driver
-#endif
-
-    AdhocGameState->SetServers(Servers);
 }
 
 void UAdhocGameModeComponent::InitObjectiveStates() const
@@ -682,9 +657,6 @@ void UAdhocGameModeComponent::OnStompConnected(const FString& ProtocolVersion, c
     StompClient->Subscribe("/topic/events", StompSubscriptionEvent, StompRequestCompleted);
 
     RetrieveFactions();
-    RetrieveServers();
-
-    SubmitAreas();
 }
 
 void UAdhocGameModeComponent::OnStompClosed(const FString& Reason) const
@@ -866,7 +838,7 @@ void UAdhocGameModeComponent::RetrieveFactions()
     Request->ProcessRequest();
 }
 
-void UAdhocGameModeComponent::OnFactionsResponse(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful) const
+void UAdhocGameModeComponent::OnFactionsResponse(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
 {
     UE_LOG(LogAdhocGameModeComponent, Verbose, TEXT("Factions response: ResponseCode=%d Content=%s"), Response->GetResponseCode(), *Response->GetContentAsString());
 
@@ -900,75 +872,8 @@ void UAdhocGameModeComponent::OnFactionsResponse(FHttpRequestPtr Request, FHttpR
     }
 
     AdhocGameState->SetFactions(Factions);
-}
 
-void UAdhocGameModeComponent::RetrieveServers()
-{
-    const auto& Request = Http->CreateRequest();
-    Request->OnProcessRequestComplete().BindUObject(this, &UAdhocGameModeComponent::OnServersResponse);
-    const FString URL = FString::Printf(TEXT("http://%s:80/adhoc_api/servers/%d/servers"), *ManagerHost, AdhocGameState->GetServerID());
-    Request->SetURL(URL);
-    Request->SetVerb("GET");
-    Request->SetHeader(BasicAuthHeaderName, BasicAuthHeaderValue);
-
-    UE_LOG(LogAdhocGameModeComponent, Verbose, TEXT("GET %s"), *URL);
-    Request->ProcessRequest();
-}
-
-void UAdhocGameModeComponent::OnServersResponse(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful) const
-{
-    UE_LOG(LogAdhocGameModeComponent, Verbose, TEXT("Servers response: ResponseCode=%d Content=%s"), Response->GetResponseCode(), *Response->GetContentAsString());
-
-    if (!bWasSuccessful || Response->GetResponseCode() != 200)
-    {
-        UE_LOG(LogAdhocGameModeComponent, Warning, TEXT("Servers response failure: ResponseCode=%d Content=%s"), Response->GetResponseCode(), *Response->GetContentAsString());
-        ShutdownIfNotInEditor();
-        return;
-    }
-
-    const auto& Reader = TJsonReaderFactory<>::Create(Response->GetContentAsString());
-    TArray<TSharedPtr<FJsonValue>> JsonValues;
-    if (!FJsonSerializer::Deserialize(Reader, JsonValues))
-    {
-        UE_LOG(LogAdhocGameModeComponent, Warning, TEXT("Failed to deserialize get servers response: Content=%s"), *Response->GetContentAsString());
-        ShutdownIfNotInEditor();
-        return;
-    }
-
-    TArray<FAdhocServerState> Servers;
-    Servers.SetNum(JsonValues.Num());
-
-    for (int i = 0; i < Servers.Num(); i++)
-    {
-        const TSharedPtr<FJsonObject> JsonObject = JsonValues[i]->AsObject();
-
-        Servers[i].ID = JsonObject->GetIntegerField("id");
-        // Servers[i].Name = JsonObject->GetStringField("name");
-        // Servers[i].HostingType = NewServer->GetStringField("hostingType");
-        // Servers[i].Status = JsonObject->GetStringField("status");
-        Servers[i].bEnabled = JsonObject->GetBoolField("enabled");
-        Servers[i].bActive = JsonObject->GetBoolField("active");
-        JsonObject->TryGetStringField("privateIP", Servers[i].PrivateIP);
-        JsonObject->TryGetStringField("publicIP", Servers[i].PublicIP);
-        JsonObject->TryGetNumberField("publicWebSocketPort", Servers[i].PublicWebSocketPort);
-        Servers[i].RegionID = JsonObject->GetIntegerField("regionId");
-        for (auto& AreaIDValue : JsonObject->GetArrayField("areaIds"))
-        {
-            Servers[i].AreaIDs.AddUnique(AreaIDValue->AsNumber());
-        }
-        for (auto& AreaIndexValue : JsonObject->GetArrayField("areaIndexes"))
-        {
-            Servers[i].AreaIndexes.AddUnique(AreaIndexValue->AsNumber());
-        }
-
-        // if it is my server ID - what areas are assigned to this server?
-        if (AdhocGameState->GetServerID() == Servers[i].ID)
-        {
-            SetActiveAreas(Servers[i].RegionID, Servers[i].AreaIndexes);
-        }
-    }
-
-    AdhocGameState->SetServers(Servers);
+    SubmitAreas();
 }
 
 // PUT AREAS (the map defines the areas, and should override what is on the server, but the server will choose the IDs)
@@ -1270,34 +1175,6 @@ void UAdhocGameModeComponent::ServerStarted()
 void UAdhocGameModeComponent::OnServerUpdatedEvent(int32 EventServerID, int32 EventRegionID, const bool bEventEnabled, const bool bEventActive, const FString& EventPrivateIP,
     const FString& EventPublicIP, int32 EventPublicWebSocketPort, const TArray<int64>& EventAreaIDs, const TArray<int32>& EventAreaIndexes) const
 {
-    FAdhocServerState* Server = AdhocGameState->FindOrInsertServerByID(EventServerID);
-    if (!Server)
-    {
-        UE_LOG(LogAdhocGameModeComponent, Warning, TEXT("Failed to find or insert server with ID %d!"), EventServerID);
-        return;
-    }
-
-    Server->ID = EventServerID;
-    Server->RegionID = EventRegionID;
-    // Server->Status = EventStatus;
-    Server->bEnabled = bEventEnabled;
-    Server->bActive = bEventActive;
-    Server->PrivateIP = EventPrivateIP;
-    Server->PublicIP = EventPublicIP;
-    Server->PublicWebSocketPort = EventPublicWebSocketPort;
-
-    Server->AreaIDs.Reset();
-    for (auto& AreaIDValue : EventAreaIDs)
-    {
-        Server->AreaIDs.AddUnique(AreaIDValue);
-    }
-
-    Server->AreaIndexes.Reset();
-    for (auto& AreaIndexValue : EventAreaIndexes)
-    {
-        Server->AreaIndexes.AddUnique(AreaIndexValue);
-    }
-
     if (EventServerID == AdhocGameState->GetServerID())
     {
         SetActiveAreas(EventRegionID, EventAreaIndexes);
