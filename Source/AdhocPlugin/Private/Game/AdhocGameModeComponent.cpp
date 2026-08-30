@@ -737,32 +737,32 @@ void UAdhocGameModeComponent::OnStompSubscriptionEvent(const IStompMessage& Mess
     {
         const int64 EventServerID = JsonObject->GetIntegerField("serverId");
         // const FString EventStatus = JsonObject->GetStringField("status");
-        const bool EventEnabled = JsonObject->GetBoolField("enabled");
-        const bool EventActive = JsonObject->GetBoolField("active");
+        // const bool EventEnabled = JsonObject->GetBoolField("enabled");
+        // const bool EventActive = JsonObject->GetBoolField("active");
 
-        FString EventPrivateIP;
-        FString EventPublicIP;
-        int32 EventServerPublicWebSocketPort;
+        // FString EventPrivateIP;
+        // FString EventPublicIP;
+        // int32 EventServerPublicWebSocketPort;
         // TArray<FString> EventNearbyPublicServerIPs;
-        JsonObject->TryGetStringField("privateIp", EventPrivateIP);
-        JsonObject->TryGetStringField("publicIp", EventPublicIP);
-        JsonObject->TryGetNumberField("publicWebSocketPort", EventServerPublicWebSocketPort);
+        // JsonObject->TryGetStringField("privateIp", EventPrivateIP);
+        // JsonObject->TryGetStringField("publicIp", EventPublicIP);
+        // JsonObject->TryGetNumberField("publicWebSocketPort", EventServerPublicWebSocketPort);
         // Event->TryGetStringArrayField("nearbyServerPublicIps", EventNearbyPublicServerIPs); // TODO: check success
 
         const int32 EventRegionID = JsonObject->GetIntegerField("regionId");
 
-        TArray<int64> EventAreaIDs;
+        // TArray<int64> EventAreaIDs;
         TArray<int32> EventAreaIndexes;
-        for (auto& AreaIDValue : JsonObject->GetArrayField("areaIds"))
-        {
-            EventAreaIDs.AddUnique(AreaIDValue->AsNumber());
-        }
+        // for (auto& AreaIDValue : JsonObject->GetArrayField("areaIds"))
+        // {
+        //     EventAreaIDs.AddUnique(AreaIDValue->AsNumber());
+        // }
         for (auto& AreaIndexValue : JsonObject->GetArrayField("areaIndexes"))
         {
             EventAreaIndexes.AddUnique(AreaIndexValue->AsNumber());
         }
 
-        OnServerAllocateEvent(EventServerID, EventRegionID, EventEnabled, EventActive, EventPrivateIP, EventPublicIP, EventServerPublicWebSocketPort, EventAreaIDs, EventAreaIndexes);
+        OnServerAllocateEvent(EventServerID, EventRegionID, EventAreaIndexes);
     }
     else if (EventType.Equals(TEXT("WorldUpdated")))
     {
@@ -1172,8 +1172,7 @@ void UAdhocGameModeComponent::ServerStarted()
 #endif
 }
 
-void UAdhocGameModeComponent::OnServerAllocateEvent(int32 EventServerID, int32 EventRegionID, const bool bEventEnabled, const bool bEventActive, const FString& EventPrivateIP,
-    const FString& EventPublicIP, int32 EventPublicWebSocketPort, const TArray<int64>& EventAreaIDs, const TArray<int32>& EventAreaIndexes) const
+void UAdhocGameModeComponent::OnServerAllocateEvent(int32 EventServerID, int32 EventRegionID, const TArray<int32>& EventAreaIndexes) const
 {
     if (EventServerID == AdhocGameState->GetServerID())
     {

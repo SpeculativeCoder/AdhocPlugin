@@ -166,8 +166,7 @@ private:
 
     void ServerStarted();
     /** Called when a ServerUpdated event occurs. May set the areas this server has been assigned to manage. */
-    void OnServerAllocateEvent(int32 EventServerID, int32 EventRegionID, const bool bEventEnabled, const bool bEventActive, const FString& EventPrivateIP, const FString& EventPublicIP,
-        int32 EventPublicWebSocketPort, const TArray<int64>& EventAreaIDs, const TArray<int32>& EventAreaIndexes) const;
+    void OnServerAllocateEvent(int32 EventServerID, int32 EventRegionID, const TArray<int32>& EventAreaIndexes) const;
 
     void SetActiveAreas(int32 RegionID, const TArray<int32>& AreaIndexes) const;
 
