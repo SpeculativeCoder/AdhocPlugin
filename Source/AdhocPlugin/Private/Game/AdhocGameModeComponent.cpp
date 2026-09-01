@@ -62,10 +62,32 @@ void UAdhocGameModeComponent::InitializeComponent()
 
     int64 ServerID = 1;
     int64 RegionID = 1;
+    FString InitialAreaIndexesString;
     FParse::Value(FCommandLine::Get(), TEXT("ServerID="), ServerID);
     FParse::Value(FCommandLine::Get(), TEXT("RegionID="), RegionID);
+    FParse::Value(FCommandLine::Get(), TEXT("InitialAreaIndexes="), InitialAreaIndexesString, false);
 
-    UE_LOG(LogAdhocGameModeComponent, Log, TEXT("InitializeComponent: ServerID=%d RegionID=%d"), ServerID, RegionID);
+    UE_LOG(LogAdhocGameModeComponent, Log, TEXT("InitializeComponent: ServerID=%lld RegionID=%lld InitialAreaIndexes=%s"),
+        ServerID, RegionID, *InitialAreaIndexesString);
+
+    TArray<FString> InitialAreaIndexesStringArray;
+    InitialAreaIndexesString.ParseIntoArray(InitialAreaIndexesStringArray, TEXT(","), true);
+    TArray<int32> InitialAreaIndexes;
+    for (const FString& InitialAreaIndexString : InitialAreaIndexesStringArray)
+    {
+        if (InitialAreaIndexString.IsNumeric())
+        {
+            int32 InitialAreaIndex = FCString::Atoi(*InitialAreaIndexString);
+            UE_LOG(LogAdhocGameModeComponent, Log, TEXT("InitializeComponent: InitialAreaIndex=%d"), InitialAreaIndex);
+            InitialAreaIndexes.Add(InitialAreaIndex);
+        }
+    }
+
+    // TODO
+    if (InitialAreaIndexes.Num() <= 0)
+    {
+        InitialAreaIndexes.Add(0);
+    }
 
     GameMode = GetOwner<AGameModeBase>();
     check(GameMode);
@@ -78,6 +100,7 @@ void UAdhocGameModeComponent::InitializeComponent()
 
     AdhocGameState->SetServerID(ServerID);
     AdhocGameState->SetRegionID(RegionID);
+    AdhocGameState->SetActiveAreaIndexes(InitialAreaIndexes);
 
     InitFactionStates();
     InitAreaStates();
@@ -237,8 +260,6 @@ void UAdhocGameModeComponent::InitAreaStates() const
     // set up the areas in this region (manager server will tell us about the areas in other regions)
     int32 AreaIndex = 0;
     TArray<FAdhocAreaState> Areas;
-    // TArray<int64> ActiveAreaIDs;
-    TArray<int32> ActiveAreaIndexes;
 
     for (TActorIterator<AActor> ActorIter(GetWorld()); ActorIter; ++ActorIter)
     {
@@ -263,15 +284,6 @@ void UAdhocGameModeComponent::InitAreaStates() const
         Area.ServerID = AdhocGameState->GetServerID();
         Areas.Add(Area);
 
-        // until we get told which areas should be active just assume they are all assigned to us?
-        // ActiveAreaIDs.AddUnique(AreaVolume->GetAreaID());
-
-        // TODO: HACK: just take first area for now
-        if (ActiveAreaIndexes.Num() < 1)
-        {
-            ActiveAreaIndexes.AddUnique(AdhocArea->GetAreaIndex());
-        }
-
         AreaIndex++;
     }
 
@@ -292,13 +304,9 @@ void UAdhocGameModeComponent::InitAreaStates() const
         // TODO: determine map size based on geometry
         Area.Size = FVector(10000, 10000, 10000);
         Areas.Add(Area);
-
-        ActiveAreaIndexes.AddUnique(Area.Index);
     }
 
     AdhocGameState->SetAreas(Areas);
-    // AdhocGameState->SetActiveAreaIDs(ActiveAreaIDs);
-    AdhocGameState->SetActiveAreaIndexes(ActiveAreaIndexes);
 }
 
 void UAdhocGameModeComponent::InitObjectiveStates() const
