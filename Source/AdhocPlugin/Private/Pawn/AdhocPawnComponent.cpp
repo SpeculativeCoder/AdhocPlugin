@@ -20,8 +20,13 @@
 
 #include "Pawn/AdhocPawnComponent.h"
 
+#include "Engine/World.h"
 #include "GameFramework/Pawn.h"
-#include "Player/AdhocPlayerControllerComponent.h"
+#include "TimerManager.h"
+#include "Game/AdhocGameModeComponent.h"
+#include "Game/AdhocGameStateComponent.h"
+#include "GameFramework/GameModeBase.h"
+#include "GameFramework/GameState.h"
 #include "Net/UnrealNetwork.h"
 
 UAdhocPawnComponent::UAdhocPawnComponent(const FObjectInitializer& ObjectInitializer)
@@ -50,9 +55,24 @@ void UAdhocPawnComponent::InitializeComponent()
     const APawn* Pawn = GetPawn();
     check(Pawn);
 
-    if (Pawn->HasAuthority())
+    if (Pawn && Pawn->HasAuthority())
     {
         UUID = FGuid::NewGuid();
+    }
+}
+
+void UAdhocPawnComponent::BeginPlay()
+{
+    Super::BeginPlay();
+
+    const UWorld* World = GetWorld();
+    const APawn* Pawn = GetPawn();
+    check(World);
+    check(Pawn);
+
+    if (World && Pawn && Pawn->HasAuthority())
+    {
+        World->GetTimerManager().SetTimer(TimerHandle_CheckNavigate, this, &UAdhocPawnComponent::OnTimer_CheckNavigate, 2, true, 2);
     }
 }
 
@@ -105,4 +125,47 @@ void UAdhocPawnComponent::OnRep_Description(const FString& OldDescription) const
 void UAdhocPawnComponent::OnRep_FactionIndex(int32 OldFactionIndex) const
 {
     OnFactionIndexChangedDelegate.Broadcast();
+}
+
+void UAdhocPawnComponent::OnTimer_CheckNavigate()
+{
+    // TODO: backoff and also area priority (to allow stacked areas)
+
+    const UWorld* World = GetWorld();
+    check(World);
+
+    if (World)
+    {
+        const AGameStateBase* GameState = World->GetGameState();
+        const AGameModeBase* GameMode = World->GetAuthGameMode();
+        const APawn* Pawn = GetPawn();
+        check(GameState);
+        check(GameMode);
+        check(Pawn);
+
+        if (GameState && GameMode && Pawn)
+        {
+            const UAdhocGameStateComponent* AdhocGameState = Cast<UAdhocGameStateComponent>(GameState->GetComponentByClass(UAdhocGameStateComponent::StaticClass()));
+            const UAdhocGameModeComponent* AdhocGameMode = Cast<UAdhocGameModeComponent>(GameMode->GetComponentByClass(UAdhocGameModeComponent::StaticClass()));
+            check(AdhocGameState);
+            check(AdhocGameMode);
+
+            APlayerController* PlayerController = Pawn->GetController<APlayerController>();
+
+            if (AdhocGameState && AdhocGameMode && PlayerController)
+            {
+                int32 AreaIndex = -1; // TODO: find best
+                for (const FAdhocAreaState& AreaState : AdhocGameState->GetAreas())
+                {
+                    FBox Box(AreaState.Location - AreaState.Size * 0.5f, AreaState.Location + AreaState.Size * 0.5f);
+
+                    if (Box.IsInside(Pawn->GetActorLocation()))
+                    {
+                        AdhocGameMode->PlayerEnterArea(PlayerController, AreaState.Index);
+                        break;
+                    }
+                }
+            }
+        }
+    }
 }

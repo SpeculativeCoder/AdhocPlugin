@@ -956,6 +956,12 @@ void UAdhocGameModeComponent::OnAreasResponse(FHttpRequestPtr Request, FHttpResp
         Areas[i].RegionID = JsonObject->GetIntegerField("regionId");
         Areas[i].Index = JsonObject->GetIntegerField("index");
         Areas[i].Name = JsonObject->GetStringField("name");
+        Areas[i].Location.X = JsonObject->GetNumberField("x");
+        Areas[i].Location.Y = JsonObject->GetNumberField("y");
+        Areas[i].Location.Z = JsonObject->GetNumberField("z");
+        Areas[i].Size.X = JsonObject->GetNumberField("sizeX");
+        Areas[i].Size.Y = JsonObject->GetNumberField("sizeY");
+        Areas[i].Size.Z = JsonObject->GetNumberField("sizeZ");
         JsonObject->TryGetNumberField("serverId", Areas[i].ServerID);
 
         // // any area actors in this region should be updated with IDs etc.

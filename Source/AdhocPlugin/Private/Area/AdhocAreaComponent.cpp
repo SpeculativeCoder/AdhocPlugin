@@ -104,7 +104,7 @@ void UAdhocAreaComponent::OnAreaActorBeginOverlap(AActor* OverlappedActor, AActo
     const UAdhocGameModeComponent* AdhocGameMode = Cast<UAdhocGameModeComponent>(GameMode->GetComponentByClass(UAdhocGameModeComponent::StaticClass()));
     check(AdhocGameMode);
 
-    AdhocGameMode->PlayerEnterArea(PlayerController, AreaIndex);
+    //AdhocGameMode->PlayerEnterArea(PlayerController, AreaIndex);
 }
 
 // void UAdhocAreaComponent::OnTimer_CheckOverlappingPawns() const

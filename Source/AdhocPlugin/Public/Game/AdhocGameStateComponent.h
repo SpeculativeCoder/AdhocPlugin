@@ -67,6 +67,8 @@ public:
     FORCEINLINE void SetRegionID(const int64 NewRegionID) { RegionID = NewRegionID; }
     FORCEINLINE void SetActiveAreaIndexes(const TArray<int32>& NewActiveAreaIndexes) { ActiveAreaIndexes = NewActiveAreaIndexes; }
 
+    FORCEINLINE const TArray<FAdhocAreaState>& GetAreas() const { return Areas; }
+
     FORCEINLINE int32 GetNumFactions() const { return Factions.Num(); }
     FORCEINLINE FAdhocFactionState& GetFaction(const int32 FactionIndex) { return Factions[FactionIndex]; }
 

@@ -30,11 +30,11 @@ class ADHOCPLUGIN_API UAdhocPawnComponent : public UActorComponent
 {
     GENERATED_BODY()
 
+public:
     DECLARE_MULTICAST_DELEGATE(FOnFriendlyNameChangedDelegate);
     DECLARE_MULTICAST_DELEGATE(FOnDescriptionChangedDelegate);
     DECLARE_MULTICAST_DELEGATE(FOnFactionIndexChangedDelegate);
 
-public:
     FOnFriendlyNameChangedDelegate OnFriendlyNameChangedDelegate;
     FOnDescriptionChangedDelegate OnDescriptionChangedDelegate;
     FOnFactionIndexChangedDelegate OnFactionIndexChangedDelegate;
@@ -64,6 +64,8 @@ private:
     UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = true), Replicated, ReplicatedUsing = OnRep_FactionIndex)
     int32 FactionIndex = -1;
 
+    FTimerHandle TimerHandle_CheckNavigate;
+
 public:
     FORCEINLINE const FGuid& GetUUID() const { return UUID; }
     FORCEINLINE const FString& GetFriendlyName() const { return FriendlyName; }
@@ -80,9 +82,10 @@ public:
 private:
     explicit UAdhocPawnComponent(const FObjectInitializer& ObjectInitializer);
 
-    virtual void InitializeComponent() override;
-
 public:
+    virtual void InitializeComponent() override;
+    virtual void BeginPlay() override;
+
     void SetFriendlyName(const FString& NewFriendlyName);
     void SetDescription(const FString& Description);
     void SetFactionIndex(const int32 NewFactionIndex);
@@ -94,4 +97,6 @@ private:
     void OnRep_Description(const FString& OldDescription) const;
     UFUNCTION()
     void OnRep_FactionIndex(int32 OldFactionIndex) const;
+
+    void OnTimer_CheckNavigate();
 };
